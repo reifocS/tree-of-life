@@ -1,4 +1,4 @@
-import React, {useEffect, useReducer, useRef, useState} from "react";
+import React from "react";
 // @ts-ignore
 import rough from "roughjs/bundled/rough.cjs.js";
 import {RoughCanvas} from "roughjs/bin/canvas";
@@ -10,6 +10,8 @@ type ExcaliburTextElement = ExcaliburElement & {
     text: string;
     actualBoundingBoxAscent: number;
 };
+
+let elements = Array.of<ExcaliburElement>();
 
 // https://stackoverflow.com/a/6853926/232122
 function distanceBetweenPointAndSegment(
@@ -129,8 +131,7 @@ function renderScene(
     rc: RoughCanvas,
     context: CanvasRenderingContext2D,
     // null indicates transparent bg
-    viewBackgroundColor: string | null, canvas: HTMLCanvasElement,
-    elements: Array<ExcaliburElement>
+    viewBackgroundColor: string | null, canvas: HTMLCanvasElement
 ) {
     const fillStyle = context.fillStyle;
     if (typeof viewBackgroundColor === "string") {
@@ -208,7 +209,6 @@ function generateDraw(element: ExcaliburElement) {
     if (element.type === "selection") {
         element.draw = (rc, context) => {
             const fillStyle = context.fillStyle;
-            console.log({rc, context, draw: "draw"})
             context.fillStyle = "rgba(0, 0, 255, 0.10)";
             context.fillRect(element.x, element.y, element.width, element.height);
             context.fillStyle = fillStyle;
@@ -292,7 +292,7 @@ function getElementAbsoluteY2(element: ExcaliburElement) {
     return element.height >= 0 ? element.y + element.height : element.y;
 }
 
-function setSelection(selection: ExcaliburElement, elements: ExcaliburElement[]) {
+function setSelection(selection: ExcaliburElement) {
     const selectionX1 = getElementAbsoluteX1(selection);
     const selectionX2 = getElementAbsoluteX2(selection);
     const selectionY1 = getElementAbsoluteY1(selection);
@@ -311,10 +311,19 @@ function setSelection(selection: ExcaliburElement, elements: ExcaliburElement[])
     });
 }
 
-function clearSelection(setElements: (cb: (p: ExcaliburElement[]) => ExcaliburElement[]) => void) {
-    setElements((prev: ExcaliburElement[]) => prev.map(el => ({...el, isSelected: false})))
+function clearSelection() {
+    elements.forEach(element => {
+        element.isSelected = false;
+    });
 }
 
+function deleteSelectedElements() {
+    for (var i = elements.length - 1; i >= 0; --i) {
+        if (elements[i].isSelected) {
+            elements.splice(i, 1);
+        }
+    }
+}
 
 type AppState = {
     draggingElement: ExcaliburElement | null;
@@ -349,42 +358,16 @@ function isArrowKey(keyCode: string) {
 const ELEMENT_SHIFT_TRANSLATE_AMOUNT = 5;
 const ELEMENT_TRANSLATE_AMOUNT = 1;
 
-function Option({
-                    selected,
-                    type,
-                    children,
-                    setState,
-                    setElements,
-                    elements
-                }: {
-    selected: string,
-    type: string;
-    children: React.ReactNode;
-    setState: any;
-    setElements: any;
-    elements: ExcaliburElement[]
-}) {
-    return (
-        <label>
-            <input
-                type="radio"
-                checked={selected === type}
-                onChange={() => {
-                    setState((prev: any) => ({...prev, elementType: type}));
-                    clearSelection(setElements);
-                }}
-            />
-            {children}
-        </label>
-    );
-}
+class Home extends React.Component<{}, AppState> {
+    public componentDidMount() {
+        document.addEventListener("keydown", this.onKeyDown, false);
+    }
 
-function Home() {
-    const [, forceUpdate] = useReducer(x => x + 1, 0);
-    const [elements, setElements] = useState<Array<ExcaliburElement>>([])
-    const canvasRef = useRef<HTMLCanvasElement>(null);
-    const roughCanvasRef = useRef<RoughCanvas | null>(null);
-    const [state, setState] = useState<AppState>({
+    public componentWillUnmount() {
+        document.removeEventListener("keydown", this.onKeyDown, false);
+    }
+
+    public state: AppState = {
         draggingElement: null,
         elementType: "selection",
         exportBackground: false,
@@ -393,330 +376,326 @@ function Home() {
         currentItemStrokeColor: "#000000",
         currentItemBackgroundColor: "#ffffff",
         viewBackgroundColor: "#ffffff"
-    })
+    };
 
-    /*
-    useEffect(() => {
-        const onKeyDown = (event: KeyboardEvent) => {
-            if ((event.target as HTMLElement).nodeName === "INPUT") {
-                return;
-            }
+    private onKeyDown = (event: KeyboardEvent) => {
+        if ((event.target as HTMLElement).nodeName === "INPUT") {
+            return;
+        }
 
-            if (event.key === KEYS.ESCAPE) {
-                clearSelection();
-                forceUpdate();
-                event.preventDefault();
-            } else if (event.key === KEYS.BACKSPACE || event.key === KEYS.DELETE) {
-                deleteSelectedElements();
-                forceUpdate();
-                event.preventDefault();
-            } else if (isArrowKey(event.key)) {
-                const step = event.shiftKey
-                    ? ELEMENT_SHIFT_TRANSLATE_AMOUNT
-                    : ELEMENT_TRANSLATE_AMOUNT;
-                elements.forEach(element => {
-                    if (element.isSelected) {
-                        if (event.key === KEYS.ARROW_LEFT) element.x -= step;
-                        else if (event.key === KEYS.ARROW_RIGHT) element.x += step;
-                        else if (event.key === KEYS.ARROW_UP) element.y -= step;
-                        else if (event.key === KEYS.ARROW_DOWN) element.y += step;
-                    }
-                });
-                forceUpdate();
-                event.preventDefault();
-            } else if (event.key === "a" && event.metaKey) {
-                elements.forEach(element => {
-                    element.isSelected = true;
-                });
-                forceUpdate();
-                event.preventDefault();
-            }
-        };
-        document.addEventListener("keydown", onKeyDown, false);
-
-
-        return () => document.removeEventListener("keydown", onKeyDown, false);
-
-    }, [])
-    */
-
-    useEffect(() => {
-        roughCanvasRef.current = rough.canvas(canvasRef.current);
-    }, [])
-
-
-    useEffect(() => {
-        const canvas = canvasRef.current
-        const rc = roughCanvasRef.current;
-        const context = canvas!.getContext("2d")!;
-        renderScene(rc!, context, state.viewBackgroundColor, canvas!, elements);
-    })
-
-    return (
-        <div
-            onCut={e => {
-                e.clipboardData.setData(
-                    "text/plain",
-                    JSON.stringify(elements.filter(element => element.isSelected))
-                );
-                //deleteSelectedElements(elements);
-                e.preventDefault();
-            }}
-            onCopy={e => {
-                e.clipboardData.setData(
-                    "text/plain",
-                    JSON.stringify(elements.filter(element => element.isSelected))
-                );
-                e.preventDefault();
-            }}
-            onPaste={e => {
-                const paste = e.clipboardData.getData("text");
-                let parsedElements;
-                try {
-                    parsedElements = JSON.parse(paste);
-                } catch (e) {
+        if (event.key === KEYS.ESCAPE) {
+            clearSelection();
+            this.forceUpdate();
+            event.preventDefault();
+        } else if (event.key === KEYS.BACKSPACE || event.key === KEYS.DELETE) {
+            deleteSelectedElements();
+            this.forceUpdate();
+            event.preventDefault();
+        } else if (isArrowKey(event.key)) {
+            const step = event.shiftKey
+                ? ELEMENT_SHIFT_TRANSLATE_AMOUNT
+                : ELEMENT_TRANSLATE_AMOUNT;
+            elements.forEach(element => {
+                if (element.isSelected) {
+                    if (event.key === KEYS.ARROW_LEFT) element.x -= step;
+                    else if (event.key === KEYS.ARROW_RIGHT) element.x += step;
+                    else if (event.key === KEYS.ARROW_UP) element.y -= step;
+                    else if (event.key === KEYS.ARROW_DOWN) element.y += step;
                 }
-                if (
-                    Array.isArray(parsedElements) &&
-                    parsedElements.length > 0 &&
-                    parsedElements[0].type // need to implement a better check here...
-                ) {
-                    clearSelection(setElements);
-                    parsedElements.forEach(parsedElement => {
-                        parsedElement.x += 10;
-                        parsedElement.y += 10;
-                        generateDraw(parsedElement);
-                        setElements(prev => [...prev, parsedElement])
-                    });
-                }
-                e.preventDefault();
-            }}
-        >
-            <fieldset>
-                <legend>Shapes</legend>
-                <Option selected={state.elementType} type={"rectangle"} setState={setState}
-                        elements={elements}
-                        setElements={setElements}>Rectangle</Option>
-                <Option selected={state.elementType}
-                        elements={elements}
-                        type={"ellipse"} setState={setState}
-                        setElements={setElements}>Ellipse</Option>
-                <Option
-                    elements={elements}
-                    selected={state.elementType} type={"arrow"} setState={setState}
-                    setElements={setElements}>Arrow</Option>
-                <Option elements={elements}
-                        selected={state.elementType} type={"text"} setState={setState}
-                        setElements={setElements}>Text</Option>
-                <Option selected={state.elementType} elements={elements}
-                        type={"selection"} setState={setState}
-                        setElements={setElements}>Selection</Option>
-            </fieldset>
-            <canvas
-                id="canvas"
-                ref={canvasRef}
-                width={800}
-                height={800 - 200}
-                onMouseDown={e => {
-                    const x = e.clientX - (e.target as HTMLElement).offsetLeft;
-                    const y = e.clientY - (e.target as HTMLElement).offsetTop;
-                    const element = newElement(
-                        state.elementType,
-                        x,
-                        y,
-                        state.currentItemStrokeColor,
-                        state.currentItemBackgroundColor
+            });
+            this.forceUpdate();
+            event.preventDefault();
+        } else if (event.key === "a" && event.metaKey) {
+            elements.forEach(element => {
+                element.isSelected = true;
+            });
+            this.forceUpdate();
+            event.preventDefault();
+        }
+    };
+
+    private renderOption({
+                             type,
+                             children
+                         }: {
+        type: string;
+        children: React.ReactNode;
+    }) {
+        return (
+            <label>
+                <input
+                    type="radio"
+                    checked={this.state.elementType === type}
+                    onChange={() => {
+                        this.setState({elementType: type});
+                        clearSelection();
+                        this.forceUpdate();
+                    }}
+                />
+                {children}
+            </label>
+        );
+    }
+
+    public render() {
+        return (
+            <div
+                onCut={e => {
+                    e.clipboardData.setData(
+                        "text/plain",
+                        JSON.stringify(elements.filter(element => element.isSelected))
                     );
-                    let isDraggingElements = false;
-                    const cursorStyle = document.documentElement.style.cursor;
-                    if (state.elementType === "selection") {
-                        const hitElement = elements.find(element => {
-                            return hitTest(element, x, y);
+                    deleteSelectedElements();
+                    this.forceUpdate();
+                    e.preventDefault();
+                }}
+                onCopy={e => {
+                    e.clipboardData.setData(
+                        "text/plain",
+                        JSON.stringify(elements.filter(element => element.isSelected))
+                    );
+                    e.preventDefault();
+                }}
+                onPaste={e => {
+                    const paste = e.clipboardData.getData("text");
+                    let parsedElements;
+                    try {
+                        parsedElements = JSON.parse(paste);
+                    } catch (e) {
+                    }
+                    if (
+                        Array.isArray(parsedElements) &&
+                        parsedElements.length > 0 &&
+                        parsedElements[0].type // need to implement a better check here...
+                    ) {
+                        clearSelection();
+                        parsedElements.forEach(parsedElement => {
+                            parsedElement.x += 10;
+                            parsedElement.y += 10;
+                            generateDraw(parsedElement);
+                            elements.push(parsedElement);
                         });
-
-                        // If we click on something
-                        if (hitElement) {
-                            if (hitElement.isSelected) {
-                                // If that element is not already selected, do nothing,
-                                // we're likely going to drag it
-                            } else {
-                                // We unselect every other elements unless shift is pressed
-                                if (!e.shiftKey) {
-                                    clearSelection(setElements);
-                                }
-                                // No matter what, we select it
-                                hitElement.isSelected = true;
-                            }
-                        } else {
-                            // If we don't click on anything, let's remove all the selected elements
-                            clearSelection(setElements);
-                        }
-
-                        isDraggingElements = elements.some(element => element.isSelected);
-
-                        if (isDraggingElements) {
-                            document.documentElement.style.cursor = "move";
-                        }
+                        this.forceUpdate();
                     }
+                    e.preventDefault();
+                }}
+            >
+                <fieldset>
+                    <legend>Shapes</legend>
+                    {this.renderOption({type: "rectangle", children: "Rectangle"})}
+                    {this.renderOption({type: "ellipse", children: "Ellipse"})}
+                    {this.renderOption({type: "arrow", children: "Arrow"})}
+                    {this.renderOption({type: "text", children: "Text"})}
+                    {this.renderOption({type: "selection", children: "Selection"})}
+                </fieldset>
 
-                    if (isTextElement(element)) {
-                        const text = prompt("What text do you want?");
-                        if (text === null) {
-                            return;
-                        }
-                        const canvas = canvasRef.current!
-                        const context = canvas.getContext("2d")!;
-                        element.text = text;
-                        element.font = "20px Virgil";
-                        const font = context.font;
-                        context.font = element.font;
-                        const {
-                            actualBoundingBoxAscent,
-                            actualBoundingBoxDescent,
-                            width
-                        } = context.measureText(element.text);
-                        element.actualBoundingBoxAscent = actualBoundingBoxAscent;
-                        context.font = font;
-                        const height = actualBoundingBoxAscent + actualBoundingBoxDescent;
-                        // Center the text
-                        element.x -= width / 2;
-                        element.y -= actualBoundingBoxAscent;
-                        element.width = width;
-                        element.height = height;
-                    }
+                <canvas
+                    id="canvas"
+                    width={800}
+                    height={800 - 200}
+                    onMouseDown={e => {
+                        const x = e.clientX - (e.target as HTMLElement).offsetLeft;
+                        const y = e.clientY - (e.target as HTMLElement).offsetTop;
+                        const element = newElement(
+                            this.state.elementType,
+                            x,
+                            y,
+                            this.state.currentItemStrokeColor,
+                            this.state.currentItemBackgroundColor
+                        );
+                        let isDraggingElements = false;
+                        const cursorStyle = document.documentElement.style.cursor;
+                        if (this.state.elementType === "selection") {
+                            const hitElement = elements.find(element => {
+                                return hitTest(element, x, y);
+                            });
 
-                    generateDraw(element);
-                    setElements(prev => [...prev, element])
-                    if (state.elementType === "text") {
-                        setState(prev => ({
-                            ...prev,
-                            draggingElement: null,
-                            elementType: "selection"
-                        }));
-                        element.isSelected = true;
-                    } else {
-                        setState(prev => ({...prev, draggingElement: element}));
-                    }
-
-                    let lastX = x;
-                    let lastY = y;
-
-                    const onMouseMove = (e: MouseEvent) => {
-                        const target = e.target;
-                        if (!(target instanceof HTMLElement)) {
-                            return;
-                        }
-
-                        if (isDraggingElements) {
-                            setElements(prev => {
-                                return prev.map(el => {
-                                    if (el.isSelected) {
-                                        const x = e.clientX - target.offsetLeft;
-                                        const y = e.clientY - target.offsetTop;
-                                        return {
-                                            ...el,
-                                            x: x + x - lastX,
-                                            y: y + y - lastY
-                                        }
-                                    } else {
-                                        return el;
+                            // If we click on something
+                            if (hitElement) {
+                                if (hitElement.isSelected) {
+                                    // If that element is not already selected, do nothing,
+                                    // we're likely going to drag it
+                                } else {
+                                    // We unselect every other elements unless shift is pressed
+                                    if (!e.shiftKey) {
+                                        clearSelection();
                                     }
-                                })
-                            })
-                            lastX = x;
-                            lastY = y;
-                            return;
-                        }
-                        // It is very important to read this.state within each move event,
-                        // otherwise we would read a stale one!
-                        const draggingElement = state.draggingElement;
-                        if (!draggingElement) return;
-                        let width = e.clientX - target.offsetLeft - draggingElement.x;
-                        let height = e.clientY - target.offsetTop - draggingElement.y;
-                        draggingElement.width = width;
-                        // Make a perfect square or circle when shift is enabled
-                        draggingElement.height = e.shiftKey ? width : height;
-
-                        generateDraw(draggingElement);
-
-                        if (state.elementType === "selection") {
-                            setSelection(draggingElement, elements);
-                        }
-                        forceUpdate();
-                    };
-
-                    const onMouseUp = (e: MouseEvent) => {
-                        const {draggingElement, elementType} = state;
-
-                        window.removeEventListener("mousemove", onMouseMove);
-                        window.removeEventListener("mouseup", onMouseUp);
-
-                        document.documentElement.style.cursor = cursorStyle;
-
-                        // if no element is clicked, clear the selection and redraw
-                        if (draggingElement === null) {
-                            clearSelection(setElements);
-                            forceUpdate();
-                            return;
-                        }
-
-                        if (elementType === "selection") {
-                            if (isDraggingElements) {
-                                isDraggingElements = false;
+                                    // No matter what, we select it
+                                    hitElement.isSelected = true;
+                                }
+                            } else {
+                                // If we don't click on anything, let's remove all the selected elements
+                                clearSelection();
                             }
-                            elements.pop();
-                        } else {
-                            draggingElement.isSelected = true;
+
+                            isDraggingElements = elements.some(element => element.isSelected);
+
+                            if (isDraggingElements) {
+                                document.documentElement.style.cursor = "move";
+                            }
                         }
 
-                        setState(prev => ({
-                            ...prev,
-                            draggingElement: null,
-                            elementType: "selection"
-                        }));
-                    };
+                        if (isTextElement(element)) {
+                            const text = prompt("What text do you want?");
+                            if (text === null) {
+                                return;
+                            }
+                            const canvas = document.getElementById("canvas") as HTMLCanvasElement;
+                            const context = canvas.getContext("2d")!;
+                            element.text = text;
+                            element.font = "20px Virgil";
+                            const font = context.font;
+                            context.font = element.font;
+                            const {
+                                actualBoundingBoxAscent,
+                                actualBoundingBoxDescent,
+                                width
+                            } = context.measureText(element.text);
+                            element.actualBoundingBoxAscent = actualBoundingBoxAscent;
+                            context.font = font;
+                            const height = actualBoundingBoxAscent + actualBoundingBoxDescent;
+                            // Center the text
+                            element.x -= width / 2;
+                            element.y -= actualBoundingBoxAscent;
+                            element.width = width;
+                            element.height = height;
+                        }
 
-                    window.addEventListener("mousemove", onMouseMove);
-                    window.addEventListener("mouseup", onMouseUp);
+                        generateDraw(element);
+                        elements.push(element);
+                        if (this.state.elementType === "text") {
+                            this.setState({
+                                draggingElement: null,
+                                elementType: "selection"
+                            });
+                            element.isSelected = true;
+                        } else {
+                            this.setState({draggingElement: element});
+                        }
 
-                }
-                }
-            />
-            <fieldset>
-                <legend>Colors</legend>
-                <label>
-                    <input
-                        type="color"
-                        value={state.viewBackgroundColor}
-                        onChange={e => {
-                            setState(prev => ({...prev, viewBackgroundColor: e.target.value}));
-                        }}
-                    />
-                    Background
-                </label>
-                <label>
-                    <input
-                        type="color"
-                        value={state.currentItemStrokeColor}
-                        onChange={e => {
-                            setState(prev => ({...prev, currentItemStrokeColor: e.target.value}));
-                        }}
-                    />
-                    Shape Stroke
-                </label>
-                <label>
-                    <input
-                        type="color"
-                        value={state.currentItemBackgroundColor}
-                        onChange={e => {
-                            setState(prev => ({...prev, currentItemBackgroundColor: e.target.value}));
-                        }}
-                    />
-                    Shape Background
-                </label>
-            </fieldset>
-        </div>
-    );
+                        let lastX = x;
+                        let lastY = y;
+
+                        const onMouseMove = (e: MouseEvent) => {
+                            const target = e.target;
+                            if (!(target instanceof HTMLElement)) {
+                                return;
+                            }
+
+                            if (isDraggingElements) {
+                                const selectedElements = elements.filter(el => el.isSelected);
+                                if (selectedElements.length) {
+                                    const x = e.clientX - target.offsetLeft;
+                                    const y = e.clientY - target.offsetTop;
+                                    selectedElements.forEach(element => {
+                                        element.x += x - lastX;
+                                        element.y += y - lastY;
+                                    });
+                                    lastX = x;
+                                    lastY = y;
+                                    this.forceUpdate();
+                                    return;
+                                }
+                            }
+
+                            // It is very important to read this.state within each move event,
+                            // otherwise we would read a stale one!
+                            const draggingElement = this.state.draggingElement;
+                            if (!draggingElement) return;
+                            let width = e.clientX - target.offsetLeft - draggingElement.x;
+                            let height = e.clientY - target.offsetTop - draggingElement.y;
+                            draggingElement.width = width;
+                            // Make a perfect square or circle when shift is enabled
+                            draggingElement.height = e.shiftKey ? width : height;
+
+                            generateDraw(draggingElement);
+
+                            if (this.state.elementType === "selection") {
+                                setSelection(draggingElement);
+                            }
+                            this.forceUpdate();
+                        };
+
+                        const onMouseUp = (e: MouseEvent) => {
+                            const {draggingElement, elementType} = this.state;
+
+                            window.removeEventListener("mousemove", onMouseMove);
+                            window.removeEventListener("mouseup", onMouseUp);
+
+                            document.documentElement.style.cursor = cursorStyle;
+
+                            // if no element is clicked, clear the selection and redraw
+                            if (draggingElement === null) {
+                                clearSelection();
+                                this.forceUpdate();
+                                return;
+                            }
+
+                            if (elementType === "selection") {
+                                if (isDraggingElements) {
+                                    isDraggingElements = false;
+                                }
+                                elements.pop();
+                            } else {
+                                draggingElement.isSelected = true;
+                            }
+
+                            this.setState({
+                                draggingElement: null,
+                                elementType: "selection"
+                            });
+                            this.forceUpdate();
+                        };
+
+                        window.addEventListener("mousemove", onMouseMove);
+                        window.addEventListener("mouseup", onMouseUp);
+
+                        this.forceUpdate();
+                    }}
+                />
+                <fieldset>
+                    <legend>Colors</legend>
+                    <label>
+                        <input
+                            type="color"
+                            value={this.state.viewBackgroundColor}
+                            onChange={e => {
+                                this.setState({viewBackgroundColor: e.target.value});
+                            }}
+                        />
+                        Background
+                    </label>
+                    <label>
+                        <input
+                            type="color"
+                            value={this.state.currentItemStrokeColor}
+                            onChange={e => {
+                                this.setState({currentItemStrokeColor: e.target.value});
+                            }}
+                        />
+                        Shape Stroke
+                    </label>
+                    <label>
+                        <input
+                            type="color"
+                            value={this.state.currentItemBackgroundColor}
+                            onChange={e => {
+                                this.setState({currentItemBackgroundColor: e.target.value});
+                            }}
+                        />
+                        Shape Background
+                    </label>
+                </fieldset>
+            </div>
+        );
+    }
+
+    componentDidUpdate() {
+        const canvas = document.getElementById("canvas") as HTMLCanvasElement;
+        const rc = rough.canvas(canvas);
+        const context = canvas.getContext("2d")!;
+        renderScene(rc, context, this.state.viewBackgroundColor, canvas);
+    }
 }
 
 
