@@ -43,5 +43,6 @@ input[type="button"] {
   padding: 5px;
   width: 30px;
   margin: 0px 0px 2px 0px;
+  user-select: none;
 }
 /* Controls - End */

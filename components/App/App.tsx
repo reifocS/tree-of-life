@@ -133,6 +133,7 @@ type Element = {
   color: string;
   id: string;
   text: string;
+  icon: string;
 };
 
 const matrix = [1, 0, 0, 1, 0, 0];
@@ -144,6 +145,7 @@ const KEYS = {
   ESCAPE: "Escape",
   DELETE: "Delete",
   BACKSPACE: "Backspace",
+  SPACE: "Space",
 };
 
 function isArrowKey(keyCode: string) {
@@ -182,7 +184,7 @@ function hitTest(
 const RC_WIDTH = 200;
 const RC_HEIGTH = 100;
 
-const colors = ["gray", "orange", "green"];
+const colors = ["gray", "orange", "#82c91e"];
 
 function drawLeaf(
   rc: RoughCanvas,
@@ -191,17 +193,17 @@ function drawLeaf(
   cameraOffset: { x: number; y: number }
 ) {
   const ctx = canvas.getContext("2d")!;
-  for (const { x, y, seed, color, text } of elements) {
+  for (const { x, y, seed, color, text, icon } of elements) {
     rc.rectangle(x, y, RC_WIDTH, RC_HEIGTH, {
       fill: color,
-      fillWeight: 3, // thicker lines for hachure,
-      fillStyle: "solid",
+      fillWeight: 0.5, // thicker lines for hachure,
       seed,
     });
     ctx.font = "16px Comic Sans MS";
-    ctx.fillStyle = "#fff";
     ctx.textAlign = "center";
     ctx.fillText(text, x + RC_WIDTH / 2, y + RC_HEIGTH / 2);
+    ctx.font = "20px Comic Sans MS";
+    ctx.fillText(icon, x + RC_WIDTH / 2, y + RC_HEIGTH / 2 + 30);
   }
 
   /*rc.path("M230 80 A 45 45, 0, 1, 0, 275 125 L 275 80 Z", {
@@ -271,6 +273,9 @@ function draw(
     ctx
   );
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  roughCanvas.circle(500, 500, 800, {
+    seed: 3, 
+  })
   drawLeaf(roughCanvas, canvas, elements, cameraOffset);
 }
 
@@ -291,7 +296,7 @@ export default function Canvas() {
   const posRef = useRef<HTMLDivElement>(null);
   const [roughCanvas, setRoughCanvas] = useState<RoughCanvas | null>(null);
   const [appState, setAppState] = useState<AppState>({
-    cameraZoom: 1.0,
+    cameraZoom: 0.5,
     scaleMultiplier: 0.8,
     cameraOffset: { x: width / 2, y: height / 2 },
     isDragging: false,
@@ -305,6 +310,7 @@ export default function Canvas() {
         color: "rgb(10,150,10)",
         id: "1",
         text: "go muscu",
+        icon: "💪",
       },
       {
         x: 400,
@@ -313,6 +319,16 @@ export default function Canvas() {
         color: "gray",
         id: "2",
         text: "coder toute la nigth",
+        icon: "👨‍💻",
+      },
+      {
+        x: 600,
+        y: 300,
+        seed: 1,
+        color: "gray",
+        id: "3",
+        text: "tortelinni",
+        icon: "👨",
       },
     ],
   });
@@ -397,7 +413,11 @@ export default function Canvas() {
   ]);
 
   const handlePointerDown = (e: PointerEvent<HTMLCanvasElement>) => {
-    //const { x, y } = getMousePos(canvasRef.current!, e);
+    const { x, y } = getMousePos(canvasRef.current!, e);
+    if (
+      elements.find((el) => hitTest(x, y, el, canvasRef.current!, cameraZoom))
+    )
+      return;
     setAppState((prev) => ({
       ...prev,
       isDragging: true,
@@ -406,20 +426,31 @@ export default function Canvas() {
         y: getEventLocation(e)!.y / prev.cameraZoom - prev.cameraOffset.y,
       },
     }));
+
+    document.documentElement.style.cursor = "grabbing";
   };
 
   const handlePointerUp = (e: PointerEvent<HTMLCanvasElement>) => {
     //const { x, y } = getMousePos(canvasRef.current!, e);
+    const wasDragging = isDragging;
     setAppState((prev) => ({
       ...prev,
       isDragging: false,
       initialPinchDistance: null,
     }));
     lastZoom.current = cameraZoom;
+    if (wasDragging) document.documentElement.style.cursor = "";
   };
 
   const handlePointerMove = (e: PointerEvent<HTMLCanvasElement>) => {
-    //const { x, y } = getMousePos(canvasRef.current!, e);
+    const { x, y } = getMousePos(canvasRef.current!, e);
+    if (
+      elements.find((el) => hitTest(x, y, el, canvasRef.current!, cameraZoom))
+    ) {
+      document.documentElement.style.cursor = "pointer";
+    } else if (!isDragging) {
+      document.documentElement.style.cursor = "";
+    }
     if (isDragging) {
       setAppState((prev) => ({
         ...prev,
@@ -535,6 +566,7 @@ export default function Canvas() {
                   color: colors[0],
                   seed: 2,
                   text: "hello world!",
+                  icon: "🦍",
                 },
               ],
             }));
@@ -542,8 +574,8 @@ export default function Canvas() {
         >
           Add
         </button>
-        <button onClick={(e) => adjustZoom(0.5, null)}>+</button>
-        <button onClick={(e) => adjustZoom(-0.5, null)}>-</button>
+        <button onClick={(e) => adjustZoom(0.25, null)}>+</button>
+        <button onClick={(e) => adjustZoom(-0.25, null)}>-</button>
       </div>
     </div>
   );
