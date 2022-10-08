@@ -274,8 +274,8 @@ function draw(
   );
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   roughCanvas.circle(500, 500, 800, {
-    seed: 3, 
-  })
+    seed: 3,
+  });
   drawLeaf(roughCanvas, canvas, elements, cameraOffset);
 }
 
@@ -296,7 +296,7 @@ export default function Canvas() {
   const posRef = useRef<HTMLDivElement>(null);
   const [roughCanvas, setRoughCanvas] = useState<RoughCanvas | null>(null);
   const [appState, setAppState] = useState<AppState>({
-    cameraZoom: 0.5,
+    cameraZoom: 0.30,
     scaleMultiplier: 0.8,
     cameraOffset: { x: width / 2, y: height / 2 },
     isDragging: false,
@@ -308,7 +308,7 @@ export default function Canvas() {
         y: 300,
         seed: 1,
         color: "rgb(10,150,10)",
-        id: "1",
+        id: guidGenerator(),
         text: "go muscu",
         icon: "💪",
       },
@@ -317,7 +317,7 @@ export default function Canvas() {
         y: 500,
         seed: 1,
         color: "gray",
-        id: "2",
+        id: guidGenerator(),
         text: "coder toute la nigth",
         icon: "👨‍💻",
       },
@@ -326,7 +326,34 @@ export default function Canvas() {
         y: 300,
         seed: 1,
         color: "gray",
-        id: "3",
+        id: guidGenerator(),
+        text: "tortelinni",
+        icon: "👨",
+      },
+      {
+        x: 3000,
+        y: 300,
+        seed: 1,
+        color: "gray",
+        id: guidGenerator(),
+        text: "tortelinni",
+        icon: "👨",
+      },
+      {
+        x: 3200,
+        y: 500,
+        seed: 1,
+        color: "gray",
+        id: guidGenerator(),
+        text: "tortelinni",
+        icon: "👨",
+      },
+      {
+        x: 3600,
+        y: 300,
+        seed: 1,
+        color: "gray",
+        id: guidGenerator(),
         text: "tortelinni",
         icon: "👨",
       },
