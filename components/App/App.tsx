@@ -24,7 +24,7 @@ type AppState = {
     y: number;
   };
   initialPinchDistance: null | number;
-  elements: { x: number; y: number; seed: number }[];
+  elements: Element[];
 };
 const useDeviceSize = () => {
   const [width, setWidth] = useState(0);
@@ -47,6 +47,27 @@ const useDeviceSize = () => {
 
   return [width, height, devicePixelRatio];
 };
+
+//https://stackoverflow.com/a/6860916/14536535
+function guidGenerator() {
+  var S4 = function () {
+    return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+  };
+  return (
+    S4() +
+    S4() +
+    "-" +
+    S4() +
+    "-" +
+    S4() +
+    "-" +
+    S4() +
+    "-" +
+    S4() +
+    S4() +
+    S4()
+  );
+}
 
 function drawBubble(
   canvas: HTMLCanvasElement,
@@ -109,21 +130,60 @@ type Element = {
   x: number;
   y: number;
   seed: number;
+  color: string;
+  id: string;
+  text: string;
 };
+
+const matrix = [1, 0, 0, 1, 0, 0];
+
+function hitTest(
+  x: number,
+  y: number,
+  element: Element,
+  canvas: HTMLCanvasElement,
+  cameraZoom: number
+) {
+  const context = canvas.getContext("2d")!;
+  const transform = context.getTransform();
+  // Destructure to get the x and y values out of the transformed DOMPoint.
+  const { x: newX, y: newY } = transform.transformPoint(
+    new DOMPoint(element.x, element.y)
+  );
+  //const {x, y} = getXY(mx, my)
+  return (
+    x > newX &&
+    x < newX + RC_WIDTH * cameraZoom &&
+    y > newY &&
+    y < newY + RC_HEIGTH * cameraZoom
+  );
+
+  //return x > element.x && x < element.x + RC_WIDTH && y > element.y && y < element.y + RC_HEIGTH;
+}
+
+const RC_WIDTH = 200;
+const RC_HEIGTH = 100;
+
+const colors = ["gray", "orange", "green"];
 
 function drawLeaf(
   rc: RoughCanvas,
   canvas: HTMLCanvasElement,
-  elements: Element[]
+  elements: Element[],
+  cameraOffset: { x: number; y: number }
 ) {
   const ctx = canvas.getContext("2d")!;
-  for (const { x, y, seed } of elements) {
-    rc.circle(x, y, 120, {
-      fill: "rgb(10,150,10)",
+  for (const { x, y, seed, color, text } of elements) {
+    rc.rectangle(x, y, RC_WIDTH, RC_HEIGTH, {
+      fill: color,
       fillWeight: 3, // thicker lines for hachure,
       fillStyle: "solid",
       seed,
     });
+    ctx.font = "16px Comic Sans MS";
+    ctx.fillStyle = "#fff";
+    ctx.textAlign = "center";
+    ctx.fillText(text, x + RC_WIDTH / 2, y + RC_HEIGTH / 2);
   }
 
   /*rc.path("M230 80 A 45 45, 0, 1, 0, 275 125 L 275 80 Z", {
@@ -151,6 +211,32 @@ function getEventLocation(
     throw new Error("getEventLocation");
   }
 }
+
+function getRandomArbitrary(min: number, max: number) {
+  return Math.random() * (max - min) + min;
+}
+
+function translate(x: number, y: number, ctx: CanvasRenderingContext2D) {
+  matrix[4] += matrix[0] * x + matrix[2] * y;
+  matrix[5] += matrix[1] * x + matrix[3] * y;
+  ctx.translate(x, y);
+}
+
+/*
+function getXY(mouseX: number, mouseY: number) {
+  let newX = mouseX * matrix[0] + mouseY * matrix[2] + matrix[4];
+  let newY = mouseX * matrix[1] + mouseY * matrix[3] + matrix[5];
+  return { x: newX, y: newY };
+}
+*/
+
+function scale(x: number, y: number, ctx: CanvasRenderingContext2D) {
+  matrix[0] *= x;
+  matrix[1] *= x;
+  matrix[2] *= y;
+  matrix[3] *= y;
+  ctx.scale(x, y);
+}
 function draw(
   canvas: HTMLCanvasElement,
   cameraZoom: number,
@@ -159,36 +245,15 @@ function draw(
   elements: Element[]
 ) {
   const ctx = canvas.getContext("2d")!;
-  ctx.translate(canvas.width / 2, canvas.height / 2);
-  ctx.scale(cameraZoom, cameraZoom);
-  ctx.translate(
+  translate(canvas.width / 2, canvas.height / 2, ctx);
+  scale(cameraZoom, cameraZoom, ctx);
+  translate(
     -canvas.width / 2 + cameraOffset.x,
-    -canvas.height / 2 + cameraOffset.y
+    -canvas.height / 2 + cameraOffset.y,
+    ctx
   );
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = "#991111";
-  ctx.fillRect(-50, -50, 100, 100);
-
-  ctx.fillStyle = "#eecc77";
-  ctx.fillRect(-35, -35, 20, 20);
-  ctx.fillRect(15, -35, 20, 20);
-  ctx.fillRect(-35, 15, 70, 20);
-
-  ctx.fillStyle = "#fff";
-  const size = 32;
-  const font = "courier";
-  ctx.font = `${size}px ${font}`;
-  ctx.fillText("Simple Pan and Zoom Canvas", -255, -100);
-
-  ctx.rotate((-31 * Math.PI) / 180);
-  ctx.fillStyle = `#${(Math.round(Date.now() / 40) % 4096).toString(16)}`;
-  ctx.fillText("Now with touch!", -110, 100);
-
-  ctx.fillStyle = "black";
-  ctx.rotate((31 * Math.PI) / 180);
-
-  ctx.fillText("Wow, you found me!", -260, -2000);
-  drawLeaf(roughCanvas, canvas, elements);
+  drawLeaf(roughCanvas, canvas, elements, cameraOffset);
 }
 
 function getMousePos(canvas: HTMLCanvasElement, evt: any) {
@@ -219,6 +284,17 @@ export default function Canvas() {
         x: 300,
         y: 300,
         seed: 1,
+        color: "rgb(10,150,10)",
+        id: "1",
+        text: "go muscu",
+      },
+      {
+        x: 400,
+        y: 500,
+        seed: 1,
+        color: "gray",
+        id: "2",
+        text: "coder toute la nigth",
       },
     ],
   });
@@ -342,7 +418,23 @@ export default function Canvas() {
     <div>
       <canvas
         onClick={(e) => {
-          console.log({ ...getEventLocation(e) }, elements);
+          const { x, y } = getEventLocation(e);
+          for (const element of elements) {
+            if (hitTest(x, y, element, canvasRef.current!, cameraZoom)) {
+              setAppState((prev) => ({
+                ...prev,
+                elements: prev.elements.map((e) => {
+                  if (e.id === element.id) {
+                    let nextIndex =
+                      (colors.findIndex((color) => color === e.color) + 1) %
+                      colors.length;
+                    return { ...e, color: colors[nextIndex] };
+                  }
+                  return e;
+                }),
+              }));
+            }
+          }
         }}
         onMouseDown={handlePointerDown}
         onTouchStart={(e) => handleTouch(e, handlePointerDown)}
@@ -363,7 +455,33 @@ export default function Canvas() {
         }}
         ref={posRef}
       ></div>
-      <div id="buttonWrapper"></div>
+      <div id="buttonWrapper" style={{
+        display: "flex",
+
+      }}>
+        <button
+          onClick={() => {
+            setAppState((prev) => ({
+              ...prev,
+              elements: [
+                ...prev.elements,
+                {
+                  id: guidGenerator(),
+                  x: getRandomArbitrary(0, width),
+                  y: getRandomArbitrary(0, height),
+                  color: colors[0],
+                  seed: 2,
+                  text: "hello world!",
+                },
+              ],
+            }));
+          }}
+        >
+          Add
+        </button>
+        <button onClick={(e) => adjustZoom(0.5, null)}>+</button>
+        <button onClick={(e) => adjustZoom(-0.5, null)}>-</button>
+      </div>
     </div>
   );
 }

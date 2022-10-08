@@ -6,6 +6,7 @@
 
 body {
   margin: 0;
+  overflow: hidden;
 }
 
 /* Controls - Begin */
@@ -34,9 +35,8 @@ input {
 
 #buttonWrapper {
   position: absolute;
-  width: 30px;
-  top: 2px;
-  right: 2px;
+  top: 60px;
+  right: 60px;
 }
 
 input[type="button"] {
