@@ -136,6 +136,24 @@ type Element = {
 };
 
 const matrix = [1, 0, 0, 1, 0, 0];
+const KEYS = {
+  ARROW_LEFT: "ArrowLeft",
+  ARROW_RIGHT: "ArrowRight",
+  ARROW_DOWN: "ArrowDown",
+  ARROW_UP: "ArrowUp",
+  ESCAPE: "Escape",
+  DELETE: "Delete",
+  BACKSPACE: "Backspace",
+};
+
+function isArrowKey(keyCode: string) {
+  return (
+    keyCode === KEYS.ARROW_LEFT ||
+    keyCode === KEYS.ARROW_RIGHT ||
+    keyCode === KEYS.ARROW_DOWN ||
+    keyCode === KEYS.ARROW_UP
+  );
+}
 
 function hitTest(
   x: number,
@@ -266,7 +284,7 @@ function getMousePos(canvas: HTMLCanvasElement, evt: any) {
 let MAX_ZOOM = 5;
 let MIN_ZOOM = 0.1;
 let SCROLL_SENSITIVITY = 0.0005;
-
+let STEP = 50;
 export default function Canvas() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [width, height, devicePixelRatio] = useDeviceSize();
@@ -309,6 +327,49 @@ export default function Canvas() {
     }
   }, []);
 
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (isArrowKey(e.code)) {
+        console.log("true");
+        if (e.key === KEYS.ARROW_LEFT)
+          setAppState((prev) => ({
+            ...prev,
+            cameraOffset: {
+              x: prev.cameraOffset.x - STEP,
+              y: prev.cameraOffset.y,
+            },
+          }));
+        else if (e.key === KEYS.ARROW_RIGHT)
+          setAppState((prev) => ({
+            ...prev,
+            cameraOffset: {
+              x: prev.cameraOffset.x + STEP,
+              y: prev.cameraOffset.y,
+            },
+          }));
+        else if (e.key === KEYS.ARROW_UP)
+          setAppState((prev) => ({
+            ...prev,
+            cameraOffset: {
+              x: prev.cameraOffset.x,
+              y: prev.cameraOffset.y - STEP,
+            },
+          }));
+        else if (e.key === KEYS.ARROW_DOWN)
+          setAppState((prev) => ({
+            ...prev,
+            cameraOffset: {
+              x: prev.cameraOffset.x,
+              y: prev.cameraOffset.y + STEP,
+            },
+          }));
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown, false);
+
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, []);
   useLayoutEffect(() => {
     if (!roughCanvas) return;
     const canvas = canvasRef.current!;
@@ -363,8 +424,8 @@ export default function Canvas() {
       setAppState((prev) => ({
         ...prev,
         cameraOffset: {
-          x: getEventLocation(e)!.x / cameraZoom - prev.dragStart.x,
-          y: getEventLocation(e)!.y / cameraZoom - prev.dragStart.y,
+          x: getEventLocation(e)!.x / prev.cameraZoom - prev.dragStart.x,
+          y: getEventLocation(e)!.y / prev.cameraZoom - prev.dragStart.y,
         },
       }));
     }
@@ -455,10 +516,12 @@ export default function Canvas() {
         }}
         ref={posRef}
       ></div>
-      <div id="buttonWrapper" style={{
-        display: "flex",
-
-      }}>
+      <div
+        id="buttonWrapper"
+        style={{
+          display: "flex",
+        }}
+      >
         <button
           onClick={() => {
             setAppState((prev) => ({
@@ -467,8 +530,8 @@ export default function Canvas() {
                 ...prev.elements,
                 {
                   id: guidGenerator(),
-                  x: getRandomArbitrary(0, width),
-                  y: getRandomArbitrary(0, height),
+                  x: getRandomArbitrary(0, canvasRef.current!.width),
+                  y: getRandomArbitrary(0, canvasRef.current!.height),
                   color: colors[0],
                   seed: 2,
                   text: "hello world!",
