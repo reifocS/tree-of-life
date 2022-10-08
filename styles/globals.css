@@ -1,27 +1,47 @@
 /* http://www.eaglefonts.com/fg-virgil-ttf-131249.htm */
 @font-face {
-    font-family: "Virgil";
-    src: url("https://uploads.codesandbox.io/uploads/user/ed077012-e728-4a42-8395-cbd299149d62/AflB-FG_Virgil.ttf");
+  font-family: "Virgil";
+  src: url("https://uploads.codesandbox.io/uploads/user/ed077012-e728-4a42-8395-cbd299149d62/AflB-FG_Virgil.ttf");
 }
 
 body {
-    margin: 0;
+  margin: 0;
 }
 
 /* Controls - Begin */
 fieldset {
-    margin: 5px;
+  margin: 5px;
 }
 
 label {
-    margin-right: 10px;
+  margin-right: 10px;
 }
 
 input[type="number"] {
-    width: 30px;
+  width: 30px;
 }
 
 input {
-    margin-right: 5px;
+  margin-right: 5px;
+}
+
+#wrapper {
+  position: relative;
+  border: 1px solid #9c9898;
+  width: 578px;
+  height: 200px;
+}
+
+#buttonWrapper {
+  position: absolute;
+  width: 30px;
+  top: 2px;
+  right: 2px;
+}
+
+input[type="button"] {
+  padding: 5px;
+  width: 30px;
+  margin: 0px 0px 2px 0px;
 }
 /* Controls - End */
