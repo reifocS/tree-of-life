@@ -1,4 +1,7 @@
 import {
+  MouseEvent,
+  PointerEvent,
+  TouchEvent,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -8,6 +11,21 @@ import {
 import rough from "roughjs/bin/rough";
 import { RoughCanvas } from "roughjs/bin/canvas";
 
+type AppState = {
+  cameraZoom: number;
+  scaleMultiplier: number;
+  cameraOffset: {
+    x: number;
+    y: number;
+  };
+  isDragging: boolean;
+  dragStart: {
+    x: number;
+    y: number;
+  };
+  initialPinchDistance: null | number;
+  elements: { x: number; y: number; seed: number }[];
+};
 const useDeviceSize = () => {
   const [width, setWidth] = useState(0);
   const [height, setHeight] = useState(0);
@@ -87,37 +105,90 @@ function drawSpeechText(
   ctx.stroke();
 }*/
 
-function drawLeaf(rc: RoughCanvas, canvas: HTMLCanvasElement) {
+type Element = {
+  x: number;
+  y: number;
+  seed: number;
+};
+
+function drawLeaf(
+  rc: RoughCanvas,
+  canvas: HTMLCanvasElement,
+  elements: Element[]
+) {
   const ctx = canvas.getContext("2d")!;
-  rc.circle(500, 150, 120, {
+  for (const { x, y, seed } of elements) {
+    rc.circle(x, y, 120, {
+      fill: "rgb(10,150,10)",
+      fillWeight: 3, // thicker lines for hachure,
+      fillStyle: "solid",
+      seed,
+    });
+  }
+
+  /*rc.path("M230 80 A 45 45, 0, 1, 0, 275 125 L 275 80 Z", {
     fill: "rgb(10,150,10)",
-    fillWeight: 3, // thicker lines for hachure,
     fillStyle: "solid",
-    seed: 1
-  });
-  rc.path("M230 80 A 45 45, 0, 1, 0, 275 125 L 275 80 Z", {
-    fill: "rgb(10,150,10)",
-    fillStyle: "solid",
-    seed: 2
+    seed: 2,
   });
   ctx.font = "20px Comic Sans MS";
   ctx.fillStyle = "white";
   ctx.textAlign = "center";
-  ctx.fillText("Hello world", 500, 150);
+  ctx.fillText("Hello world", 500, 150);*/
 }
 
+function getEventLocation(
+  e:
+    | PointerEvent<HTMLCanvasElement>
+    | TouchEvent<HTMLCanvasElement>
+    | MouseEvent<HTMLCanvasElement>
+) {
+  if ("touches" in e && e.touches.length == 1) {
+    return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  } else if ("clientX" in e && e.clientY) {
+    return { x: e.clientX, y: e.clientY };
+  } else {
+    throw new Error("getEventLocation");
+  }
+}
 function draw(
   canvas: HTMLCanvasElement,
-  scale: number,
-  translatePos: { x: number; y: number },
-  roughCanvas: RoughCanvas
+  cameraZoom: number,
+  cameraOffset: { x: number; y: number },
+  roughCanvas: RoughCanvas,
+  elements: Element[]
 ) {
-  const context = canvas.getContext("2d")!;
-  context.save();
-  context.translate(translatePos.x, translatePos.y);
-  context.scale(scale, scale);
-  drawLeaf(roughCanvas, canvas)
-  context.restore();
+  const ctx = canvas.getContext("2d")!;
+  ctx.translate(canvas.width / 2, canvas.height / 2);
+  ctx.scale(cameraZoom, cameraZoom);
+  ctx.translate(
+    -canvas.width / 2 + cameraOffset.x,
+    -canvas.height / 2 + cameraOffset.y
+  );
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "#991111";
+  ctx.fillRect(-50, -50, 100, 100);
+
+  ctx.fillStyle = "#eecc77";
+  ctx.fillRect(-35, -35, 20, 20);
+  ctx.fillRect(15, -35, 20, 20);
+  ctx.fillRect(-35, 15, 70, 20);
+
+  ctx.fillStyle = "#fff";
+  const size = 32;
+  const font = "courier";
+  ctx.font = `${size}px ${font}`;
+  ctx.fillText("Simple Pan and Zoom Canvas", -255, -100);
+
+  ctx.rotate((-31 * Math.PI) / 180);
+  ctx.fillStyle = `#${(Math.round(Date.now() / 40) % 4096).toString(16)}`;
+  ctx.fillText("Now with touch!", -110, 100);
+
+  ctx.fillStyle = "black";
+  ctx.rotate((31 * Math.PI) / 180);
+
+  ctx.fillText("Wow, you found me!", -260, -2000);
+  drawLeaf(roughCanvas, canvas, elements);
 }
 
 function getMousePos(canvas: HTMLCanvasElement, evt: any) {
@@ -127,43 +198,40 @@ function getMousePos(canvas: HTMLCanvasElement, evt: any) {
     y: evt.clientY - rect.top,
   };
 }
+let MAX_ZOOM = 5;
+let MIN_ZOOM = 0.1;
+let SCROLL_SENSITIVITY = 0.0005;
+
 export default function Canvas() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [width, height, devicePixelRatio] = useDeviceSize();
   const posRef = useRef<HTMLDivElement>(null);
   const [roughCanvas, setRoughCanvas] = useState<RoughCanvas | null>(null);
-  const [appState, setAppState] = useState({
-    scale: 1.0,
+  const [appState, setAppState] = useState<AppState>({
+    cameraZoom: 1.0,
     scaleMultiplier: 0.8,
-    translatePos: { x: width / 2, y: height / 2 },
-    mouseDown: false,
-    startDragOffset: { x: 0, y: 0 },
+    cameraOffset: { x: width / 2, y: height / 2 },
+    isDragging: false,
+    dragStart: { x: 0, y: 0 },
+    initialPinchDistance: null,
+    elements: [
+      {
+        x: 300,
+        y: 300,
+        seed: 1,
+      },
+    ],
   });
 
-  const { scale, translatePos, mouseDown, startDragOffset } = appState;
-  const { x: translateX, y: translateY } = translatePos;
-  const { x: startDragOffsetX, y: startDragOffsetY } = startDragOffset;
-
+  const { cameraZoom, elements, cameraOffset, isDragging } = appState;
+  const { x: cameraOffsetX, y: cameraOffsetY } = cameraOffset;
+  const lastZoom = useRef(cameraZoom);
   const ref = useCallback((node: HTMLCanvasElement) => {
     if (node !== null) {
       setRoughCanvas(rough.canvas(node));
       canvasRef.current = node;
     }
   }, []);
-
-  function handleZoomPlus() {
-    setAppState((prev) => ({
-      ...prev,
-      scale: prev.scale / prev.scaleMultiplier,
-    }));
-  }
-
-  function handleZoomMinus() {
-    setAppState((prev) => ({
-      ...prev,
-      scale: prev.scale * prev.scaleMultiplier,
-    }));
-  }
 
   useLayoutEffect(() => {
     if (!roughCanvas) return;
@@ -174,65 +242,115 @@ export default function Canvas() {
     canvas.style.width = `${width}px`;
     canvas.style.height = `${height}px`;
 
-    const context = canvas.getContext("2d")!;
-    //context.scale(scale, scale);
-    context.clearRect(0, 0, width, height);
-    draw(canvas, scale, { x: translateX, y: translateY }, roughCanvas);
+    draw(
+      canvas,
+      cameraZoom,
+      { x: cameraOffsetX, y: cameraOffsetY },
+      roughCanvas,
+      elements
+    );
   }, [
-    devicePixelRatio,
+    cameraOffsetX,
+    cameraOffsetY,
+    cameraZoom,
+    elements,
     height,
     roughCanvas,
     width,
-    scale,
-    translateX,
-    translateY,
   ]);
 
+  const handlePointerDown = (e: PointerEvent<HTMLCanvasElement>) => {
+    //const { x, y } = getMousePos(canvasRef.current!, e);
+    setAppState((prev) => ({
+      ...prev,
+      isDragging: true,
+      dragStart: {
+        x: getEventLocation(e)!.x / prev.cameraZoom - prev.cameraOffset.x,
+        y: getEventLocation(e)!.y / prev.cameraZoom - prev.cameraOffset.y,
+      },
+    }));
+  };
+
+  const handlePointerUp = (e: PointerEvent<HTMLCanvasElement>) => {
+    //const { x, y } = getMousePos(canvasRef.current!, e);
+    setAppState((prev) => ({
+      ...prev,
+      isDragging: false,
+      initialPinchDistance: null,
+    }));
+    lastZoom.current = cameraZoom;
+  };
+
+  const handlePointerMove = (e: PointerEvent<HTMLCanvasElement>) => {
+    //const { x, y } = getMousePos(canvasRef.current!, e);
+    if (isDragging) {
+      setAppState((prev) => ({
+        ...prev,
+        cameraOffset: {
+          x: getEventLocation(e)!.x / cameraZoom - prev.dragStart.x,
+          y: getEventLocation(e)!.y / cameraZoom - prev.dragStart.y,
+        },
+      }));
+    }
+  };
+  function handlePinch(e: any) {
+    e.preventDefault();
+
+    let touch1 = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    let touch2 = { x: e.touches[1].clientX, y: e.touches[1].clientY };
+
+    // This is distance squared, but no need for an expensive sqrt as it's only used in ratio
+    let currentDistance =
+      (touch1.x - touch2.x) ** 2 + (touch1.y - touch2.y) ** 2;
+
+    if (appState.initialPinchDistance === null) {
+      setAppState((prev) => ({
+        ...prev,
+        initialPinchDistance: currentDistance,
+      }));
+    } else {
+      adjustZoom(null, currentDistance / appState.initialPinchDistance);
+    }
+  }
+
+  function adjustZoom(zoomAmount: number | null, zoomFactor: number | null) {
+    if (!isDragging) {
+      let cameraZoom = appState.cameraZoom;
+      if (zoomAmount) {
+        cameraZoom += zoomAmount;
+      } else if (zoomFactor) {
+        console.log(zoomFactor);
+        cameraZoom = zoomFactor * lastZoom.current;
+      }
+
+      cameraZoom = Math.min(cameraZoom, MAX_ZOOM);
+      cameraZoom = Math.max(cameraZoom, MIN_ZOOM);
+      setAppState((prev) => ({ ...prev, cameraZoom }));
+      console.log(zoomAmount);
+    }
+  }
+
+  const handleTouch = (e: any, singleTouchHandler: (e: any) => void) => {
+    if (e.touches.length == 1) {
+      singleTouchHandler(e);
+    } else if (e.type == "touchmove" && e.touches.length == 2) {
+      setAppState((prev) => ({ ...prev, isDragging: false }));
+      handlePinch(e);
+    }
+  };
   return (
     <div>
       <canvas
-        onMouseMove={(e) => {
-          const { x, y } = getMousePos(canvasRef.current!, e);
-          posRef.current!.innerText = `x: ${x}, y:${y}`;
-          if (appState.mouseDown) {
-            setAppState((prev) => ({
-              ...prev,
-              translatePos: {
-                x: e.clientX - prev.startDragOffset.x,
-                y: e.clientY - prev.startDragOffset.y,
-              },
-            }));
-          }
+        onClick={(e) => {
+          console.log({ ...getEventLocation(e) }, elements);
         }}
-        onMouseDown={(e) => {
-          //const { x, y } = getMousePos(canvasRef.current!, e);
-          setAppState((prev) => ({
-            ...prev,
-            mouseDown: true,
-            startDragOffset: {
-              x: e.clientX - prev.translatePos.x,
-              y: e.clientY - prev.translatePos.y,
-            },
-          }));
-        }}
-        onMouseUp={() => {
-          setAppState((prev) => ({
-            ...prev,
-            mouseDown: false,
-          }));
-        }}
-        onMouseOver={() => {
-          setAppState((prev) => ({
-            ...prev,
-            mouseDown: false,
-          }));
-        }}
-        onMouseOut={() => {
-          setAppState((prev) => ({
-            ...prev,
-            mouseDown: false,
-          }));
-        }}
+        onMouseDown={handlePointerDown}
+        onTouchStart={(e) => handleTouch(e, handlePointerDown)}
+        onMouseUp={handlePointerUp}
+        onTouchEnd={(e) => handleTouch(e, handlePointerUp)}
+        onMouseMove={handlePointerMove}
+        onTouchMove={(e) => handleTouch(e, handlePointerMove)}
+        onWheel={(e) => adjustZoom(e.deltaY * SCROLL_SENSITIVITY, null)}
         ref={ref}
         width={width}
         height={height}
@@ -245,10 +363,7 @@ export default function Canvas() {
         }}
         ref={posRef}
       ></div>
-      <div id="buttonWrapper">
-        <input onClick={handleZoomPlus} type="button" id="plus" value="+" />
-        <input onClick={handleZoomMinus} type="button" id="minus" value="-" />
-      </div>
+      <div id="buttonWrapper"></div>
     </div>
   );
 }
