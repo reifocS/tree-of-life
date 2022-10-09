@@ -11,6 +11,17 @@ import {
 import rough from "roughjs/bin/rough";
 import { RoughCanvas } from "roughjs/bin/canvas";
 
+type Tree = Category[];
+
+type Category = {
+  label: string;
+  leaves: Leaf[];
+};
+
+type Leaf = {
+  label: string;
+};
+
 type AppState = {
   cameraZoom: number;
   scaleMultiplier: number;
@@ -126,6 +137,10 @@ function drawSpeechText(
   ctx.stroke();
 }*/
 
+type MindMap = MNode[];
+
+type MNode = { id: string; label: string };
+
 type Element = {
   x: number;
   y: number;
@@ -147,6 +162,82 @@ const KEYS = {
   BACKSPACE: "Backspace",
   SPACE: "Space",
 };
+const tree: Tree = [
+  {
+    label: "Penne",
+    leaves: [
+      {
+        label: "Spaghetti alla chitarra",
+      },
+      {
+        label: "Spaghetti alla chitarra",
+      },
+      {
+        label: "Spaghetti alla chitarra",
+      },
+    ],
+  },
+  {
+    label: "Fusili",
+    leaves: [
+      {
+        label: "Spaghetti alla chitarra",
+      },
+      {
+        label: "Spaghetti alla chitarra",
+      },
+      {
+        label: "Spaghetti alla chitarra",
+      },
+    ],
+  },
+  {
+    label: "Rigatoni",
+    leaves: [
+      {
+        label: "Trenette",
+      },
+      {
+        label: "Tripoline",
+      },
+    ],
+  },
+  {
+    label: "Spaghetti	",
+    leaves: [
+      {
+        label: "Spaghetti alla chitarra",
+      },
+      {
+        label: "Spaghettini	",
+      },
+      {
+        label: "Spaghettoni",
+      },
+      {
+        label: "Stringozzi",
+      },
+    ],
+  },
+];
+
+export const zoomIn = (
+  <svg aria-hidden="true" focusable="false" role="img" viewBox="0 0 448 512">
+    <path
+      fill="currentColor"
+      d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
+    />
+  </svg>
+);
+
+export const zoomOut = (
+  <svg aria-hidden="true" focusable="false" role="img" viewBox="0 0 448 512">
+    <path
+      fill="currentColor"
+      d="M416 208H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h384c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
+    />
+  </svg>
+);
 
 function isArrowKey(keyCode: string) {
   return (
@@ -162,15 +253,25 @@ function hitTest(
   y: number,
   element: Element,
   canvas: HTMLCanvasElement,
-  cameraZoom: number
+  cameraZoom: number,
+  cameraOffset: { x: number; y: number }
 ) {
   const context = canvas.getContext("2d")!;
+  context.save();
+  translate(canvas.width / 2, canvas.height / 2, context);
+  context.scale(cameraZoom, cameraZoom);
+  translate(
+    -canvas.width / 2 + cameraOffset.x,
+    -canvas.height / 2 + cameraOffset.y,
+    context
+  );
   const transform = context.getTransform();
   // Destructure to get the x and y values out of the transformed DOMPoint.
   const { x: newX, y: newY } = transform.transformPoint(
     new DOMPoint(element.x, element.y)
   );
   //const {x, y} = getXY(mx, my)
+  context.restore();
   return (
     x > newX &&
     x < newX + RC_WIDTH * cameraZoom &&
@@ -183,6 +284,7 @@ function hitTest(
 
 const RC_WIDTH = 200;
 const RC_HEIGTH = 100;
+const FONT_SIZE = 20;
 
 const colors = ["gray", "orange", "#82c91e"];
 
@@ -190,27 +292,45 @@ function drawLeaf(
   rc: RoughCanvas,
   canvas: HTMLCanvasElement,
   elements: Element[],
-  cameraOffset: { x: number; y: number }
+  cameraOffset: { x: number; y: number },
+  cameraZoom: number
 ) {
   const ctx = canvas.getContext("2d")!;
+  ctx.save();
+  translate(canvas.width / 2, canvas.height / 2, ctx);
+  scale(cameraZoom, cameraZoom, ctx);
+  translate(
+    -canvas.width / 2 + cameraOffset.x,
+    -canvas.height / 2 + cameraOffset.y,
+    ctx
+  );
   for (const { x, y, seed, color, text, icon } of elements) {
     rc.rectangle(x, y, RC_WIDTH, RC_HEIGTH, {
       fill: color,
       fillWeight: 0.5, // thicker lines for hachure,
       seed,
     });
-    ctx.font = "16px Comic Sans MS";
+    ctx.font = `${FONT_SIZE}px Comic Sans MS`;
     ctx.textAlign = "center";
     ctx.fillText(text, x + RC_WIDTH / 2, y + RC_HEIGTH / 2);
-    ctx.font = "20px Comic Sans MS";
+    ctx.font = `${FONT_SIZE + 4}px Comic Sans MS`;
     ctx.fillText(icon, x + RC_WIDTH / 2, y + RC_HEIGTH / 2 + 30);
   }
-
-  /*rc.path("M230 80 A 45 45, 0, 1, 0, 275 125 L 275 80 Z", {
-    fill: "rgb(10,150,10)",
-    fillStyle: "solid",
+  ctx.restore();
+  /*
+  rc.path("M298.736,115.437c-2.403-2.589-4.979-4.97-7.688-7.16c1.357-3.439,2.111-7.179,2.111-11.094  c0-16.718-13.602-30.32-30.32-30.32c-0.985,0-1.958,0.051-2.92,0.143C256.862,29.551,225.424,0,187.195,0  c-25.82,0-48.535,13.489-61.514,33.778c-2.793-0.471-5.657-0.729-8.582-0.729c-28.38,0-51.469,23.089-51.469,51.469  c0,11.51,3.798,22.148,10.206,30.73c-0.06,0.064-0.123,0.124-0.182,0.189c-12.56,13.529-19.477,31.152-19.477,49.624  c0,40.247,32.743,72.989,72.99,72.989c3.792,0,7.531-0.292,11.195-0.85l26.937,41.618l-13.127,85.065  c-0.419,2.728,0.295,5.331,2.011,7.331c1.732,2.019,4.347,3.177,7.172,3.177h48.027c2.825,0,5.438-1.158,7.171-3.176  c1.716-2,2.43-4.604,2.01-7.334l-12.905-83.635l27.736-42.852c3.226,0.43,6.506,0.656,9.828,0.656  c40.247,0,72.99-32.743,72.99-72.989C318.212,146.589,311.295,128.965,298.736,115.437z M187.941,255.496l-18.911-29.218  c6.892-4.498,13.043-10.193,18.165-16.928c5.382,7.077,11.902,13.001,19.223,17.6L187.941,255.496z"
+  , {
+    fill: colors[2],
+    seed: 2,
+  })
+  rc.path("M230 80 A 45 45, 0, 1, 0, 275 125 L 275 80 Z", {
+    fill: colors[2],
     seed: 2,
   });
+  rc.path(
+    "M468.607,0c-12.5,1-304.4,8.3-395,99c-92.8,93.8-98,240.8-10.4,328.3c92.8,85.9,227.6,85.3,327.3-11.5   c90.7-89.6,99-382.5,99-395C487.807,8,480.707,1.3,468.607,0z M362.307,387.8c-83.3,79.7-190.7,72.7-254.4,24l79.2-79.2l148.1-15.7   c10.4-1,18.8-10.4,17.7-21.9c-1-10.4-10.4-18.8-21.9-17.7l-98.7,10.1l42.4-42.4c8.3-8.3,8.3-20.8,0-29.2c-8.3-8.3-20.8-8.3-29.2,0   l-43.7,43.7l10.3-101c2.1-10.4-6.3-20.8-17.7-21.9c-10.4-2.1-20.8,6.3-21.9,17.7l-15.9,150.4l-78,78   c-57.2-73-47.7-183.7,24.1-255.5c60.5-59.4,253.3-81.3,346.1-85.5C444.607,134.5,422.707,327.3,362.307,387.8z",
+    { fill: "rgb(10,150,10)", seed: 2 }
+  );
   ctx.font = "20px Comic Sans MS";
   ctx.fillStyle = "white";
   ctx.textAlign = "center";
@@ -265,18 +385,67 @@ function draw(
   elements: Element[]
 ) {
   const ctx = canvas.getContext("2d")!;
-  translate(canvas.width / 2, canvas.height / 2, ctx);
-  scale(cameraZoom, cameraZoom, ctx);
-  translate(
-    -canvas.width / 2 + cameraOffset.x,
-    -canvas.height / 2 + cameraOffset.y,
-    ctx
-  );
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  roughCanvas.circle(500, 500, 800, {
-    seed: 3,
+  drawLeaf(roughCanvas, canvas, elements, cameraOffset, cameraZoom);
+  //buildTree(ctx, roughCanvas);
+}
+
+function drawTree(
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+  angle: number,
+  depth: number,
+  context: CanvasRenderingContext2D,
+  roughCanvas: RoughCanvas
+) {
+  roughCanvas.line(x1, y1, x2, y2, {
+    stroke: "brown",
+    strokeWidth: 1.5,
+    seed: 1,
   });
-  drawLeaf(roughCanvas, canvas, elements, cameraOffset);
+
+  if (depth > 0) {
+    var x = x2 - x1;
+    var y = y2 - y1;
+
+    var scale = 0.7;
+
+    x *= scale;
+    y *= scale;
+
+    var xLeft = x * Math.cos(-angle) - y * Math.sin(-angle);
+    var yLeft = x * Math.sin(-angle) + y * Math.cos(-angle);
+
+    var xRight = x * Math.cos(+angle) - y * Math.sin(+angle);
+    var yRight = x * Math.sin(+angle) + y * Math.cos(+angle);
+
+    xLeft += x2;
+    yLeft += y2;
+
+    xRight += x2;
+    yRight += y2;
+
+    drawTree(x2, y2, xLeft, yLeft, angle, depth - 1, context, roughCanvas);
+    drawTree(x2, y2, xRight, yRight, angle, depth - 1, context, roughCanvas);
+  }
+}
+
+function buildTree(
+  context: CanvasRenderingContext2D,
+  roughCanvas: RoughCanvas
+) {
+  var x1 = 1000;
+  var y1 = 300;
+
+  var x2 = 1000;
+  var y2 = 100;
+
+  var angle = 0.1 * Math.PI;
+  var depth = 4;
+
+  drawTree(x1, y1, x2, y2, angle, depth, context, roughCanvas);
 }
 
 function getMousePos(canvas: HTMLCanvasElement, evt: any) {
@@ -296,7 +465,7 @@ export default function Canvas() {
   const posRef = useRef<HTMLDivElement>(null);
   const [roughCanvas, setRoughCanvas] = useState<RoughCanvas | null>(null);
   const [appState, setAppState] = useState<AppState>({
-    cameraZoom: 0.30,
+    cameraZoom: 1,
     scaleMultiplier: 0.8,
     cameraOffset: { x: width / 2, y: height / 2 },
     isDragging: false,
@@ -323,33 +492,6 @@ export default function Canvas() {
       },
       {
         x: 600,
-        y: 300,
-        seed: 1,
-        color: "gray",
-        id: guidGenerator(),
-        text: "tortelinni",
-        icon: "👨",
-      },
-      {
-        x: 3000,
-        y: 300,
-        seed: 1,
-        color: "gray",
-        id: guidGenerator(),
-        text: "tortelinni",
-        icon: "👨",
-      },
-      {
-        x: 3200,
-        y: 500,
-        seed: 1,
-        color: "gray",
-        id: guidGenerator(),
-        text: "tortelinni",
-        icon: "👨",
-      },
-      {
-        x: 3600,
         y: 300,
         seed: 1,
         color: "gray",
@@ -442,7 +584,9 @@ export default function Canvas() {
   const handlePointerDown = (e: PointerEvent<HTMLCanvasElement>) => {
     const { x, y } = getMousePos(canvasRef.current!, e);
     if (
-      elements.find((el) => hitTest(x, y, el, canvasRef.current!, cameraZoom))
+      elements.find((el) =>
+        hitTest(x, y, el, canvasRef.current!, cameraZoom, appState.cameraOffset)
+      )
     )
       return;
     setAppState((prev) => ({
@@ -472,7 +616,9 @@ export default function Canvas() {
   const handlePointerMove = (e: PointerEvent<HTMLCanvasElement>) => {
     const { x, y } = getMousePos(canvasRef.current!, e);
     if (
-      elements.find((el) => hitTest(x, y, el, canvasRef.current!, cameraZoom))
+      elements.find((el) =>
+        hitTest(x, y, el, canvasRef.current!, cameraZoom, appState.cameraOffset)
+      )
     ) {
       document.documentElement.style.cursor = "pointer";
     } else if (!isDragging) {
@@ -539,7 +685,16 @@ export default function Canvas() {
         onClick={(e) => {
           const { x, y } = getEventLocation(e);
           for (const element of elements) {
-            if (hitTest(x, y, element, canvasRef.current!, cameraZoom)) {
+            if (
+              hitTest(
+                x,
+                y,
+                element,
+                canvasRef.current!,
+                cameraZoom,
+                appState.cameraOffset
+              )
+            ) {
               setAppState((prev) => ({
                 ...prev,
                 elements: prev.elements.map((e) => {

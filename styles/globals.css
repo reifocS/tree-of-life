@@ -46,3 +46,8 @@ input[type="button"] {
   user-select: none;
 }
 /* Controls - End */
+
+
+canvas {
+  border: 2px solid red;
+}
