@@ -36,6 +36,8 @@ type AppState = {
   };
   initialPinchDistance: null | number;
   elements: Element[];
+  draggedElement: Element | null;
+  mode: string;
 };
 const useDeviceSize = () => {
   const [width, setWidth] = useState(0);
@@ -253,18 +255,9 @@ function hitTest(
   y: number,
   element: Element,
   canvas: HTMLCanvasElement,
-  cameraZoom: number,
-  cameraOffset: { x: number; y: number }
+  cameraZoom: number
 ) {
   const context = canvas.getContext("2d")!;
-  context.save();
-  translate(canvas.width / 2, canvas.height / 2, context);
-  context.scale(cameraZoom, cameraZoom);
-  translate(
-    -canvas.width / 2 + cameraOffset.x,
-    -canvas.height / 2 + cameraOffset.y,
-    context
-  );
   const transform = context.getTransform();
   // Destructure to get the x and y values out of the transformed DOMPoint.
   const { x: newX, y: newY } = transform.transformPoint(
@@ -291,19 +284,9 @@ const colors = ["gray", "orange", "#82c91e"];
 function drawLeaf(
   rc: RoughCanvas,
   canvas: HTMLCanvasElement,
-  elements: Element[],
-  cameraOffset: { x: number; y: number },
-  cameraZoom: number
+  elements: Element[]
 ) {
   const ctx = canvas.getContext("2d")!;
-  ctx.save();
-  translate(canvas.width / 2, canvas.height / 2, ctx);
-  scale(cameraZoom, cameraZoom, ctx);
-  translate(
-    -canvas.width / 2 + cameraOffset.x,
-    -canvas.height / 2 + cameraOffset.y,
-    ctx
-  );
   for (const { x, y, seed, color, text, icon } of elements) {
     rc.rectangle(x, y, RC_WIDTH, RC_HEIGTH, {
       fill: color,
@@ -316,7 +299,6 @@ function drawLeaf(
     ctx.font = `${FONT_SIZE + 4}px Comic Sans MS`;
     ctx.fillText(icon, x + RC_WIDTH / 2, y + RC_HEIGTH / 2 + 30);
   }
-  ctx.restore();
   /*
   rc.path("M298.736,115.437c-2.403-2.589-4.979-4.97-7.688-7.16c1.357-3.439,2.111-7.179,2.111-11.094  c0-16.718-13.602-30.32-30.32-30.32c-0.985,0-1.958,0.051-2.92,0.143C256.862,29.551,225.424,0,187.195,0  c-25.82,0-48.535,13.489-61.514,33.778c-2.793-0.471-5.657-0.729-8.582-0.729c-28.38,0-51.469,23.089-51.469,51.469  c0,11.51,3.798,22.148,10.206,30.73c-0.06,0.064-0.123,0.124-0.182,0.189c-12.56,13.529-19.477,31.152-19.477,49.624  c0,40.247,32.743,72.989,72.99,72.989c3.792,0,7.531-0.292,11.195-0.85l26.937,41.618l-13.127,85.065  c-0.419,2.728,0.295,5.331,2.011,7.331c1.732,2.019,4.347,3.177,7.172,3.177h48.027c2.825,0,5.438-1.158,7.171-3.176  c1.716-2,2.43-4.604,2.01-7.334l-12.905-83.635l27.736-42.852c3.226,0.43,6.506,0.656,9.828,0.656  c40.247,0,72.99-32.743,72.99-72.989C318.212,146.589,311.295,128.965,298.736,115.437z M187.941,255.496l-18.911-29.218  c6.892-4.498,13.043-10.193,18.165-16.928c5.382,7.077,11.902,13.001,19.223,17.6L187.941,255.496z"
   , {
@@ -385,8 +367,15 @@ function draw(
   elements: Element[]
 ) {
   const ctx = canvas.getContext("2d")!;
+  translate(canvas.width / 2, canvas.height / 2, ctx);
+  scale(cameraZoom, cameraZoom, ctx);
+  translate(
+    -canvas.width / 2 + cameraOffset.x,
+    -canvas.height / 2 + cameraOffset.y,
+    ctx
+  );
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawLeaf(roughCanvas, canvas, elements, cameraOffset, cameraZoom);
+  drawLeaf(roughCanvas, canvas, elements);
   //buildTree(ctx, roughCanvas);
 }
 
@@ -471,6 +460,8 @@ export default function Canvas() {
     isDragging: false,
     dragStart: { x: 0, y: 0 },
     initialPinchDistance: null,
+    draggedElement: null,
+    mode: "select",
     elements: [
       {
         x: 300,
@@ -581,24 +572,32 @@ export default function Canvas() {
     width,
   ]);
 
+  function setMode(m: string) {
+    setAppState((prev) => ({ ...prev, mode: m }));
+  }
   const handlePointerDown = (e: PointerEvent<HTMLCanvasElement>) => {
     const { x, y } = getMousePos(canvasRef.current!, e);
-    if (
-      elements.find((el) =>
-        hitTest(x, y, el, canvasRef.current!, cameraZoom, appState.cameraOffset)
-      )
-    )
+    const el = elements.find((el) =>
+      hitTest(x, y, el, canvasRef.current!, cameraZoom)
+    );
+    if (el && appState.mode === "drag") {
+      setAppState((prev) => ({
+        ...prev,
+        draggedElement: el,
+      }));
       return;
-    setAppState((prev) => ({
-      ...prev,
-      isDragging: true,
-      dragStart: {
-        x: getEventLocation(e)!.x / prev.cameraZoom - prev.cameraOffset.x,
-        y: getEventLocation(e)!.y / prev.cameraZoom - prev.cameraOffset.y,
-      },
-    }));
+    } else if (!el) {
+      setAppState((prev) => ({
+        ...prev,
+        isDragging: true,
+        dragStart: {
+          x: getEventLocation(e)!.x / prev.cameraZoom - prev.cameraOffset.x,
+          y: getEventLocation(e)!.y / prev.cameraZoom - prev.cameraOffset.y,
+        },
+      }));
 
-    document.documentElement.style.cursor = "grabbing";
+      document.documentElement.style.cursor = "grabbing";
+    }
   };
 
   const handlePointerUp = (e: PointerEvent<HTMLCanvasElement>) => {
@@ -608,6 +607,7 @@ export default function Canvas() {
       ...prev,
       isDragging: false,
       initialPinchDistance: null,
+      draggedElement: null,
     }));
     lastZoom.current = cameraZoom;
     if (wasDragging) document.documentElement.style.cursor = "";
@@ -615,10 +615,37 @@ export default function Canvas() {
 
   const handlePointerMove = (e: PointerEvent<HTMLCanvasElement>) => {
     const { x, y } = getMousePos(canvasRef.current!, e);
+    if (appState.draggedElement) {
+      const canvas = canvasRef.current!;
+      let { x: startX, y: startY } = appState.draggedElement;
+      const context = canvas.getContext("2d")!;
+      const transform = context.getTransform();
+      var matrix = context.getTransform(); // W3C (future)
+      var imatrix = matrix.invertSelf(); // invert
+
+      // apply to point:
+      const px = x * imatrix.a + y * imatrix.c + imatrix.e;
+      const py = x * imatrix.b + y * imatrix.d + imatrix.f;
+      const dx = px - startX;
+      const dy = py - startY;
+      const dragTarget = {
+        ...appState.draggedElement,
+        x: startX + dx,
+        y: startY + dy,
+      };
+
+      const newElems = appState.elements.map((e) => {
+        if (e.id === dragTarget.id) {
+          return dragTarget;
+        }
+        return e;
+      });
+      context.restore();
+      setAppState((prev) => ({ ...prev, elements: newElems }));
+      return;
+    }
     if (
-      elements.find((el) =>
-        hitTest(x, y, el, canvasRef.current!, cameraZoom, appState.cameraOffset)
-      )
+      elements.find((el) => hitTest(x, y, el, canvasRef.current!, cameraZoom))
     ) {
       document.documentElement.style.cursor = "pointer";
     } else if (!isDragging) {
@@ -683,18 +710,10 @@ export default function Canvas() {
     <div>
       <canvas
         onClick={(e) => {
+          if (appState.mode !== "select") return;
           const { x, y } = getEventLocation(e);
           for (const element of elements) {
-            if (
-              hitTest(
-                x,
-                y,
-                element,
-                canvasRef.current!,
-                cameraZoom,
-                appState.cameraOffset
-              )
-            ) {
+            if (hitTest(x, y, element, canvasRef.current!, cameraZoom)) {
               setAppState((prev) => ({
                 ...prev,
                 elements: prev.elements.map((e) => {
@@ -758,6 +777,12 @@ export default function Canvas() {
         </button>
         <button onClick={(e) => adjustZoom(0.25, null)}>+</button>
         <button onClick={(e) => adjustZoom(-0.25, null)}>-</button>
+        Mode:
+        <select value={appState.mode} onChange={(e) => setMode(e.target.value)}>
+          <option value="drag">drag</option>
+          <option value="select">select</option>
+        </select>
+        {appState.mode}
       </div>
     </div>
   );
