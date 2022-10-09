@@ -630,8 +630,8 @@ export default function Canvas() {
       const dy = py - startY;
       const dragTarget = {
         ...appState.draggedElement,
-        x: startX + dx,
-        y: startY + dy,
+        x: startX + dx - RC_WIDTH / 2,
+        y: startY + dy - RC_HEIGTH / 2,
       };
 
       const newElems = appState.elements.map((e) => {
