@@ -110,34 +110,6 @@ function drawBubble(
   ctx.fillText("hello world", x + 20, y + h / 2);
   ctx.stroke();
 }
-/*
-function drawSpeechText(
-  canvas: HTMLCanvasElement,
-  originX = 75,
-  originY = 25,
-  width = 100,
-  heigth = 75,
-  color = "gray",
-  cpx: number,
-  cpy: number
-) {
-  const ctx = canvas.getContext("2d")!;
-  const r = 25;
-  ctx.beginPath();
-  ctx.moveTo(originX, originY);
-  ctx.quadraticCurveTo(originY, originY, originX - width / 2, originY + heigth / 2);
-  //ctx.quadraticCurveTo(25, 100, originX - width / 2 + r, originY + heigth);
-  //ctx.quadraticCurveTo(50, 120, originX - width / 2 + r - 20, heigth + originY + r);
-  //ctx.quadraticCurveTo(60, 120, originX - width / 2 + r + 15, heigth + r);
-  //ctx.quadraticCurveTo(125, 100, width + originX - width / 2, originY + heigth / 2);
-  //ctx.quadraticCurveTo(125, 25, originX, originY);
-  ctx.rect(originX - width / 2, originY, width, heigth)
-  ctx.moveTo(originX, originY);
-  ctx.fillText("hello world!", originX - 30, originY + heigth / 2);
-  //ctx.fillStyle = color;
-  //ctx.fill();
-  ctx.stroke();
-}*/
 
 type MindMap = MNode[];
 
@@ -275,9 +247,9 @@ function hitTest(
   //return x > element.x && x < element.x + RC_WIDTH && y > element.y && y < element.y + RC_HEIGTH;
 }
 
-const RC_WIDTH = 200;
-const RC_HEIGTH = 100;
-const FONT_SIZE = 20;
+const RC_WIDTH = 100;
+const RC_HEIGTH = 50;
+const FONT_SIZE = 10;
 
 const colors = ["gray", "orange", "#82c91e"];
 
@@ -297,7 +269,7 @@ function drawLeaf(
     ctx.textAlign = "center";
     ctx.fillText(text, x + RC_WIDTH / 2, y + RC_HEIGTH / 2);
     ctx.font = `${FONT_SIZE + 4}px Comic Sans MS`;
-    ctx.fillText(icon, x + RC_WIDTH / 2, y + RC_HEIGTH / 2 + 30);
+    ctx.fillText(icon, x + RC_WIDTH / 2, y + RC_HEIGTH / 2 + RC_HEIGTH / 3);
   }
   /*
   rc.path("M298.736,115.437c-2.403-2.589-4.979-4.97-7.688-7.16c1.357-3.439,2.111-7.179,2.111-11.094  c0-16.718-13.602-30.32-30.32-30.32c-0.985,0-1.958,0.051-2.92,0.143C256.862,29.551,225.424,0,187.195,0  c-25.82,0-48.535,13.489-61.514,33.778c-2.793-0.471-5.657-0.729-8.582-0.729c-28.38,0-51.469,23.089-51.469,51.469  c0,11.51,3.798,22.148,10.206,30.73c-0.06,0.064-0.123,0.124-0.182,0.189c-12.56,13.529-19.477,31.152-19.477,49.624  c0,40.247,32.743,72.989,72.99,72.989c3.792,0,7.531-0.292,11.195-0.85l26.937,41.618l-13.127,85.065  c-0.419,2.728,0.295,5.331,2.011,7.331c1.732,2.019,4.347,3.177,7.172,3.177h48.027c2.825,0,5.438-1.158,7.171-3.176  c1.716-2,2.43-4.604,2.01-7.334l-12.905-83.635l27.736-42.852c3.226,0.43,6.506,0.656,9.828,0.656  c40.247,0,72.99-32.743,72.99-72.989C318.212,146.589,311.295,128.965,298.736,115.437z M187.941,255.496l-18.911-29.218  c6.892-4.498,13.043-10.193,18.165-16.928c5.382,7.077,11.902,13.001,19.223,17.6L187.941,255.496z"
@@ -330,7 +302,7 @@ function getEventLocation(
   } else if ("clientX" in e && e.clientY) {
     return { x: e.clientX, y: e.clientY };
   } else {
-    throw new Error("getEventLocation");
+    throw new Error("Can't read mouse location");
   }
 }
 
@@ -453,7 +425,7 @@ export default function Canvas() {
   const [width, height, devicePixelRatio] = useDeviceSize();
   const posRef = useRef<HTMLDivElement>(null);
   const [roughCanvas, setRoughCanvas] = useState<RoughCanvas | null>(null);
-  const [appState, setAppState] = useState<AppState>({
+  const [appState, setAppState] = useState<AppState>(() => ({
     cameraZoom: 1,
     scaleMultiplier: 0.8,
     cameraOffset: { x: width / 2, y: height / 2 },
@@ -466,7 +438,7 @@ export default function Canvas() {
       {
         x: 300,
         y: 300,
-        seed: 1,
+        seed: getRandomArbitrary(1, 1000),
         color: "rgb(10,150,10)",
         id: guidGenerator(),
         text: "go muscu",
@@ -475,7 +447,7 @@ export default function Canvas() {
       {
         x: 400,
         y: 500,
-        seed: 1,
+        seed: getRandomArbitrary(1, 1000),
         color: "gray",
         id: guidGenerator(),
         text: "coder toute la nigth",
@@ -484,14 +456,14 @@ export default function Canvas() {
       {
         x: 600,
         y: 300,
-        seed: 1,
+        seed: getRandomArbitrary(1, 1000),
         color: "gray",
         id: guidGenerator(),
         text: "tortelinni",
         icon: "👨",
       },
     ],
-  });
+  }));
 
   const { cameraZoom, elements, cameraOffset, isDragging } = appState;
   const { x: cameraOffsetX, y: cameraOffsetY } = cameraOffset;
@@ -505,8 +477,8 @@ export default function Canvas() {
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
+      console.log(e.code);
       if (isArrowKey(e.code)) {
-        console.log("true");
         if (e.key === KEYS.ARROW_LEFT)
           setAppState((prev) => ({
             ...prev,
@@ -539,6 +511,18 @@ export default function Canvas() {
               y: prev.cameraOffset.y + STEP,
             },
           }));
+      }
+      if (e.code === "KeyS") {
+        setAppState((prev) => ({
+          ...prev,
+          mode: "select",
+        }));
+      }
+      if (e.code === "KeyD") {
+        setAppState((prev) => ({
+          ...prev,
+          mode: "drag",
+        }));
       }
     }
 
@@ -765,7 +749,7 @@ export default function Canvas() {
                   x: getRandomArbitrary(0, canvasRef.current!.width),
                   y: getRandomArbitrary(0, canvasRef.current!.height),
                   color: colors[0],
-                  seed: 2,
+                  seed: getRandomArbitrary(1, 10000),
                   text: "hello world!",
                   icon: "🦍",
                 },
@@ -782,7 +766,6 @@ export default function Canvas() {
           <option value="drag">drag</option>
           <option value="select">select</option>
         </select>
-        {appState.mode}
       </div>
     </div>
   );
