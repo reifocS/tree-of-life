@@ -254,10 +254,14 @@ function hitTest(
   //return x > element.x && x < element.x + RC_WIDTH && y > element.y && y < element.y + RC_HEIGTH;
 }
 
-const RC_WIDTH = 100;
-const RC_HEIGTH = 50;
+const RC_WIDTH = 70;
+const RC_HEIGTH = 40;
 const FONT_SIZE = 10;
-
+const LEAF_SCALE = {
+  SMALL: 0.5,
+  MEDIUM: 1,
+  BIG: 2,
+};
 const colors = ["gray", "orange", "#82c91e"];
 
 function drawLeaf(
@@ -266,6 +270,26 @@ function drawLeaf(
   element: Element
 ) {
   const { x, y, seed, color, text, icon } = element;
+  rc.path(
+    `m${x},${y}c-0,0 -27,-9 -49,19c-18,23 -2,47 -2,47s18,20 36,-2c21,-28 14,-64 14,-64z`,
+    {
+      seed,
+      roughness: 0.5,
+      fill: color,
+      fillStyle: "solid",
+    }
+  );
+  rc.path(
+    `m${x - 45},${
+      y + 65
+    }c-0,-0 -0,-0 -1,0l-19,24c-0,0 -0,0 0,1c0,0 0,0 1,0l19,-24c0,-0 0,-0 0,-1z`,
+    {
+      seed,
+      roughness: 0,
+      fill: "#8AC054",
+    }
+  );
+  /*
   rc.rectangle(x, y, RC_WIDTH, RC_HEIGTH, {
     fill: color,
     fillWeight: 0.5, // thicker lines for hachure,
@@ -282,22 +306,7 @@ function drawLeaf(
     y + RC_HEIGTH / 2
   );
   ctx.font = `${FONT_SIZE + 4}px Comic Sans MS`;
-  ctx.fillText(icon, x + RC_WIDTH / 2, y + RC_HEIGTH / 2 + RC_HEIGTH / 3);
-}
-
-function drawRectAtScale(
-  ctx: CanvasRenderingContext2D,
-  scale: number,
-  width: number,
-  height: number,
-  color: string
-) {
-  ctx.save();
-  ctx.translate(width / 2, height / 2);
-  ctx.scale(scale, scale);
-  ctx.fillStyle = color;
-  ctx.fillRect(-20, -10, 40, 20);
-  ctx.restore();
+  ctx.fillText(icon, x + RC_WIDTH / 2, y + RC_HEIGTH / 2 + RC_HEIGTH / 3);*/
 }
 
 function drawTreeAtScale(
@@ -311,23 +320,64 @@ function drawTreeAtScale(
   ctx.save();
   ctx.translate(width / 2, height / 2);
   ctx.scale(scale, scale);
-  ctx.translate(-120, -200);
-  rc.path(  
-    "m242.559,115.437c-2.403,-2.589 -4.979,-4.97 -7.688,-7.16c1.357,-3.439 2.111,-7.179 2.111,-11.094c0,-16.718 -13.602,-30.32 -30.32,-30.32c-0.985,0 -1.958,0.051 -2.92,0.143c-3.057,-37.455 -34.495,-67.006 -72.724,-67.006c-25.82,0 -48.535,13.489 -61.514,33.778c-2.793,-0.471 -5.657,-0.729 -8.582,-0.729c-28.38,0 -51.469,23.089 -51.469,51.469c0,11.51 3.798,22.148 10.206,30.73c-0.06,0.064 -0.123,0.124 -0.182,0.189c-12.56,13.529 -19.477,31.152 -19.477,49.624c0,40.247 32.743,72.989 72.99,72.989c3.792,0 7.531,-0.292 11.195,-0.85l26.937,41.618l-13.127,85.065c-0.419,2.728 0.295,5.331 2.011,7.331c1.732,2.019 4.347,3.177 7.172,3.177l48.027,0c2.825,0 5.438,-1.158 7.171,-3.176c1.716,-2 2.43,-4.604 2.01,-7.334l-12.905,-83.635l27.736,-42.852c3.226,0.43 6.506,0.656 9.828,0.656c40.247,0 72.99,-32.743 72.99,-72.989c0,-18.472 -6.917,-36.096 -19.476,-49.624zm-110.795,140.059l-18.911,-29.218c6.892,-4.498 13.043,-10.193 18.165,-16.928c5.382,7.077 11.902,13.001 19.223,17.6l-18.477,28.546z",
-    {
-      seed: 2,
-      fill: color,
-    }
-  );
+  //ctx.translate(-130, -200);
+  //p2
+  ctx.translate(-185, -200);
+
+  //const p0 = "m609.16001,76.84854c-6.02496,-4.24114 -12.48368,-8.14155 -19.27586,-11.72907c3.40236,-5.63356 5.29284,-11.76019 5.29284,-18.1735c0,-27.38639 -34.10384,-49.66835 -76.02031,-49.66835c-2.46966,0 -4.90923,0.08355 -7.32122,0.23425c-7.66471,-61.35646 -86.48815,-109.76508 -182.33843,-109.76508c-64.73762,0 -121.69017,22.09684 -154.23198,55.33303c-7.00279,-0.77156 -14.18361,-1.1942 -21.51736,-1.1942c-71.15622,0 -129.04649,37.82297 -129.04649,84.31333c0,18.85497 9.5226,36.28148 25.58916,50.33998c-0.15044,0.10484 -0.30839,0.20313 -0.45632,0.30961c-31.49126,22.16237 -48.83403,51.03128 -48.83403,81.29096c0,65.93014 82.09542,119.56606 183.00537,119.56606c9.50755,0 18.88222,-0.47834 28.06885,-1.39242l67.53823,68.17603l-32.91288,139.34821c-1.05054,4.46884 0.73964,8.73291 5.04211,12.00919c4.34259,3.3074 10.89909,5.20436 17.98211,5.20436l120.41648,0c7.08303,0 13.63451,-1.89696 17.97961,-5.20273c4.30247,-3.27628 6.09266,-7.54199 5.03961,-12.0141l-32.35627,-137.00568l69.54154,-70.19749c8.08844,0.7044 16.31227,1.07462 24.64141,1.07462c100.90995,0 183.00537,-53.63755 183.00537,-119.56606c0,-30.25969 -17.34276,-59.13023 -48.83152,-81.29096zm-277.79257,229.43598l-47.41491,-47.86312c17.28008,-7.36835 32.70227,-16.69754 45.54449,-27.7304c13.49411,11.5931 29.84148,21.29743 48.19718,28.83123l-46.32676,46.76229z"
+  // const p1 =
+  ("m242.559,115.437c-2.403,-2.589 -4.979,-4.97 -7.688,-7.16c1.357,-3.439 2.111,-7.179 2.111,-11.094c0,-16.718 -13.602,-30.32 -30.32,-30.32c-0.985,0 -1.958,0.051 -2.92,0.143c-3.057,-37.455 -34.495,-67.006 -72.724,-67.006c-25.82,0 -48.535,13.489 -61.514,33.778c-2.793,-0.471 -5.657,-0.729 -8.582,-0.729c-28.38,0 -51.469,23.089 -51.469,51.469c0,11.51 3.798,22.148 10.206,30.73c-0.06,0.064 -0.123,0.124 -0.182,0.189c-12.56,13.529 -19.477,31.152 -19.477,49.624c0,40.247 32.743,72.989 72.99,72.989c3.792,0 7.531,-0.292 11.195,-0.85l26.937,41.618l-13.127,85.065c-0.419,2.728 0.295,5.331 2.011,7.331c1.732,2.019 4.347,3.177 7.172,3.177l48.027,0c2.825,0 5.438,-1.158 7.171,-3.176c1.716,-2 2.43,-4.604 2.01,-7.334l-12.905,-83.635l27.736,-42.852c3.226,0.43 6.506,0.656 9.828,0.656c40.247,0 72.99,-32.743 72.99,-72.989c0,-18.472 -6.917,-36.096 -19.476,-49.624zm-110.795,140.059l-18.911,-29.218c6.892,-4.498 13.043,-10.193 18.165,-16.928c5.382,7.077 11.902,13.001 19.223,17.6l-18.477,28.546z");
+  const p2 =
+    "m347.16016,115.437c-3.43927,-2.589 -7.12614,-4.97 -11.00337,-7.16c1.94219,-3.439 3.02135,-7.179 3.02135,-11.094c0,-16.718 -19.46773,-30.32 -43.3952,-30.32c-1.40977,0 -2.80237,0.051 -4.17922,0.143c-4.3753,-37.455 -49.37063,-67.006 -104.0855,-67.006c-36.95462,0 -69.46524,13.489 -88.0413,33.778c-3.99745,-0.471 -8.09653,-0.729 -12.2829,-0.729c-40.61859,0 -73.6645,23.089 -73.6645,51.469c0,11.51 5.43585,22.148 14.60724,30.73c-0.08587,0.064 -0.17604,0.124 -0.26049,0.189c-17.97638,13.529 -27.87626,31.152 -27.87626,49.624c0,40.247 46.86309,72.989 104.46621,72.989c5.42726,0 10.77867,-0.292 16.02273,-0.85l38.55331,41.618l-18.78789,85.065c-0.59969,2.728 0.42222,5.331 2.87822,7.331c2.47891,2.019 6.2216,3.177 10.26485,3.177l68.73817,0c4.04325,0 7.78308,-1.158 10.26342,-3.176c2.45601,-2 3.47791,-4.604 2.87679,-7.334l-18.47015,-83.635l39.69687,-42.852c4.61718,0.43 9.31165,0.656 14.06623,0.656c57.60312,0 104.46621,-32.743 104.46621,-72.989c0,-18.472 -9.89989,-36.096 -27.87483,-49.624zm-158.57424,140.059l-27.06618,-29.218c9.86411,-4.498 18.66766,-10.193 25.99848,-16.928c7.70293,7.077 17.03462,13.001 27.51273,17.6l-26.44502,28.546z";
+  rc.path(p2, {
+    seed: 2,
+    fill: color,
+    fillStyle: "solid",
+  });
   ctx.restore();
 }
 
+//To remove
+function drawDrop(
+  x: number,
+  y: number,
+  ctx: CanvasRenderingContext2D,
+  rc: RoughCanvas
+) {
+  //x15 y3
+  rc.rectangle(x - 12, y, 25, 40, {
+    seed: 3,
+    fill: colors[0],
+  });
+
+  const p = new Path2D(
+    `M${x} ${y} Q16.5 6.8 25 18 A12.8 12.8 0 1 1 5 18 Q13.5 6.8 15 3z`
+  );
+  ctx.fillStyle = colors[2];
+  ctx.fill(p);
+  ctx.stroke(p);
+  rc.line(x, y + 37, 14, y + 37 + 12, {
+    seed: 3,
+  });
+}
 function drawTreeSvg(rc: RoughCanvas, ctx: CanvasRenderingContext2D) {
   const width = ctx.canvas.width;
   const height = ctx.canvas.height;
-  drawTreeAtScale(ctx, 1, width, height, colors[0], rc);
-  drawTreeAtScale(ctx, 3, width, height, colors[2], rc);
-
+  drawTreeAtScale(ctx, 3, width, height, "rgb(15,150,10)", rc);
+}
+function drawLeafWithCanvas(ctx: CanvasRenderingContext2D) {
+  ctx.beginPath();
+  ctx.lineJoin = "miter";
+  ctx.moveTo(120, 20);
+  ctx.quadraticCurveTo(117.5, 30, 148, 68);
+  ctx.arc(120, 88, 34.5, 5.75, 3.66, false);
+  ctx.quadraticCurveTo(117.5, 35, 120, 20);
+  ctx.closePath();
+  ctx.strokeStyle = "#000";
+  ctx.lineWidth = 2;
+  ctx.fillStyle = colors[2];
+  ctx.stroke();
+  ctx.fill();
 }
 
 function drawIt(
@@ -337,27 +387,22 @@ function drawIt(
 ) {
   const ctx = canvas.getContext("2d")!;
   drawTreeSvg(rc, ctx);
+
+  rc.circle(ctx.canvas.width / 2 - 400, ctx.canvas.height / 2 - 100, 300, {
+    seed: 3,
+  });
+  ctx.textAlign = "center";
+  ctx.fillStyle = "black";
+  ctx.font = "20px Comic Sans MS";
+  ctx.fillText(
+    "Sector 1",
+    ctx.canvas.width / 2 - 400,
+    ctx.canvas.height / 2 - 100
+  );
   for (const element of elements) {
     drawLeaf(rc, ctx, element);
   }
-  let points: Point[] = [];
-  for (let i = 0; i < 20; i++) {
-    let x = (400 / 20) * i + 10;
-    let xdeg = (Math.PI / 100) * x;
-    let y = Math.round(Math.sin(xdeg) * 90) + 500;
-    points.push([x, y]);
-  }
-  rc.curve(points, {
-    stroke: "red",
-    strokeWidth: 3,
-    seed: 4,
-  });
-  const p = new Path2D(
-    "M15 3 Q16.5 6.8 25 18 A12.8 12.8 0 1 1 5 18 Q13.5 6.8 15 3z"
-  );
-  ctx.fillStyle = colors[2];
-  ctx.fill(p);
-  ctx.stroke(p);
+  //drawLeafWithCanvas(ctx);
   //drawBubble(canvas, 10, 60, 220, 90, 20, rc);
   /*
   rc.path("M298.736,115.437c-2.403-2.589-4.979-4.97-7.688-7.16c1.357-3.439,2.111-7.179,2.111-11.094  c0-16.718-13.602-30.32-30.32-30.32c-0.985,0-1.958,0.051-2.92,0.143C256.862,29.551,225.424,0,187.195,0  c-25.82,0-48.535,13.489-61.514,33.778c-2.793-0.471-5.657-0.729-8.582-0.729c-28.38,0-51.469,23.089-51.469,51.469  c0,11.51,3.798,22.148,10.206,30.73c-0.06,0.064-0.123,0.124-0.182,0.189c-12.56,13.529-19.477,31.152-19.477,49.624  c0,40.247,32.743,72.989,72.99,72.989c3.792,0,7.531-0.292,11.195-0.85l26.937,41.618l-13.127,85.065  c-0.419,2.728,0.295,5.331,2.011,7.331c1.732,2.019,4.347,3.177,7.172,3.177h48.027c2.825,0,5.438-1.158,7.171-3.176  c1.716-2,2.43-4.604,2.01-7.334l-12.905-83.635l27.736-42.852c3.226,0.43,6.506,0.656,9.828,0.656  c40.247,0,72.99-32.743,72.99-72.989C318.212,146.589,311.295,128.965,298.736,115.437z M187.941,255.496l-18.911-29.218  c6.892-4.498,13.043-10.193,18.165-16.928c5.382,7.077,11.902,13.001,19.223,17.6L187.941,255.496z"
@@ -425,6 +470,7 @@ function draw(
   cameraOffset: { x: number; y: number },
   roughCanvas: RoughCanvas,
   elements: Element[]
+  //TODO stocker en rectangle et convertir en feuille au moment du draw?
 ) {
   const ctx = canvas.getContext("2d")!;
   translate(canvas.width / 2, canvas.height / 2, ctx);
@@ -526,7 +572,7 @@ let MAX_ZOOM = 5;
 let MIN_ZOOM = 0.1;
 let SCROLL_SENSITIVITY = 0.0005;
 let STEP = 50;
-let INITIAL_ZOOM = 0.5;
+let INITIAL_ZOOM = 1;
 export default function Canvas() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [width, height, devicePixelRatio] = useDeviceSize();
@@ -541,10 +587,21 @@ export default function Canvas() {
     initialPinchDistance: null,
     draggedElement: null,
     mode: "select",
+    leafs: [
+      {
+        x: 15,
+        y: 3,
+        seed: getRandomArbitrary(1, 1000),
+        color: colors[2],
+        id: guidGenerator(),
+        text: "go muscu",
+        icon: "💪",
+      },
+    ],
     elements: [
       {
-        x: 0,
-        y: 0,
+        x: 110,
+        y: 100,
         seed: getRandomArbitrary(1, 1000),
         color: colors[2],
         id: guidGenerator(),
@@ -567,6 +624,15 @@ export default function Canvas() {
         color: "gray",
         id: guidGenerator(),
         text: "tortelinni",
+        icon: "👨",
+      },
+      {
+        x: 6000,
+        y: 300,
+        seed: getRandomArbitrary(1, 1000),
+        color: "gray",
+        id: guidGenerator(),
+        text: "You found me!",
         icon: "👨",
       },
     ],
@@ -676,7 +742,7 @@ export default function Canvas() {
         draggedElement: el,
       }));
       return;
-    } else if (!el) {
+    } else if (!el && appState.mode === "drag") {
       setAppState((prev) => ({
         ...prev,
         isDragging: true,
