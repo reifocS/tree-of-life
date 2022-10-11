@@ -10,18 +10,9 @@ import {
 } from "react";
 import rough from "roughjs/bin/rough";
 import { RoughCanvas } from "roughjs/bin/canvas";
-import { Point } from "roughjs/bin/geometry";
 
-type Tree = Category[];
-
-type Category = {
-  label: string;
-  leaves: Leaf[];
-};
-
-type Leaf = {
-  label: string;
-};
+//TODO
+//Remove magic variables (tree size for example)
 
 type AppState = {
   cameraZoom: number;
@@ -209,7 +200,11 @@ function hitTest(
   const context = canvas.getContext("2d")!;
   // Destructure to get the x and y values out of the transformed DOMPoint.
   //TODO Change mouse coord to canvas coord instead of the opposite
-  const { x: newX, y: newY } = toCanvasCoord(element.x - 60 * leafScale, element.y, context);
+  const { x: newX, y: newY } = toCanvasCoord(
+    element.x - 60 * leafScale,
+    element.y,
+    context
+  );
 
   return (
     x > newX &&
@@ -366,9 +361,6 @@ function drawIt(
   const ctx = canvas.getContext("2d")!;
   drawTreeSvg(rc, ctx);
 
-  rc.circle(ctx.canvas.width / 2 - 400, ctx.canvas.height / 2 - 100, 300, {
-    seed: 3,
-  });
   ctx.textAlign = "center";
   ctx.fillStyle = "black";
   ctx.font = "20px Comic Sans MS";
@@ -377,6 +369,12 @@ function drawIt(
     ctx.canvas.width / 2 - 400,
     ctx.canvas.height / 2 - 100
   );
+  ctx.fillText(
+    "Sector 2",
+    ctx.canvas.width / 2 + 400,
+    ctx.canvas.height / 2 - 100
+  );
+  ctx.fillText("Sector 3", ctx.canvas.width / 2, ctx.canvas.height / 2 - 400);
   for (const element of elements) {
     drawLeaf(rc, ctx, element, leafScale);
   }
@@ -763,8 +761,8 @@ export default function Canvas() {
       const dy = py - startY;
       const dragTarget = {
         ...appState.draggedElement,
-        x: startX + dx + RC_WIDTH * leafScale / 2,
-        y: startY + dy - RC_HEIGTH * leafScale / 2,
+        x: startX + dx + (RC_WIDTH * leafScale) / 2,
+        y: startY + dy - (RC_HEIGTH * leafScale) / 2,
       };
 
       const newElems = appState.elements.map((e) => {
