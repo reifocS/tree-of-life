@@ -25,6 +25,7 @@ type Leaf = {
 
 type AppState = {
   cameraZoom: number;
+  leafScale: number;
   scaleMultiplier: number;
   cameraOffset: {
     x: number;
@@ -92,47 +93,6 @@ function getTransformedPoint(
   return context.getTransform().invertSelf().transformPoint(originalPoint);
 }
 
-function drawBubble(
-  canvas: HTMLCanvasElement,
-  x: number,
-  y: number,
-  w: number,
-  h: number,
-  radius: number,
-  rc: RoughCanvas
-) {
-  const ctx = canvas.getContext("2d")!;
-  const r = x + w;
-  const b = y + h;
-  ctx.beginPath();
-  ctx.strokeStyle = "black";
-  ctx.lineWidth = 2;
-  ctx.textAlign = "center";
-  ctx.moveTo(x + radius, y);
-  ctx.lineTo(x + radius / 2, y - 10);
-  ctx.lineTo(x + radius * 2, y);
-  ctx.lineTo(r - radius, y);
-  ctx.quadraticCurveTo(r, y, r, y + radius);
-  ctx.lineTo(r, y + h - radius);
-  ctx.quadraticCurveTo(r, b, r - radius, b);
-  ctx.lineTo(x + radius, b);
-  ctx.quadraticCurveTo(x, b, x, b - radius);
-  ctx.lineTo(x, y + radius);
-  ctx.quadraticCurveTo(x, y, x + radius, y);
-  ctx.fillStyle = colors[2];
-  ctx.fill();
-  ctx.font = `${FONT_SIZE}px Comic Sans MS`;
-  ctx.fillStyle = "black";
-
-  ctx.fillText("hello world", x + w / 2, y + h / 2);
-
-  ctx.stroke();
-}
-
-type MindMap = MNode[];
-
-type MNode = { id: string; label: string };
-
 type Element = {
   x: number;
   y: number;
@@ -141,6 +101,7 @@ type Element = {
   id: string;
   text: string;
   icon: string;
+  type?: string;
 };
 
 const matrix = [1, 0, 0, 1, 0, 0];
@@ -233,31 +194,35 @@ function toCanvasCoord(
   return { x: newX, y: newY };
 }
 
+function toLeafBoundingRect(x: number, y: number, scale: number) {
+  return { x: x - 60 * scale, y: y * scale };
+}
+
 function hitTest(
   x: number,
   y: number,
   element: Element,
   canvas: HTMLCanvasElement,
-  cameraZoom: number
+  cameraZoom: number,
+  leafScale: number
 ) {
   const context = canvas.getContext("2d")!;
   // Destructure to get the x and y values out of the transformed DOMPoint.
-  const { x: newX, y: newY } = toCanvasCoord(element.x, element.y, context);
-  //const {x, y} = getXY(mx, my)
+  //TODO Change mouse coord to canvas coord instead of the opposite
+  const { x: newX, y: newY } = toCanvasCoord(element.x - 60 * leafScale, element.y, context);
+
   return (
     x > newX &&
-    x < newX + RC_WIDTH * cameraZoom &&
+    x < newX + RC_WIDTH * leafScale * cameraZoom &&
     y > newY &&
-    y < newY + RC_HEIGTH * cameraZoom
+    y < newY + RC_HEIGTH * leafScale * cameraZoom
   );
-
-  //return x > element.x && x < element.x + RC_WIDTH && y > element.y && y < element.y + RC_HEIGTH;
 }
 
-const RC_WIDTH = 70;
-const RC_HEIGTH = 40;
+const RC_WIDTH = 60;
+const RC_HEIGTH = 75;
 const FONT_SIZE = 10;
-const LEAF_SCALE = {
+const LEAF_SCALE: Record<string, number> = {
   SMALL: 0.5,
   MEDIUM: 1,
   BIG: 2,
@@ -267,11 +232,18 @@ const colors = ["gray", "orange", "#82c91e"];
 function drawLeaf(
   rc: RoughCanvas,
   ctx: CanvasRenderingContext2D,
-  element: Element
+  element: Element,
+  scale: number
 ) {
   const { x, y, seed, color, text, icon } = element;
   rc.path(
-    `m${x},${y}c-0,0 -27,-9 -49,19c-18,23 -2,47 -2,47s18,20 36,-2c21,-28 14,-64 14,-64z`,
+    `m${x},${y}c-0,0 -${27 * scale},-${9 * scale} -${49 * scale},${
+      19 * scale
+    }c-${18 * scale},${23 * scale} -${2 * scale},${47 * scale} -${2 * scale},${
+      47 * scale
+    }s${18 * scale},${20 * scale} ${36 * scale},-${2 * scale}c${21 * scale},-${
+      28 * scale
+    } ${14 * scale},-${64 * scale} ${14 * scale},-${64 * scale}z`,
     {
       seed,
       roughness: 0.5,
@@ -280,15 +252,20 @@ function drawLeaf(
     }
   );
   rc.path(
-    `m${x - 45},${
-      y + 65
-    }c-0,-0 -0,-0 -1,0l-19,24c-0,0 -0,0 0,1c0,0 0,0 1,0l19,-24c0,-0 0,-0 0,-1z`,
+    `m${x - 45 * scale},${y + 65 * scale}c-0,-0 -0,-0 -1,0l-${19 * scale},${
+      24 * scale
+    }c-0,0 -0,0 0,1c0,0 0,0 1,0l${19 * scale},-${24 * scale}c0,-0 0,-0 0,-1z`,
     {
       seed,
       roughness: 0,
       fill: "#8AC054",
     }
   );
+  //hitbox
+  /*
+  rc.rectangle(x - 60 * scale, y, 60 * scale, 75 * scale, {
+    seed: 1,
+  });*/
   /*
   rc.rectangle(x, y, RC_WIDTH, RC_HEIGTH, {
     fill: color,
@@ -383,7 +360,8 @@ function drawLeafWithCanvas(ctx: CanvasRenderingContext2D) {
 function drawIt(
   rc: RoughCanvas,
   canvas: HTMLCanvasElement,
-  elements: Element[]
+  elements: Element[],
+  leafScale: number
 ) {
   const ctx = canvas.getContext("2d")!;
   drawTreeSvg(rc, ctx);
@@ -400,7 +378,7 @@ function drawIt(
     ctx.canvas.height / 2 - 100
   );
   for (const element of elements) {
-    drawLeaf(rc, ctx, element);
+    drawLeaf(rc, ctx, element, leafScale);
   }
   //drawLeafWithCanvas(ctx);
   //drawBubble(canvas, 10, 60, 220, 90, 20, rc);
@@ -469,7 +447,8 @@ function draw(
   cameraZoom: number,
   cameraOffset: { x: number; y: number },
   roughCanvas: RoughCanvas,
-  elements: Element[]
+  elements: Element[],
+  leafScale: number
   //TODO stocker en rectangle et convertir en feuille au moment du draw?
 ) {
   const ctx = canvas.getContext("2d")!;
@@ -481,7 +460,7 @@ function draw(
     ctx
   );
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawIt(roughCanvas, canvas, elements);
+  drawIt(roughCanvas, canvas, elements, leafScale);
   //buildTree(ctx, roughCanvas);
 }
 
@@ -575,7 +554,7 @@ let STEP = 50;
 let INITIAL_ZOOM = 1;
 export default function Canvas() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [width, height, devicePixelRatio] = useDeviceSize();
+  const [width, height] = useDeviceSize();
   const posRef = useRef<HTMLDivElement>(null);
   const [roughCanvas, setRoughCanvas] = useState<RoughCanvas | null>(null);
   const [appState, setAppState] = useState<AppState>(() => ({
@@ -587,6 +566,7 @@ export default function Canvas() {
     initialPinchDistance: null,
     draggedElement: null,
     mode: "select",
+    leafScale: LEAF_SCALE.MEDIUM,
     leafs: [
       {
         x: 15,
@@ -638,7 +618,8 @@ export default function Canvas() {
     ],
   }));
 
-  const { cameraZoom, elements, cameraOffset, isDragging } = appState;
+  const { cameraZoom, elements, cameraOffset, isDragging, leafScale } =
+    appState;
   const { x: cameraOffsetX, y: cameraOffsetY } = cameraOffset;
   const lastZoom = useRef(cameraZoom);
   const ref = useCallback((node: HTMLCanvasElement) => {
@@ -716,7 +697,8 @@ export default function Canvas() {
       cameraZoom,
       { x: cameraOffsetX, y: cameraOffsetY },
       roughCanvas,
-      elements
+      elements,
+      leafScale
     );
   }, [
     cameraOffsetX,
@@ -726,6 +708,7 @@ export default function Canvas() {
     height,
     roughCanvas,
     width,
+    leafScale,
   ]);
 
   function setMode(m: string) {
@@ -734,7 +717,7 @@ export default function Canvas() {
   const handlePointerDown = (e: PointerEvent<HTMLCanvasElement>) => {
     const { x, y } = getMousePos(canvasRef.current!, e);
     const el = elements.find((el) =>
-      hitTest(x, y, el, canvasRef.current!, cameraZoom)
+      hitTest(x, y, el, canvasRef.current!, cameraZoom, leafScale)
     );
     if (el && appState.mode === "drag") {
       setAppState((prev) => ({
@@ -758,7 +741,6 @@ export default function Canvas() {
 
   const handlePointerUp = (e: PointerEvent<HTMLCanvasElement>) => {
     //const { x, y } = getMousePos(canvasRef.current!, e);
-    const wasDragging = isDragging;
     setAppState((prev) => ({
       ...prev,
       isDragging: false,
@@ -766,7 +748,7 @@ export default function Canvas() {
       draggedElement: null,
     }));
     lastZoom.current = cameraZoom;
-    if (wasDragging) document.documentElement.style.cursor = "";
+    if (isDragging) document.documentElement.style.cursor = "";
   };
 
   const handlePointerMove = (e: PointerEvent<HTMLCanvasElement>) => {
@@ -781,8 +763,8 @@ export default function Canvas() {
       const dy = py - startY;
       const dragTarget = {
         ...appState.draggedElement,
-        x: startX + dx - RC_WIDTH / 2,
-        y: startY + dy - RC_HEIGTH / 2,
+        x: startX + dx + RC_WIDTH * leafScale / 2,
+        y: startY + dy - RC_HEIGTH * leafScale / 2,
       };
 
       const newElems = appState.elements.map((e) => {
@@ -796,7 +778,9 @@ export default function Canvas() {
       return;
     }
     if (
-      elements.find((el) => hitTest(x, y, el, canvasRef.current!, cameraZoom))
+      elements.find((el) =>
+        hitTest(x, y, el, canvasRef.current!, cameraZoom, leafScale)
+      )
     ) {
       document.documentElement.style.cursor = "pointer";
     } else if (!isDragging) {
@@ -863,7 +847,9 @@ export default function Canvas() {
           const { x, y } = getEventLocation(e);
           console.log({ x, y });
           for (const element of elements) {
-            if (hitTest(x, y, element, canvasRef.current!, cameraZoom)) {
+            if (
+              hitTest(x, y, element, canvasRef.current!, cameraZoom, leafScale)
+            ) {
               setAppState((prev) => ({
                 ...prev,
                 elements: prev.elements.map((e) => {
@@ -925,6 +911,22 @@ export default function Canvas() {
         >
           Add
         </button>
+        Leaf size:
+        <select
+          value={appState.leafScale}
+          onChange={(e) =>
+            setAppState((prev) => ({
+              ...prev,
+              leafScale: +e.target.value,
+            }))
+          }
+        >
+          {Object.keys(LEAF_SCALE).map((k, i) => (
+            <option key={i} value={LEAF_SCALE[k]}>
+              {k}
+            </option>
+          ))}
+        </select>
         Mode:
         <select value={appState.mode} onChange={(e) => setMode(e.target.value)}>
           <option value="drag">drag</option>
