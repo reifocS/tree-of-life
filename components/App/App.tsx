@@ -106,7 +106,7 @@ const KEYS = {
   BACKSPACE: "Backspace",
   SPACE: "Space",
 };
-const tree: Tree = [
+const tree: any = [
   {
     label: "Penne",
     leaves: [
