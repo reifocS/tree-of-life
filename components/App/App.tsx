@@ -92,7 +92,11 @@ type Element = {
   id: string;
   text: string;
   icon: string;
-  type?: string;
+  type: "leaf" | "sector";
+  width?: number;
+  height?: number;
+  actualBoundingBoxAscent?: number;
+  font?: string;
 };
 
 const matrix = [1, 0, 0, 1, 0, 0];
@@ -200,26 +204,36 @@ function hitTest(
   const context = canvas.getContext("2d")!;
   // Destructure to get the x and y values out of the transformed DOMPoint.
   //TODO Change mouse coord to canvas coord instead of the opposite
-  const { x: newX, y: newY } = toCanvasCoord(
-    element.x - 60 * leafScale,
-    element.y,
-    context
-  );
+  if (element.type === "leaf") {
+    const { x: newX, y: newY } = toCanvasCoord(
+      element.x - 60 * leafScale,
+      element.y,
+      context
+    );
 
-  return (
-    x > newX &&
-    x < newX + RC_WIDTH * leafScale * cameraZoom &&
-    y > newY &&
-    y < newY + RC_HEIGTH * leafScale * cameraZoom
-  );
+    return (
+      x > newX &&
+      x < newX + RC_WIDTH * leafScale * cameraZoom &&
+      y > newY &&
+      y < newY + RC_HEIGTH * leafScale * cameraZoom
+    );
+  } else if (element.type === "sector") {
+    const { x: newX, y: newY } = toCanvasCoord(element.x, element.y, context);
+    return (
+      x >= newX &&
+      x <= newX + element.width! * cameraZoom &&
+      y >= newY &&
+      y <= newY + element.height! * cameraZoom
+    );
+  }
 }
 
 const RC_WIDTH = 60;
 const RC_HEIGTH = 75;
-const FONT_SIZE = 10;
+const FONT_SIZE = 12;
 const LEAF_SCALE: Record<string, number> = {
   SMALL: 0.5,
-  MEDIUM: 1,
+  MEDIUM: 1.25,
   BIG: 2,
 };
 const colors = ["gray", "orange", "#82c91e"];
@@ -247,7 +261,7 @@ function drawLeaf(
     }
   );
   rc.path(
-    `m${x - 45 * scale},${y + 65 * scale}c-0,-0 -0,-0 -1,0l-${19 * scale},${
+    `m${x - 40 * scale},${y + 60 * scale}c-0,-0 -0,-0 -1,0l-${19 * scale},${
       24 * scale
     }c-0,0 -0,0 0,1c0,0 0,0 1,0l${19 * scale},-${24 * scale}c0,-0 0,-0 0,-1z`,
     {
@@ -256,6 +270,7 @@ function drawLeaf(
       fill: "#8AC054",
     }
   );
+  ctx.fillText(text, x - (RC_WIDTH / 2) * scale, y + (RC_HEIGTH / 3) * scale);
   //hitbox
   /*
   rc.rectangle(x - 60 * scale, y, 60 * scale, 75 * scale, {
@@ -337,6 +352,7 @@ function drawTreeSvg(rc: RoughCanvas, ctx: CanvasRenderingContext2D) {
   const height = ctx.canvas.height;
   drawTreeAtScale(ctx, 3, width, height, "rgb(15,150,10)", rc);
 }
+/*
 function drawLeafWithCanvas(ctx: CanvasRenderingContext2D) {
   ctx.beginPath();
   ctx.lineJoin = "miter";
@@ -351,7 +367,7 @@ function drawLeafWithCanvas(ctx: CanvasRenderingContext2D) {
   ctx.stroke();
   ctx.fill();
 }
-
+*/
 function drawIt(
   rc: RoughCanvas,
   canvas: HTMLCanvasElement,
@@ -361,22 +377,13 @@ function drawIt(
   const ctx = canvas.getContext("2d")!;
   drawTreeSvg(rc, ctx);
 
-  ctx.textAlign = "center";
   ctx.fillStyle = "black";
-  ctx.font = "20px Comic Sans MS";
-  ctx.fillText(
-    "Sector 1",
-    ctx.canvas.width / 2 - 400,
-    ctx.canvas.height / 2 - 100
-  );
-  ctx.fillText(
-    "Sector 2",
-    ctx.canvas.width / 2 + 400,
-    ctx.canvas.height / 2 - 100
-  );
-  ctx.fillText("Sector 3", ctx.canvas.width / 2, ctx.canvas.height / 2 - 400);
   for (const element of elements) {
-    drawLeaf(rc, ctx, element, leafScale);
+    if (element.type === "leaf") {
+      drawLeaf(rc, ctx, element, leafScale);
+    } else {
+      drawSector(element, ctx);
+    }
   }
   //drawLeafWithCanvas(ctx);
   //drawBubble(canvas, 10, 60, 220, 90, 20, rc);
@@ -432,6 +439,42 @@ function getXY(mouseX: number, mouseY: number) {
   return { x: newX, y: newY };
 }
 */
+
+function addText(context: CanvasRenderingContext2D) {
+  //TODO type it
+  const element: any = {
+    x: context.canvas.width / 2,
+    y: context.canvas.height / 2,
+    type: "sector",
+    id: guidGenerator(),
+  };
+  const text = prompt("What text do you want?");
+  if (text === null) {
+    return;
+  }
+  element.text = text;
+  element.font = "20px Virgil";
+  const font = context.font;
+  context.font = element.font;
+  const { actualBoundingBoxAscent, actualBoundingBoxDescent, width } =
+    context.measureText(text);
+  element.actualBoundingBoxAscent = actualBoundingBoxAscent;
+  context.font = font;
+  const height = actualBoundingBoxAscent + actualBoundingBoxDescent;
+
+  // Center the text
+  element.x -= width / 2;
+  element.y -= actualBoundingBoxAscent;
+  element.width = width;
+  element.height = height;
+  return element;
+}
+
+function drawSector(sector: Element, ctx: CanvasRenderingContext2D) {
+  ctx.font = sector.font!;
+  const { x, y, text } = sector;
+  ctx.fillText(text, x, y + sector.actualBoundingBoxAscent!);
+}
 
 function scale(x: number, y: number, ctx: CanvasRenderingContext2D) {
   matrix[0] *= x;
@@ -574,6 +617,7 @@ export default function Canvas() {
         id: guidGenerator(),
         text: "go muscu",
         icon: "💪",
+        type: "leaf",
       },
     ],
     elements: [
@@ -585,6 +629,7 @@ export default function Canvas() {
         id: guidGenerator(),
         text: "go muscu",
         icon: "💪",
+        type: "leaf",
       },
       {
         x: window.innerWidth,
@@ -594,6 +639,7 @@ export default function Canvas() {
         id: guidGenerator(),
         text: "coder toute la nigth",
         icon: "👨‍💻",
+        type: "leaf",
       },
       {
         x: 600,
@@ -603,6 +649,7 @@ export default function Canvas() {
         id: guidGenerator(),
         text: "tortelinni",
         icon: "👨",
+        type: "leaf",
       },
       {
         x: 6000,
@@ -612,6 +659,7 @@ export default function Canvas() {
         id: guidGenerator(),
         text: "You found me!",
         icon: "👨",
+        type: "leaf",
       },
     ],
   }));
@@ -751,7 +799,10 @@ export default function Canvas() {
 
   const handlePointerMove = (e: PointerEvent<HTMLCanvasElement>) => {
     const { x, y } = getMousePos(canvasRef.current!, e);
-
+    const target = e.target;
+    if (!(target instanceof HTMLElement)) {
+      return;
+    }
     if (appState.draggedElement) {
       const canvas = canvasRef.current!;
       const context = canvas.getContext("2d")!;
@@ -759,12 +810,21 @@ export default function Canvas() {
       const { x: px, y: py } = mousePosToCanvasPos(context, x, y);
       const dx = px - startX;
       const dy = py - startY;
-      const dragTarget = {
-        ...appState.draggedElement,
-        x: startX + dx + (RC_WIDTH * leafScale) / 2,
-        y: startY + dy - (RC_HEIGTH * leafScale) / 2,
-      };
-
+      let dragTarget: Element;
+      if (appState.draggedElement.type === "leaf") {
+        //TODO moving to center is hacky, find a better way
+        dragTarget = {
+          ...appState.draggedElement,
+          x: startX + dx + (RC_WIDTH * leafScale) / 2,
+          y: startY + dy - (RC_HEIGTH * leafScale) / 2,
+        };
+      } else {
+        dragTarget = {
+          ...appState.draggedElement,
+          x: startX + dx - appState.draggedElement.width! / 2,
+          y: startY + dy,
+        };
+      }
       const newElems = appState.elements.map((e) => {
         if (e.id === dragTarget.id) {
           return dragTarget;
@@ -896,18 +956,30 @@ export default function Canvas() {
                 ...prev.elements,
                 {
                   id: guidGenerator(),
-                  x: getRandomArbitrary(0, canvasRef.current!.width),
-                  y: getRandomArbitrary(0, canvasRef.current!.height),
+                  x: width / 2,
+                  y: height / 2,
                   color: colors[0],
                   seed: getRandomArbitrary(1, 10000),
                   text: "hello world!",
                   icon: "🦍",
+                  type: "leaf",
                 },
               ],
             }));
           }}
         >
-          Add
+          Add Leaf
+        </button>
+        <button
+          onClick={() => {
+            const el = addText(canvasRef.current!.getContext("2d")!);
+            setAppState((prev) => ({
+              ...prev,
+              elements: [...prev.elements, el],
+            }));
+          }}
+        >
+          Add sector
         </button>
         Leaf size:
         <select
