@@ -31,6 +31,7 @@ type AppState = {
   elements: Element[];
   draggedElement: Element | null;
   mode: string;
+  sectorId?: string;
 };
 const useDeviceSize = () => {
   const [width, setWidth] = useState(0);
@@ -471,9 +472,11 @@ function addText(context: CanvasRenderingContext2D) {
 }
 
 function drawSector(sector: Element, ctx: CanvasRenderingContext2D) {
+  const font = ctx.font;
   ctx.font = sector.font!;
   const { x, y, text } = sector;
   ctx.fillText(text, x, y + sector.actualBoundingBoxAscent!);
+  ctx.font = font;
 }
 
 function scale(x: number, y: number, ctx: CanvasRenderingContext2D) {
@@ -898,116 +901,152 @@ export default function Canvas() {
     }
   };
   return (
-    <div>
-      <canvas
-        onClick={(e) => {
-          if (appState.mode !== "select") return;
-          const { x, y } = getEventLocation(e);
-          console.log({ x, y });
-          for (const element of elements) {
-            if (
-              hitTest(x, y, element, canvasRef.current!, cameraZoom, leafScale)
-            ) {
-              setAppState((prev) => ({
-                ...prev,
-                elements: prev.elements.map((e) => {
-                  if (e.id === element.id) {
-                    let nextIndex =
-                      (colors.findIndex((color) => color === e.color) + 1) %
-                      colors.length;
-                    return { ...e, color: colors[nextIndex] };
-                  }
-                  return e;
-                }),
-              }));
+    <>
+      <div className="container">
+        <div className="sidePanel">
+          <div className="panelColumn">
+            <button
+              onClick={() => {
+                setAppState((prev) => ({
+                  ...prev,
+                  elements: [
+                    ...prev.elements,
+                    {
+                      id: guidGenerator(),
+                      x: width / 2,
+                      y: height / 2,
+                      color: colors[0],
+                      seed: getRandomArbitrary(1, 10000),
+                      text: "hello world!",
+                      icon: "🦍",
+                      type: "leaf",
+                    },
+                  ],
+                }));
+              }}
+            >
+              Add Leaf
+            </button>
+            <button
+              onClick={() => {
+                const el = addText(canvasRef.current!.getContext("2d")!);
+                setAppState((prev) => ({
+                  ...prev,
+                  elements: [...prev.elements, el],
+                }));
+              }}
+            >
+              Add sector
+            </button>
+            <h4>Leaf size:</h4>
+            <select
+              value={appState.leafScale}
+              onChange={(e) =>
+                setAppState((prev) => ({
+                  ...prev,
+                  leafScale: +e.target.value,
+                }))
+              }
+            >
+              {Object.keys(LEAF_SCALE).map((k, i) => (
+                <option key={i} value={LEAF_SCALE[k]}>
+                  {k}
+                </option>
+              ))}
+            </select>
+            <h4>Mode:</h4>
+            <select
+              value={appState.mode}
+              onChange={(e) => setMode(e.target.value)}
+            >
+              <option value="drag">drag</option>
+              <option value="select">select</option>
+            </select>
+          </div>
+          <div>
+            <ul>
+              {elements.map((e) => (
+                <li key={e.id}>
+                  <input
+                    value={e.text}
+                    onChange={(ev) => {
+                      setAppState((p) => ({
+                        ...p,
+                        elements: p.elements.map((el) => {
+                          if (el.id === e.id) {
+                            return {
+                              ...el,
+                              text: ev.target.value,
+                            };
+                          }
+                          return el;
+                        }),
+                      }));
+                    }}
+                  ></input>
+                  <button
+                    onClick={() => {
+                      setAppState((p) => ({
+                        ...p,
+                        elements: p.elements.filter((el) => el.id !== e.id),
+                      }));
+                    }}
+                  >
+                    X
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+        <canvas
+          onClick={(e) => {
+            if (appState.mode !== "select") return;
+            const { x, y } = getEventLocation(e);
+            console.log({ x, y });
+            for (const element of elements) {
+              if (
+                hitTest(
+                  x,
+                  y,
+                  element,
+                  canvasRef.current!,
+                  cameraZoom,
+                  leafScale
+                )
+              ) {
+                setAppState((prev) => ({
+                  ...prev,
+                  elements: prev.elements.map((e) => {
+                    if (e.id === element.id) {
+                      let nextIndex =
+                        (colors.findIndex((color) => color === e.color) + 1) %
+                        colors.length;
+                      return { ...e, color: colors[nextIndex] };
+                    }
+                    return e;
+                  }),
+                }));
+              }
             }
-          }
-        }}
-        onMouseDown={handlePointerDown}
-        onTouchStart={(e) => handleTouch(e, handlePointerDown)}
-        onMouseUp={handlePointerUp}
-        onTouchEnd={(e) => handleTouch(e, handlePointerUp)}
-        onMouseMove={handlePointerMove}
-        onTouchMove={(e) => handleTouch(e, handlePointerMove)}
-        onWheel={(e) => adjustZoom(e.deltaY * SCROLL_SENSITIVITY, null)}
-        ref={ref}
-        width={width}
-        height={height}
-      />
-      <div
-        style={{
-          position: "absolute",
-          left: 300,
-          bottom: 100,
-        }}
-        ref={posRef}
-      ></div>
-      <div
-        id="buttonWrapper"
-        style={{
-          display: "flex",
-        }}
-      >
-        <button
-          onClick={() => {
-            setAppState((prev) => ({
-              ...prev,
-              elements: [
-                ...prev.elements,
-                {
-                  id: guidGenerator(),
-                  x: width / 2,
-                  y: height / 2,
-                  color: colors[0],
-                  seed: getRandomArbitrary(1, 10000),
-                  text: "hello world!",
-                  icon: "🦍",
-                  type: "leaf",
-                },
-              ],
-            }));
           }}
-        >
-          Add Leaf
-        </button>
-        <button
-          onClick={() => {
-            const el = addText(canvasRef.current!.getContext("2d")!);
-            setAppState((prev) => ({
-              ...prev,
-              elements: [...prev.elements, el],
-            }));
-          }}
-        >
-          Add sector
-        </button>
-        Leaf size:
-        <select
-          value={appState.leafScale}
-          onChange={(e) =>
-            setAppState((prev) => ({
-              ...prev,
-              leafScale: +e.target.value,
-            }))
-          }
-        >
-          {Object.keys(LEAF_SCALE).map((k, i) => (
-            <option key={i} value={LEAF_SCALE[k]}>
-              {k}
-            </option>
-          ))}
-        </select>
-        Mode:
-        <select value={appState.mode} onChange={(e) => setMode(e.target.value)}>
-          <option value="drag">drag</option>
-          <option value="select">select</option>
-        </select>
+          onMouseDown={handlePointerDown}
+          onTouchStart={(e) => handleTouch(e, handlePointerDown)}
+          onMouseUp={handlePointerUp}
+          onTouchEnd={(e) => handleTouch(e, handlePointerUp)}
+          onMouseMove={handlePointerMove}
+          onTouchMove={(e) => handleTouch(e, handlePointerMove)}
+          onWheel={(e) => adjustZoom(e.deltaY * SCROLL_SENSITIVITY, null)}
+          ref={ref}
+          width={width}
+          height={height}
+        />
       </div>
       <div
         style={{
           position: "absolute",
           display: "flex",
-          gap: 10,
+          gap: 5,
           bottom: 10,
           left: 10,
         }}
@@ -1016,6 +1055,6 @@ export default function Canvas() {
         <div>{Math.floor(cameraZoom * 100)}%</div>
         <button onClick={(e) => adjustZoom(0.25, null)}>+</button>
       </div>
-    </div>
+    </>
   );
 }
