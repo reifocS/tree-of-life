@@ -31,7 +31,6 @@ type AppState = {
   elements: Element[];
   draggedElement: Element | null;
   mode: string;
-  sectorId?: string;
 };
 const useDeviceSize = () => {
   const [width, setWidth] = useState(0);
@@ -93,11 +92,12 @@ type Element = {
   id: string;
   text: string;
   icon: string;
-  type: "leaf" | "sector";
+  type: "leaf" | "category";
   width?: number;
   height?: number;
   actualBoundingBoxAscent?: number;
   font?: string;
+  categoryId?: string;
 };
 
 const matrix = [1, 0, 0, 1, 0, 0];
@@ -218,7 +218,7 @@ function hitTest(
       y > newY &&
       y < newY + RC_HEIGTH * leafScale * cameraZoom
     );
-  } else if (element.type === "sector") {
+  } else if (element.type === "category") {
     const { x: newX, y: newY } = toCanvasCoord(element.x, element.y, context);
     return (
       x >= newX &&
@@ -271,7 +271,14 @@ function drawLeaf(
       fill: "#8AC054",
     }
   );
-  ctx.fillText(text, x - (RC_WIDTH / 2) * scale, y + (RC_HEIGTH / 3) * scale);
+  printAt(
+    ctx,
+    text,
+    x - RC_WIDTH * scale + 15 * scale,
+    y + (RC_HEIGTH / 3) * scale,
+    15,
+    (RC_WIDTH) * scale - 15 * scale
+  );
   //hitbox
   /*
   rc.rectangle(x - 60 * scale, y, 60 * scale, 75 * scale, {
@@ -383,7 +390,7 @@ function drawIt(
     if (element.type === "leaf") {
       drawLeaf(rc, ctx, element, leafScale);
     } else {
-      drawSector(element, ctx);
+      drawCategory(element, ctx);
     }
   }
   //drawLeafWithCanvas(ctx);
@@ -441,12 +448,32 @@ function getXY(mouseX: number, mouseY: number) {
 }
 */
 
+//Todo factorise duplicated code
+function updateText(
+  context: CanvasRenderingContext2D,
+  element: Element,
+  text: string
+) {
+  element.text = text;
+  element.font = "20px Virgil";
+  const font = context.font;
+  context.font = element.font;
+  const { actualBoundingBoxAscent, actualBoundingBoxDescent, width } =
+    context.measureText(text);
+  element.actualBoundingBoxAscent = actualBoundingBoxAscent;
+  context.font = font;
+  const height = actualBoundingBoxAscent + actualBoundingBoxDescent;
+  element.width = width;
+  element.height = height;
+  return element;
+}
+
 function addText(context: CanvasRenderingContext2D) {
   //TODO type it
   const element: any = {
     x: context.canvas.width / 2,
     y: context.canvas.height / 2,
-    type: "sector",
+    type: "category",
     id: guidGenerator(),
   };
   const text = prompt("What text do you want?");
@@ -471,11 +498,11 @@ function addText(context: CanvasRenderingContext2D) {
   return element;
 }
 
-function drawSector(sector: Element, ctx: CanvasRenderingContext2D) {
+function drawCategory(category: Element, ctx: CanvasRenderingContext2D) {
   const font = ctx.font;
-  ctx.font = sector.font!;
-  const { x, y, text } = sector;
-  ctx.fillText(text, x, y + sector.actualBoundingBoxAscent!);
+  ctx.font = category.font!;
+  const { x, y, text } = category;
+  ctx.fillText(text, x, y + category.actualBoundingBoxAscent!);
   ctx.font = font;
 }
 
@@ -582,6 +609,43 @@ function mousePosToCanvasPos(
     x: px,
     y: py,
   };
+}
+
+//https://stackoverflow.com/a/4478894/14536535
+function printAt(
+  context: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  y: number,
+  lineHeight: number,
+  fitWidth: number
+) {
+  fitWidth = fitWidth || 0;
+
+  if (fitWidth <= 0) {
+    context.fillText(text, x, y);
+    return;
+  }
+  const font = context.font;
+  context.font = `${FONT_SIZE}px Comic Sans MS`;
+  for (var idx = 1; idx <= text.length; idx++) {
+    var str = text.substring(0, idx);
+    console.log(str, context.measureText(str).width, fitWidth);
+    if (context.measureText(str).width > fitWidth) {
+      context.fillText(text.substring(0, idx - 1), x, y);
+      printAt(
+        context,
+        text.substring(idx - 1),
+        x,
+        y + lineHeight,
+        lineHeight,
+        fitWidth
+      );
+      return;
+    }
+  }
+  context.fillText(text, x, y);
+  context.font = font;
 }
 
 function getMousePos(canvas: HTMLCanvasElement, evt: any) {
@@ -936,7 +1000,7 @@ export default function Canvas() {
                 }));
               }}
             >
-              Add sector
+              Add category
             </button>
             <h4>Leaf size:</h4>
             <select
@@ -964,38 +1028,105 @@ export default function Canvas() {
             </select>
           </div>
           <div>
+            <h4>Leaf</h4>
             <ul>
-              {elements.map((e) => (
-                <li key={e.id}>
-                  <input
-                    value={e.text}
-                    onChange={(ev) => {
-                      setAppState((p) => ({
-                        ...p,
-                        elements: p.elements.map((el) => {
-                          if (el.id === e.id) {
-                            return {
-                              ...el,
-                              text: ev.target.value,
-                            };
-                          }
-                          return el;
-                        }),
-                      }));
-                    }}
-                  ></input>
-                  <button
-                    onClick={() => {
-                      setAppState((p) => ({
-                        ...p,
-                        elements: p.elements.filter((el) => el.id !== e.id),
-                      }));
-                    }}
-                  >
-                    X
-                  </button>
-                </li>
-              ))}
+              {elements
+                .filter((e) => e.type === "leaf")
+                .map((e) => (
+                  <li key={e.id}>
+                    <input
+                      value={e.text}
+                      onChange={(ev) => {
+                        setAppState((p) => ({
+                          ...p,
+                          elements: p.elements.map((el) => {
+                            if (el.id === e.id) {
+                              return {
+                                ...el,
+                                text: ev.target.value,
+                              };
+                            }
+                            return el;
+                          }),
+                        }));
+                      }}
+                    ></input>
+                    <button
+                      onClick={() => {
+                        setAppState((p) => ({
+                          ...p,
+                          elements: p.elements.filter((el) => el.id !== e.id),
+                        }));
+                      }}
+                    >
+                      X
+                    </button>
+                    <select
+                      value={e.categoryId}
+                      onChange={(ev) => {
+                        setAppState((p) => ({
+                          ...p,
+                          elements: p.elements.map((el) => {
+                            if (el.id === e.id) {
+                              return {
+                                ...el,
+                                categoryId: ev.target.value,
+                              };
+                            }
+                            return el;
+                          }),
+                        }));
+                      }}
+                    >
+                      <option value={undefined}>none</option>
+                      {elements
+                        .filter((ele) => ele.type === "category")
+                        .map((c) => (
+                          <option value={c.id} key={c.id}>
+                            {c.text}
+                          </option>
+                        ))}
+                    </select>
+                  </li>
+                ))}
+            </ul>
+            <h4>Category</h4>
+            <ul>
+              {elements
+                .filter((e) => e.type === "category")
+                .map((e) => (
+                  <li key={e.id}>
+                    <input
+                      value={e.text}
+                      onChange={(ev) => {
+                        const newOne = updateText(
+                          canvasRef.current!.getContext("2d")!,
+                          { ...e },
+                          ev.target.value
+                        );
+                        setAppState((p) => ({
+                          ...p,
+                          elements: p.elements.map((el) => {
+                            if (el.id === e.id) {
+                              return newOne;
+                            }
+                            return el;
+                          }),
+                        }));
+                      }}
+                    ></input>
+                    <button
+                      onClick={() => {
+                        setAppState((p) => ({
+                          ...p,
+                          elements: p.elements.filter((el) => el.id !== e.id),
+                        }));
+                      }}
+                    >
+                      X
+                    </button>
+                  </li>
+                ))}
             </ul>
           </div>
         </div>
@@ -1054,6 +1185,33 @@ export default function Canvas() {
         <button onClick={(e) => adjustZoom(-0.25, null)}>-</button>
         <div>{Math.floor(cameraZoom * 100)}%</div>
         <button onClick={(e) => adjustZoom(0.25, null)}>+</button>
+      </div>
+      <div
+        style={{
+          position: "absolute",
+          top: 10,
+          right: 10,
+          borderRadius: 6,
+          backgroundColor: "gray",
+          padding: 6,
+        }}
+      >
+        {appState.elements
+          .filter((el) => el.type === "category")
+          .map((el) => {
+            return (
+              <>
+                {el.text}
+                <ul key={el.id}>
+                  {appState.elements
+                    .filter((leaf) => leaf.categoryId === el.id)
+                    .map((leaf) => {
+                      return <li key={leaf.id}>{leaf.text}</li>;
+                    })}
+                </ul>
+              </>
+            );
+          })}
       </div>
     </>
   );
