@@ -92,3 +92,6 @@ button {
 .sidePanel li {
   padding: 2px;
 }
+.sidePanel li button{
+  margin-right: 5px;
+}
