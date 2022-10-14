@@ -328,13 +328,13 @@ function drawCircle(
     ctx.fillText(sectors[i] + (ang * 180) / PI, y - 10, 10);
     //
     ctx.restore();
-    var endX = x + length * Math.cos(arc * i * 1.5);
+    /*var endX = x + length * Math.cos(arc * i * 1.5);
     var endY = y - length * Math.sin(arc * i * 1.5);
     ctx.beginPath();
     ctx.moveTo(x, y);
     ctx.lineTo(endX, endY);
     ctx.closePath();
-    ctx.stroke();
+    ctx.stroke();*/
   };
   sectors.forEach((c, i) => drawSector(c, i));
 }
