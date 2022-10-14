@@ -10,11 +10,12 @@ import {
 } from "react";
 import rough from "roughjs/bin/rough";
 import { RoughCanvas } from "roughjs/bin/canvas";
+import useKeyboard from "../../hooks/useKeyboard";
 
 //TODO
 //Remove magic variables (tree size for example)
 
-type AppState = {
+export type AppState = {
   cameraZoom: number;
   leafScale: number;
   scaleMultiplier: number;
@@ -92,7 +93,7 @@ type Element = {
   id: string;
   text: string;
   icon: string;
-  type: "leaf" | "category";
+  type: "leaf" | "category" | "circle";
   width?: number;
   height?: number;
   actualBoundingBoxAscent?: number;
@@ -101,83 +102,6 @@ type Element = {
 };
 
 const matrix = [1, 0, 0, 1, 0, 0];
-const KEYS = {
-  ARROW_LEFT: "ArrowLeft",
-  ARROW_RIGHT: "ArrowRight",
-  ARROW_DOWN: "ArrowDown",
-  ARROW_UP: "ArrowUp",
-  ESCAPE: "Escape",
-  DELETE: "Delete",
-  BACKSPACE: "Backspace",
-  SPACE: "Space",
-};
-const tree: any = [
-  {
-    label: "Penne",
-    leaves: [
-      {
-        label: "Spaghetti alla chitarra",
-      },
-      {
-        label: "Spaghetti alla chitarra",
-      },
-      {
-        label: "Spaghetti alla chitarra",
-      },
-    ],
-  },
-  {
-    label: "Fusili",
-    leaves: [
-      {
-        label: "Spaghetti alla chitarra",
-      },
-      {
-        label: "Spaghetti alla chitarra",
-      },
-      {
-        label: "Spaghetti alla chitarra",
-      },
-    ],
-  },
-  {
-    label: "Rigatoni",
-    leaves: [
-      {
-        label: "Trenette",
-      },
-      {
-        label: "Tripoline",
-      },
-    ],
-  },
-  {
-    label: "Spaghetti	",
-    leaves: [
-      {
-        label: "Spaghetti alla chitarra",
-      },
-      {
-        label: "Spaghettini	",
-      },
-      {
-        label: "Spaghettoni",
-      },
-      {
-        label: "Stringozzi",
-      },
-    ],
-  },
-];
-
-function isArrowKey(keyCode: string) {
-  return (
-    keyCode === KEYS.ARROW_LEFT ||
-    keyCode === KEYS.ARROW_RIGHT ||
-    keyCode === KEYS.ARROW_DOWN ||
-    keyCode === KEYS.ARROW_UP
-  );
-}
 
 function toCanvasCoord(
   x: number,
@@ -226,18 +150,31 @@ function hitTest(
       y >= newY &&
       y <= newY + element.height! * cameraZoom
     );
+  } else if (element.type === "circle") {
+    /*
+  check every circle data x, y, r you have, 
+  see whether dx * dx + dy * dy < r * r, 
+  where dx = cx - x, dy = cy - y. 
+  Circles that satisfy this equation were clicked */
+    const { x: newX, y: newY } = toCanvasCoord(element.x, element.y, context);
+    const dx = x - newX;
+    const dy = y - newY;
+    const r = element.width! * cameraZoom / 2;
+    const hit = dx * dx + dy * dy < r * r;
+    return hit;
   }
 }
 
-const RC_WIDTH = 60;
+const RC_WIDTH = 100;
 const RC_HEIGTH = 75;
-const FONT_SIZE = 12;
+const FONT_SIZE = 14;
 const LEAF_SCALE: Record<string, number> = {
   SMALL: 0.5,
-  MEDIUM: 1.25,
+  MEDIUM: 1.5,
   BIG: 2,
 };
 const colors = ["gray", "orange", "#82c91e"];
+const sectors = ["gray", "orange", "blue", "yellow", "#82c91e"];
 
 function drawLeaf(
   rc: RoughCanvas,
@@ -277,7 +214,8 @@ function drawLeaf(
     x - RC_WIDTH * scale + 15 * scale,
     y + (RC_HEIGTH / 3) * scale,
     15,
-    (RC_WIDTH) * scale - 15 * scale
+    RC_WIDTH * scale - 15 * scale,
+    icon
   );
   //hitbox
   /*
@@ -361,21 +299,74 @@ function drawTreeSvg(rc: RoughCanvas, ctx: CanvasRenderingContext2D) {
   drawTreeAtScale(ctx, 3, width, height, "rgb(15,150,10)", rc);
 }
 /*
-function drawLeafWithCanvas(ctx: CanvasRenderingContext2D) {
+function drawAngledLine(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  length: number,
+  angle: number
+) {
+  const radians = (angle / 180) * Math.PI;
+  const endX = x + length * Math.cos(radians);
+  const endY = y - length * Math.sin(radians);
   ctx.beginPath();
-  ctx.lineJoin = "miter";
-  ctx.moveTo(120, 20);
-  ctx.quadraticCurveTo(117.5, 30, 148, 68);
-  ctx.arc(120, 88, 34.5, 5.75, 3.66, false);
-  ctx.quadraticCurveTo(117.5, 35, 120, 20);
+  ctx.moveTo(x, y);
+  ctx.lineTo(endX, endY);
   ctx.closePath();
-  ctx.strokeStyle = "#000";
-  ctx.lineWidth = 2;
-  ctx.fillStyle = colors[2];
   ctx.stroke();
-  ctx.fill();
+}
+
+function drawCircle(
+  x: number,
+  y: number,
+  r: number,
+  ctx: CanvasRenderingContext2D
+) {
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, 2 * Math.PI);
+  ctx.stroke();
 }
 */
+
+function drawCircle(
+  ctx: CanvasRenderingContext2D,
+  sectors: string[],
+  x: number,
+  y: number,
+  dia: number,
+  rc: RoughCanvas
+) {
+  const PI = Math.PI;
+  const TAU = 2 * PI;
+  const rad = dia / 2;
+  const arc = TAU / sectors.length;
+  const drawSector = (color: string, i: number) => {
+    const ang = arc * i;
+    ctx.save();
+    // COLOR
+    //ctx.beginPath();
+    //ctx.fillStyle = sectors[i];
+    //ctx.moveTo(x, y);
+    rc.arc(x, y, rad, rad, ang, ang + arc, true, {
+      fill: sectors[i],
+      seed: 2,
+    });
+    //ctx.arc(x, y, rad, ang, ang + arc);
+    //ctx.lineTo(x, y);
+    //ctx.fill();
+    // TEXT
+    ctx.translate(x, y);
+    ctx.rotate(ang + arc / 2);
+    ctx.fillStyle = "black";
+    ctx.textAlign = "center";
+    ctx.font = `bold ${50}px ${"comic sans ms"}`;
+    ctx.fillText(sectors[i], y - 10, 10);
+    //
+    ctx.restore();
+  };
+  sectors.forEach((c, i) => drawSector(c, i));
+}
+
 function drawIt(
   rc: RoughCanvas,
   canvas: HTMLCanvasElement,
@@ -383,36 +374,45 @@ function drawIt(
   leafScale: number
 ) {
   const ctx = canvas.getContext("2d")!;
-  drawTreeSvg(rc, ctx);
+  //drawTreeSvg(rc, ctx);
+  let radius = 2000;
+  drawCircle(ctx, sectors, canvas.width / 2, canvas.height / 2, radius, rc);
 
+  /*
+  let RADIUS = 1000;
+  const x = 3000;
+  const y = 140;
+  drawCircle(x, y, RADIUS, ctx);
+  drawAngledLine(ctx, x, y, RADIUS, 1 * (360 / 4));
+  drawAngledLine(ctx, x, y, RADIUS, 2 * (360 / 4));
+  drawAngledLine(ctx, x, y, RADIUS, 3 * (360 / 4));
+  drawAngledLine(ctx, x, y, RADIUS, 4 * (360 / 4));
+ */
   ctx.fillStyle = "black";
   for (const element of elements) {
     if (element.type === "leaf") {
       drawLeaf(rc, ctx, element, leafScale);
-    } else {
+    } else if (element.type === "category") {
       drawCategory(element, ctx);
+    } else {
+      drawSector(element, ctx, rc);
     }
   }
-  //drawLeafWithCanvas(ctx);
-  //drawBubble(canvas, 10, 60, 220, 90, 20, rc);
-  /*
-  rc.path("M298.736,115.437c-2.403-2.589-4.979-4.97-7.688-7.16c1.357-3.439,2.111-7.179,2.111-11.094  c0-16.718-13.602-30.32-30.32-30.32c-0.985,0-1.958,0.051-2.92,0.143C256.862,29.551,225.424,0,187.195,0  c-25.82,0-48.535,13.489-61.514,33.778c-2.793-0.471-5.657-0.729-8.582-0.729c-28.38,0-51.469,23.089-51.469,51.469  c0,11.51,3.798,22.148,10.206,30.73c-0.06,0.064-0.123,0.124-0.182,0.189c-12.56,13.529-19.477,31.152-19.477,49.624  c0,40.247,32.743,72.989,72.99,72.989c3.792,0,7.531-0.292,11.195-0.85l26.937,41.618l-13.127,85.065  c-0.419,2.728,0.295,5.331,2.011,7.331c1.732,2.019,4.347,3.177,7.172,3.177h48.027c2.825,0,5.438-1.158,7.171-3.176  c1.716-2,2.43-4.604,2.01-7.334l-12.905-83.635l27.736-42.852c3.226,0.43,6.506,0.656,9.828,0.656  c40.247,0,72.99-32.743,72.99-72.989C318.212,146.589,311.295,128.965,298.736,115.437z M187.941,255.496l-18.911-29.218  c6.892-4.498,13.043-10.193,18.165-16.928c5.382,7.077,11.902,13.001,19.223,17.6L187.941,255.496z"
-  , {
-    fill: colors[2],
-    seed: 2,
-  })
-  rc.path("M230 80 A 45 45, 0, 1, 0, 275 125 L 275 80 Z", {
-    fill: colors[2],
-    seed: 2,
+}
+
+function drawSector(
+  el: Element,
+  ctx: CanvasRenderingContext2D,
+  rc: RoughCanvas
+) {
+  rc.circle(el.x, el.y, el.width!, {
+    fill: el.color,
+    seed: el.seed,
+    fillStyle: "solid",
   });
-  rc.path(
-    "M468.607,0c-12.5,1-304.4,8.3-395,99c-92.8,93.8-98,240.8-10.4,328.3c92.8,85.9,227.6,85.3,327.3-11.5   c90.7-89.6,99-382.5,99-395C487.807,8,480.707,1.3,468.607,0z M362.307,387.8c-83.3,79.7-190.7,72.7-254.4,24l79.2-79.2l148.1-15.7   c10.4-1,18.8-10.4,17.7-21.9c-1-10.4-10.4-18.8-21.9-17.7l-98.7,10.1l42.4-42.4c8.3-8.3,8.3-20.8,0-29.2c-8.3-8.3-20.8-8.3-29.2,0   l-43.7,43.7l10.3-101c2.1-10.4-6.3-20.8-17.7-21.9c-10.4-2.1-20.8,6.3-21.9,17.7l-15.9,150.4l-78,78   c-57.2-73-47.7-183.7,24.1-255.5c60.5-59.4,253.3-81.3,346.1-85.5C444.607,134.5,422.707,327.3,362.307,387.8z",
-    { fill: "rgb(10,150,10)", seed: 2 }
-  );  
-  ctx.font = "20px Comic Sans MS";
-  ctx.fillStyle = "white";
+  ctx.font = "20px comic sans ms";
   ctx.textAlign = "center";
-  ctx.fillText("Hello world", 500, 150);*/
+  printAt(ctx, el.text, el.x, el.y, 15, el.width! / 2);
 }
 
 function getEventLocation(
@@ -535,64 +535,6 @@ function draw(
   //buildTree(ctx, roughCanvas);
 }
 
-function drawTree(
-  x1: number,
-  y1: number,
-  x2: number,
-  y2: number,
-  angle: number,
-  depth: number,
-  context: CanvasRenderingContext2D,
-  roughCanvas: RoughCanvas
-) {
-  roughCanvas.line(x1, y1, x2, y2, {
-    stroke: "brown",
-    strokeWidth: 1.5,
-    seed: 1,
-  });
-
-  if (depth > 0) {
-    var x = x2 - x1;
-    var y = y2 - y1;
-
-    var scale = 0.7;
-
-    x *= scale;
-    y *= scale;
-
-    var xLeft = x * Math.cos(-angle) - y * Math.sin(-angle);
-    var yLeft = x * Math.sin(-angle) + y * Math.cos(-angle);
-
-    var xRight = x * Math.cos(+angle) - y * Math.sin(+angle);
-    var yRight = x * Math.sin(+angle) + y * Math.cos(+angle);
-
-    xLeft += x2;
-    yLeft += y2;
-
-    xRight += x2;
-    yRight += y2;
-
-    drawTree(x2, y2, xLeft, yLeft, angle, depth - 1, context, roughCanvas);
-    drawTree(x2, y2, xRight, yRight, angle, depth - 1, context, roughCanvas);
-  }
-}
-
-function buildTree(
-  context: CanvasRenderingContext2D,
-  roughCanvas: RoughCanvas
-) {
-  var x1 = 1000;
-  var y1 = 300;
-
-  var x2 = 1000;
-  var y2 = 100;
-
-  var angle = 0.1 * Math.PI;
-  var depth = 4;
-
-  drawTree(x1, y1, x2, y2, angle, depth, context, roughCanvas);
-}
-
 function mousePosToCanvasPos(
   context: CanvasRenderingContext2D,
   x: number,
@@ -618,7 +560,8 @@ function printAt(
   x: number,
   y: number,
   lineHeight: number,
-  fitWidth: number
+  fitWidth: number,
+  emoji?: string
 ) {
   fitWidth = fitWidth || 0;
 
@@ -628,6 +571,7 @@ function printAt(
   }
   const font = context.font;
   context.font = `${FONT_SIZE}px Comic Sans MS`;
+  context.fillStyle = "#fff";
   for (var idx = 1; idx <= text.length; idx++) {
     var str = text.substring(0, idx);
     console.log(str, context.measureText(str).width, fitWidth);
@@ -639,13 +583,20 @@ function printAt(
         x,
         y + lineHeight,
         lineHeight,
-        fitWidth
+        fitWidth,
+        emoji
       );
       return;
     }
   }
   context.fillText(text, x, y);
+  context.textAlign = "center";
+  const w = context.measureText(text).width / 2;
+  context.font = `${FONT_SIZE + 10}px Comic Sans MS`;
+  emoji && context.fillText(emoji, x + w, y + lineHeight + 10);
+  context.textAlign = "left";
   context.font = font;
+  context.fillStyle = "black";
 }
 
 function getMousePos(canvas: HTMLCanvasElement, evt: any) {
@@ -658,12 +609,10 @@ function getMousePos(canvas: HTMLCanvasElement, evt: any) {
 let MAX_ZOOM = 5;
 let MIN_ZOOM = 0.1;
 let SCROLL_SENSITIVITY = 0.0005;
-let STEP = 50;
 let INITIAL_ZOOM = 1;
 export default function Canvas() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [width, height] = useDeviceSize();
-  const posRef = useRef<HTMLDivElement>(null);
   const [roughCanvas, setRoughCanvas] = useState<RoughCanvas | null>(null);
   const [appState, setAppState] = useState<AppState>(() => ({
     cameraZoom: INITIAL_ZOOM,
@@ -675,18 +624,6 @@ export default function Canvas() {
     draggedElement: null,
     mode: "select",
     leafScale: LEAF_SCALE.MEDIUM,
-    leafs: [
-      {
-        x: 15,
-        y: 3,
-        seed: getRandomArbitrary(1, 1000),
-        color: colors[2],
-        id: guidGenerator(),
-        text: "go muscu",
-        icon: "💪",
-        type: "leaf",
-      },
-    ],
     elements: [
       {
         x: 110,
@@ -694,43 +631,15 @@ export default function Canvas() {
         seed: getRandomArbitrary(1, 1000),
         color: colors[2],
         id: guidGenerator(),
-        text: "go muscu",
+        text: "Sport",
         icon: "💪",
-        type: "leaf",
-      },
-      {
-        x: window.innerWidth,
-        y: window.innerHeight,
-        seed: getRandomArbitrary(1, 1000),
-        color: "gray",
-        id: guidGenerator(),
-        text: "coder toute la nigth",
-        icon: "👨‍💻",
-        type: "leaf",
-      },
-      {
-        x: 600,
-        y: 300,
-        seed: getRandomArbitrary(1, 1000),
-        color: "gray",
-        id: guidGenerator(),
-        text: "tortelinni",
-        icon: "👨",
-        type: "leaf",
-      },
-      {
-        x: 6000,
-        y: 300,
-        seed: getRandomArbitrary(1, 1000),
-        color: "gray",
-        id: guidGenerator(),
-        text: "You found me!",
-        icon: "👨",
-        type: "leaf",
+        type: "circle",
+        width: RC_WIDTH,
       },
     ],
   }));
 
+  useKeyboard(setAppState);
   const { cameraZoom, elements, cameraOffset, isDragging, leafScale } =
     appState;
   const { x: cameraOffsetX, y: cameraOffsetY } = cameraOffset;
@@ -742,60 +651,6 @@ export default function Canvas() {
     }
   }, []);
 
-  useEffect(() => {
-    function handleKeyDown(e: KeyboardEvent) {
-      if (isArrowKey(e.code)) {
-        if (e.key === KEYS.ARROW_LEFT)
-          setAppState((prev) => ({
-            ...prev,
-            cameraOffset: {
-              x: prev.cameraOffset.x - STEP,
-              y: prev.cameraOffset.y,
-            },
-          }));
-        else if (e.key === KEYS.ARROW_RIGHT)
-          setAppState((prev) => ({
-            ...prev,
-            cameraOffset: {
-              x: prev.cameraOffset.x + STEP,
-              y: prev.cameraOffset.y,
-            },
-          }));
-        else if (e.key === KEYS.ARROW_UP)
-          setAppState((prev) => ({
-            ...prev,
-            cameraOffset: {
-              x: prev.cameraOffset.x,
-              y: prev.cameraOffset.y - STEP,
-            },
-          }));
-        else if (e.key === KEYS.ARROW_DOWN)
-          setAppState((prev) => ({
-            ...prev,
-            cameraOffset: {
-              x: prev.cameraOffset.x,
-              y: prev.cameraOffset.y + STEP,
-            },
-          }));
-      }
-      if (e.code === "KeyS") {
-        setAppState((prev) => ({
-          ...prev,
-          mode: "select",
-        }));
-      }
-      if (e.code === "KeyD") {
-        setAppState((prev) => ({
-          ...prev,
-          mode: "drag",
-        }));
-      }
-    }
-
-    document.addEventListener("keydown", handleKeyDown, false);
-
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, []);
   useLayoutEffect(() => {
     if (!roughCanvas) return;
     const canvas = canvasRef.current!;
@@ -885,10 +740,16 @@ export default function Canvas() {
           x: startX + dx + (RC_WIDTH * leafScale) / 2,
           y: startY + dy - (RC_HEIGTH * leafScale) / 2,
         };
-      } else {
+      } else if (appState.draggedElement.type === "category") {
         dragTarget = {
           ...appState.draggedElement,
           x: startX + dx - appState.draggedElement.width! / 2,
+          y: startY + dy,
+        };
+      } else if (appState.draggedElement.type === "circle") {
+        dragTarget = {
+          ...appState.draggedElement,
+          x: startX + dx + appState.draggedElement.width! / 4,
           y: startY + dy,
         };
       }
@@ -1002,6 +863,29 @@ export default function Canvas() {
             >
               Add category
             </button>
+            <button
+              onClick={() => {
+                setAppState((prev) => ({
+                  ...prev,
+                  elements: [
+                    ...prev.elements,
+                    {
+                      id: guidGenerator(),
+                      x: width / 2,
+                      y: height / 2,
+                      color: colors[0],
+                      seed: getRandomArbitrary(1, 10000),
+                      text: "hello world!",
+                      icon: "🦍",
+                      type: "circle",
+                      width: RC_WIDTH,
+                    },
+                  ],
+                }));
+              }}
+            >
+              Add circle
+            </button>
             <h4>Leaf size:</h4>
             <select
               value={appState.leafScale}
@@ -1028,10 +912,10 @@ export default function Canvas() {
             </select>
           </div>
           <div>
-            <h4>Leaf</h4>
+            <h4>Circle</h4>
             <ul>
               {elements
-                .filter((e) => e.type === "leaf")
+                .filter((e) => e.type === "circle")
                 .map((e) => (
                   <li key={e.id}>
                     <input
@@ -1192,8 +1076,9 @@ export default function Canvas() {
           top: 10,
           right: 10,
           borderRadius: 6,
-          backgroundColor: "gray",
+          backgroundColor: "#fff",
           padding: 6,
+          userSelect: "none",
         }}
       >
         {appState.elements
@@ -1206,7 +1091,16 @@ export default function Canvas() {
                   {appState.elements
                     .filter((leaf) => leaf.categoryId === el.id)
                     .map((leaf) => {
-                      return <li key={leaf.id}>{leaf.text}</li>;
+                      return (
+                        <li
+                          style={{
+                            backgroundColor: leaf.color,
+                          }}
+                          key={leaf.id}
+                        >
+                          {leaf.text}
+                        </li>
+                      );
                     })}
                 </ul>
               </>
