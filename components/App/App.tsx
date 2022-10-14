@@ -159,7 +159,7 @@ function hitTest(
     const { x: newX, y: newY } = toCanvasCoord(element.x, element.y, context);
     const dx = x - newX;
     const dy = y - newY;
-    const r = element.width! * cameraZoom / 2;
+    const r = (element.width! * cameraZoom) / 2;
     const hit = dx * dx + dy * dy < r * r;
     return hit;
   }
@@ -174,7 +174,7 @@ const LEAF_SCALE: Record<string, number> = {
   BIG: 2,
 };
 const colors = ["gray", "orange", "#82c91e"];
-const sectors = ["gray", "orange", "blue", "yellow", "#82c91e"];
+const sectors = ["gray", "orange", "blue", "yellow", "green"];
 
 function drawLeaf(
   rc: RoughCanvas,
@@ -298,35 +298,6 @@ function drawTreeSvg(rc: RoughCanvas, ctx: CanvasRenderingContext2D) {
   const height = ctx.canvas.height;
   drawTreeAtScale(ctx, 3, width, height, "rgb(15,150,10)", rc);
 }
-/*
-function drawAngledLine(
-  ctx: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  length: number,
-  angle: number
-) {
-  const radians = (angle / 180) * Math.PI;
-  const endX = x + length * Math.cos(radians);
-  const endY = y - length * Math.sin(radians);
-  ctx.beginPath();
-  ctx.moveTo(x, y);
-  ctx.lineTo(endX, endY);
-  ctx.closePath();
-  ctx.stroke();
-}
-
-function drawCircle(
-  x: number,
-  y: number,
-  r: number,
-  ctx: CanvasRenderingContext2D
-) {
-  ctx.beginPath();
-  ctx.arc(x, y, r, 0, 2 * Math.PI);
-  ctx.stroke();
-}
-*/
 
 function drawCircle(
   ctx: CanvasRenderingContext2D,
@@ -344,25 +315,26 @@ function drawCircle(
     const ang = arc * i;
     ctx.save();
     // COLOR
-    //ctx.beginPath();
-    //ctx.fillStyle = sectors[i];
-    //ctx.moveTo(x, y);
     rc.arc(x, y, rad, rad, ang, ang + arc, true, {
       fill: sectors[i],
       seed: 2,
     });
-    //ctx.arc(x, y, rad, ang, ang + arc);
-    //ctx.lineTo(x, y);
-    //ctx.fill();
     // TEXT
     ctx.translate(x, y);
     ctx.rotate(ang + arc / 2);
     ctx.fillStyle = "black";
     ctx.textAlign = "center";
     ctx.font = `bold ${50}px ${"comic sans ms"}`;
-    ctx.fillText(sectors[i], y - 10, 10);
+    ctx.fillText(sectors[i] + (ang * 180) / PI, y - 10, 10);
     //
     ctx.restore();
+    var endX = x + length * Math.cos(arc * i * 1.5);
+    var endY = y - length * Math.sin(arc * i * 1.5);
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(endX, endY);
+    ctx.closePath();
+    ctx.stroke();
   };
   sectors.forEach((c, i) => drawSector(c, i));
 }
@@ -378,16 +350,6 @@ function drawIt(
   let radius = 2000;
   drawCircle(ctx, sectors, canvas.width / 2, canvas.height / 2, radius, rc);
 
-  /*
-  let RADIUS = 1000;
-  const x = 3000;
-  const y = 140;
-  drawCircle(x, y, RADIUS, ctx);
-  drawAngledLine(ctx, x, y, RADIUS, 1 * (360 / 4));
-  drawAngledLine(ctx, x, y, RADIUS, 2 * (360 / 4));
-  drawAngledLine(ctx, x, y, RADIUS, 3 * (360 / 4));
-  drawAngledLine(ctx, x, y, RADIUS, 4 * (360 / 4));
- */
   ctx.fillStyle = "black";
   for (const element of elements) {
     if (element.type === "leaf") {
@@ -830,28 +792,6 @@ export default function Canvas() {
       <div className="container">
         <div className="sidePanel">
           <div className="panelColumn">
-            <button
-              onClick={() => {
-                setAppState((prev) => ({
-                  ...prev,
-                  elements: [
-                    ...prev.elements,
-                    {
-                      id: guidGenerator(),
-                      x: width / 2,
-                      y: height / 2,
-                      color: colors[0],
-                      seed: getRandomArbitrary(1, 10000),
-                      text: "hello world!",
-                      icon: "🦍",
-                      type: "leaf",
-                    },
-                  ],
-                }));
-              }}
-            >
-              Add Leaf
-            </button>
             <button
               onClick={() => {
                 const el = addText(canvasRef.current!.getContext("2d")!);
