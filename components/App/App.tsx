@@ -123,12 +123,12 @@ function hitTest(
   y: number,
   element: Element,
   canvas: HTMLCanvasElement,
-  cameraZoom: number,
+  cameraZoom: number
 ) {
   const context = canvas.getContext("2d")!;
   // Destructure to get the x and y values out of the transformed DOMPoint.
   //TODO Change mouse coord to canvas coord instead of the opposite
- if (element.type === "category") {
+  if (element.type === "category") {
     const { x: newX, y: newY } = toCanvasCoord(element.x, element.y, context);
     return (
       x >= newX &&
@@ -137,11 +137,6 @@ function hitTest(
       y <= newY + element.height! * cameraZoom
     );
   } else if (element.type === "circle") {
-    /*
-  check every circle data x, y, r you have, 
-  see whether dx * dx + dy * dy < r * r, 
-  where dx = cx - x, dy = cy - y. 
-  Circles that satisfy this equation were clicked */
     const { x: newX, y: newY } = toCanvasCoord(element.x, element.y, context);
     const dx = x - newX;
     const dy = y - newY;
@@ -161,7 +156,6 @@ const LEAF_SCALE: Record<string, number> = {
 };
 const colors = ["gray", "orange", "#82c91e"];
 const sectors = ["gray", "orange", "blue", "yellow", "green"];
-
 
 function drawCircle(
   ctx: CanvasRenderingContext2D,
@@ -184,21 +178,13 @@ function drawCircle(
       seed: 2,
     });
     // TEXT
-    ctx.translate(x, y);
-    ctx.rotate(ang + arc / 2);
+    const length = rad / 4;
+    const endX = x + length * Math.cos(arc * i + arc / 2);
+    const endY = y - length * Math.sin(arc * i + arc / 2);
     ctx.fillStyle = "black";
     ctx.textAlign = "center";
     ctx.font = `bold ${50}px ${"comic sans ms"}`;
-    ctx.fillText(sectors[i] + (ang * 180) / PI, y - 10, 10);
-    //
-    ctx.restore();
-    /*var endX = x + length * Math.cos(arc * i * 1.5);
-    var endY = y - length * Math.sin(arc * i * 1.5);
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    ctx.lineTo(endX, endY);
-    ctx.closePath();
-    ctx.stroke();*/
+    ctx.fillText(sectors[i] + (ang * 180) / PI, endX, endY);
   };
   sectors.forEach((c, i) => drawSector(c, i));
 }
@@ -206,8 +192,7 @@ function drawCircle(
 function drawIt(
   rc: RoughCanvas,
   canvas: HTMLCanvasElement,
-  elements: Element[],
-  leafScale: number
+  elements: Element[]
 ) {
   const ctx = canvas.getContext("2d")!;
   //drawTreeSvg(rc, ctx);
@@ -355,7 +340,7 @@ function draw(
     ctx
   );
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawIt(roughCanvas, canvas, elements, leafScale);
+  drawIt(roughCanvas, canvas, elements);
   //buildTree(ctx, roughCanvas);
 }
 
@@ -588,9 +573,7 @@ export default function Canvas() {
       return;
     }
     if (
-      elements.find((el) =>
-        hitTest(x, y, el, canvasRef.current!, cameraZoom)
-      )
+      elements.find((el) => hitTest(x, y, el, canvasRef.current!, cameraZoom))
     ) {
       document.documentElement.style.cursor = "pointer";
     } else if (!isDragging) {
@@ -822,15 +805,7 @@ export default function Canvas() {
             const { x, y } = getEventLocation(e);
             console.log({ x, y });
             for (const element of elements) {
-              if (
-                hitTest(
-                  x,
-                  y,
-                  element,
-                  canvasRef.current!,
-                  cameraZoom
-                )
-              ) {
+              if (hitTest(x, y, element, canvasRef.current!, cameraZoom)) {
                 setAppState((prev) => ({
                   ...prev,
                   elements: prev.elements.map((e) => {
