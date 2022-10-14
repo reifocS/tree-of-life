@@ -155,7 +155,7 @@ const LEAF_SCALE: Record<string, number> = {
   BIG: 2,
 };
 const colors = ["gray", "orange", "#82c91e"];
-const sectors = ["gray", "orange", "blue", "yellow", "green"];
+const sectors = ["gray", "orange", "blue", "yellow", "green", "purple"];
 
 function drawCircle(
   ctx: CanvasRenderingContext2D,
@@ -179,12 +179,12 @@ function drawCircle(
     });
     // TEXT
     const length = rad / 4;
-    const endX = x + length * Math.cos(arc * i + arc / 2);
-    const endY = y - length * Math.sin(arc * i + arc / 2);
+    const endX = x + length * Math.cos(-(ang + arc / 2));
+    const endY = y - length * Math.sin(-(ang + arc / 2));
     ctx.fillStyle = "black";
     ctx.textAlign = "center";
     ctx.font = `bold ${50}px ${"comic sans ms"}`;
-    ctx.fillText(sectors[i] + (ang * 180) / PI, endX, endY);
+    ctx.fillText(sectors[i], endX, endY);
   };
   sectors.forEach((c, i) => drawSector(c, i));
 }
