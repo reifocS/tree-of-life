@@ -11,7 +11,7 @@ import {
 import rough from "roughjs/bin/rough";
 import { RoughCanvas } from "roughjs/bin/canvas";
 import useKeyboard from "../../hooks/useKeyboard";
-
+import geometricMedian from "../../utils/geometric-median"
 //TODO
 //Remove magic variables (tree size for example)
 
@@ -266,6 +266,7 @@ function drawIt(
   const ctx = canvas.getContext("2d")!;
   let radius = 2000;
   //drawCircle(ctx, sectors, canvas.width / 2, canvas.height / 2, radius, rc);
+ 
   drawGrid(ctx);
   ctx.fillStyle = "black";
   let i = 0;
@@ -276,6 +277,20 @@ function drawIt(
       drawSector(element, ctx, rc, i++);
     }
   }
+
+  rc.circle(canvas.width / 2, canvas.height / 2, 20, {
+    fill: "red",
+    fillStyle: "solid",
+    seed: 2
+  })
+
+  const {x, y} = geometricMedian(elements.map(e => ({x: e.x, y: e.y})), elements.length)
+
+  rc.circle(x, y, 20, {
+    fill: "green",
+    fillStyle: "solid",
+    seed: 2
+  })
 }
 
 function drawSector(
@@ -493,7 +508,6 @@ export default function Canvas() {
   useLayoutEffect(() => {
     if (!roughCanvas) return;
     const canvas = canvasRef.current!;
-    console.log(window.devicePixelRatio);
 
     canvas.width = width;
     canvas.height = height;
@@ -885,3 +899,5 @@ export default function Canvas() {
     </>
   );
 }
+
+
