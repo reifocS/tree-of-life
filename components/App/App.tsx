@@ -15,9 +15,10 @@ import useKeyboard from "../../hooks/useKeyboard";
 //TODO
 //Remove magic variables (tree size for example)
 
+const dState = '{"cameraZoom":1,"scaleMultiplier":0.8,"cameraOffset":{"x":0, "y":0},"isDragging":false,"dragStart":{"x":351.43799991453756,"y":-72.44875229308384},"initialPinchDistance":null,"draggedElement":null,"mode":"drag","elements":[{"x":675.2075242662087,"y":85.40465041041038,"seed":905.5909808585167,"color":"#82c91e","id":"f288ff26-c9c7-d869-2446-45567796dec9","text":"Loisirs","icon":"💪","type":"circle","width":100},{"id":"54d5a69c-7f47-42c1-b477-eb82f2dbd790","x":537.2757893463547,"y":99.65807589390477,"color":"#82c91e","seed":8811.258671040496,"text":"Médicaments","icon":"🦍","type":"circle","width":100},{"id":"d0cef24f-260b-3634-5b81-0d1bdf6dc051","x":481.66417374981467,"y":259.89110600829713,"color":"orange","seed":3333.9280333845422,"text":"Tension artérielle","icon":"🦍","type":"circle","width":100},{"id":"b76b7ac7-d548-1e11-3246-b7e38151f374","x":668.677165395256,"y":277.20712375324536,"color":"orange","seed":3753.0185677539907,"text":"Alimentation","icon":"🦍","type":"circle","width":100},{"id":"b52e11be-5747-46fe-f1c5-db9afdc6a6ce","x":1023.1178768022256,"y":244.33862761349334,"color":"orange","seed":8184.468572435464,"text":"","icon":"🦍","type":"circle","width":100},{"id":"ebf93e96-2d9d-b5ed-47eb-d45485e10148","x":891.3189688777178,"y":47.60937534382356,"color":"orange","seed":7063.317967328478,"text":"","icon":"🦍","type":"circle","width":100},{"id":"5e289118-9cef-c57b-c8b9-5b88951070bd","x":1061.8822614859046,"y":61.17690998311116,"color":"orange","seed":7912.385849210267,"text":"","icon":"🦍","type":"circle","width":100},{"id":"8c67694b-f56f-9746-2fdd-48e603deacd4","x":1137.4728116190781,"y":279.2265738288042,"color":"orange","seed":2862.52223786426,"text":"","icon":"🦍","type":"circle","width":100},{"id":"d6b27aaf-e2fc-be7c-6bd6-4e02ab09d555","x":855.461913045315,"y":287.9485603826319,"color":"orange","seed":13.836951464031252,"text":"","icon":"🦍","type":"circle","width":100},{"id":"9eb9ec83-502b-a665-6b8a-8d5c3bb5efad","x":568.6054663860921,"y":449.7898664369908,"color":"#82c91e","seed":5190.185108611817,"text":"","icon":"🦍","type":"circle","width":100},{"id":"6473d1cb-a83f-8afb-1d8b-4006b7b731ec","x":414.517037268469,"y":474.01760686429003,"color":"orange","seed":8019.879358396649,"text":"","icon":"🦍","type":"circle","width":100},{"id":"80f4fc52-e7d6-a12a-ef52-23dc2911ec89","x":682.9604012029445,"y":613.5693917255336,"color":"#82c91e","seed":7571.643283927932,"text":"","icon":"🦍","type":"circle","width":100},{"id":"b74ab532-ed86-260d-3ff9-883301194104","x":1007.612122928754,"y":426.53123562678354,"color":"#82c91e","seed":9384.01623454882,"text":"","icon":"🦍","type":"circle","width":100},{"id":"cc26bed7-e4a7-2f56-acaf-29bec2e958c0","x":1171.391648217297,"y":472.07938763010605,"color":"#82c91e","seed":5477.656705370557,"text":"","icon":"🦍","type":"circle","width":100}]}'
+
 export type AppState = {
   cameraZoom: number;
-  leafScale: number;
   scaleMultiplier: number;
   cameraOffset: {
     x: number;
@@ -122,44 +123,49 @@ function hitTest(
   x: number,
   y: number,
   element: Element,
-  canvas: HTMLCanvasElement,
-  cameraZoom: number
 ) {
-  const context = canvas.getContext("2d")!;
   // Destructure to get the x and y values out of the transformed DOMPoint.
   //TODO Change mouse coord to canvas coord instead of the opposite
   if (element.type === "category") {
-    const { x: newX, y: newY } = toCanvasCoord(element.x, element.y, context);
+    const { x: newX, y: newY } = element;
     return (
       x >= newX &&
-      x <= newX + element.width! * cameraZoom &&
+      x <= newX + element.width! &&
       y >= newY &&
-      y <= newY + element.height! * cameraZoom
+      y <= newY + element.height!
     );
   } else if (element.type === "circle") {
-    const { x: newX, y: newY } = toCanvasCoord(element.x, element.y, context);
+    const { x: newX, y: newY } = element
     const dx = x - newX;
     const dy = y - newY;
-    const r = (element.width! * cameraZoom) / 2;
+    const r = (element.width!) / 2;
     const hit = dx * dx + dy * dy < r * r;
     return hit;
   }
 }
 
 const RC_WIDTH = 100;
-const RC_HEIGTH = 75;
 const FONT_SIZE = 14;
-const LEAF_SCALE: Record<string, number> = {
-  SMALL: 0.5,
-  MEDIUM: 1.5,
-  BIG: 2,
-};
+
 const colors = ["gray", "orange", "#82c91e"];
-const sectors = ["gray", "orange", "blue", "yellow", "green", "purple"];
+
+const sectors = [{
+  color: "gray",
+  text: "Mes reins fatiguent"
+}, {
+  color: "orange",
+  text: "Ma vie sociale"
+}, {
+  color: "purple",
+  text: "Mon parcours de soins"
+}, {
+  color: "green",
+  text: "Mon quotidien"
+}]
 
 function drawCircle(
   ctx: CanvasRenderingContext2D,
-  sectors: string[],
+  sectors: { color: string, text: string }[],
   x: number,
   y: number,
   dia: number,
@@ -169,24 +175,87 @@ function drawCircle(
   const TAU = 2 * PI;
   const rad = dia / 2;
   const arc = TAU / sectors.length;
-  const drawSector = (color: string, i: number) => {
+  const drawSector = (i: number) => {
     const ang = arc * i;
     ctx.save();
     // COLOR
     rc.arc(x, y, rad, rad, ang, ang + arc, true, {
-      fill: sectors[i],
+      fill: sectors[i].color,
       seed: 2,
+      stroke: "#fff"
     });
     // TEXT
     const length = rad / 4;
     const endX = x + length * Math.cos(-(ang + arc / 2));
     const endY = y - length * Math.sin(-(ang + arc / 2));
+    const font = ctx.font;
     ctx.fillStyle = "black";
-    ctx.textAlign = "center";
-    ctx.font = `bold ${50}px ${"comic sans ms"}`;
-    ctx.fillText(sectors[i], endX, endY);
+    ctx.font = `bold ${25}px ${"comic sans ms"}`;
+    printAt(ctx, sectors[i].text, endX, endY, 40, 300);
+    ctx.font = font;
   };
-  sectors.forEach((c, i) => drawSector(c, i));
+  sectors.forEach((_, i) => drawSector(i));
+}
+
+function drawGrid(ctx: CanvasRenderingContext2D) {
+  try {
+    /* vertical lines */
+    for (var x = 0.5; x < ctx.canvas.width; x += 10) {
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, ctx.canvas.height);
+    }
+
+    /* horizontal lines */
+    for (var y = 0.5; y < ctx.canvas.height; y += 10) {
+      ctx.moveTo(0, y);
+      ctx.lineTo(ctx.canvas.width, y);
+    }
+
+    /* draw it! */
+    ctx.strokeStyle = "#eee";
+    ctx.stroke();
+
+    //arrows
+    /* x-axis */
+    ctx.beginPath();
+    ctx.moveTo(0, 40);
+    ctx.lineTo(240, 40);
+    ctx.moveTo(260, 40);
+    ctx.lineTo(500, 40);
+    ctx.lineTo(ctx.canvas.width, 40);
+
+
+    /* y-axis */
+    ctx.moveTo(60, 0);
+    ctx.lineTo(60, 153);
+    ctx.moveTo(60, 173);
+    ctx.lineTo(60, 375);
+    ctx.lineTo(60, ctx.canvas.height);
+
+
+    /* draw it! */
+    ctx.strokeStyle = "#000";
+    ctx.stroke();
+
+    //labels
+    try {
+      ctx.font = "bold 12px sans-serif";
+      ctx.fillText("x", 248, 43);
+      ctx.fillText("y", 58, 165);
+    } catch (err) { }
+
+    try {
+      ctx.textBaseline = "top";
+      ctx.fillText("( 0 , 0 )", 8, 5);
+    } catch (err) { }
+
+    try {
+      ctx.textBaseline = "bottom";
+      ctx.fillText("(" + ctx.canvas.width + "," + ctx.canvas.height + ")", ctx.canvas.width, ctx.canvas.height);
+    } catch (err) { }
+
+  } catch (err) { }
+
 }
 
 function drawIt(
@@ -195,16 +264,16 @@ function drawIt(
   elements: Element[]
 ) {
   const ctx = canvas.getContext("2d")!;
-  //drawTreeSvg(rc, ctx);
   let radius = 2000;
-  drawCircle(ctx, sectors, canvas.width / 2, canvas.height / 2, radius, rc);
-
+  //drawCircle(ctx, sectors, canvas.width / 2, canvas.height / 2, radius, rc);
+  drawGrid(ctx);
   ctx.fillStyle = "black";
+  let i = 0;
   for (const element of elements) {
     if (element.type === "category") {
       drawCategory(element, ctx);
     } else {
-      drawSector(element, ctx, rc);
+      drawSector(element, ctx, rc, i++);
     }
   }
 }
@@ -212,32 +281,22 @@ function drawIt(
 function drawSector(
   el: Element,
   ctx: CanvasRenderingContext2D,
-  rc: RoughCanvas
+  rc: RoughCanvas,
+  i: number
 ) {
   rc.circle(el.x, el.y, el.width!, {
     fill: el.color,
     seed: el.seed,
     fillStyle: "solid",
   });
+  //ctx.font = "10px comic sans ms";
+  //printAt(ctx, el.text, el.x, el.y, 15, el.width! - 15, emojis[i]);
   ctx.font = "20px comic sans ms";
-  ctx.textAlign = "center";
-  printAt(ctx, el.text, el.x, el.y, 15, el.width! / 2);
+
+  ctx.fillText(`${Math.floor(el.x)}-${Math.floor(el.y)}`, el.x, el.y)
 }
 
-function getEventLocation(
-  e:
-    | PointerEvent<HTMLCanvasElement>
-    | TouchEvent<HTMLCanvasElement>
-    | MouseEvent<HTMLCanvasElement>
-) {
-  if ("touches" in e && e.touches.length == 1) {
-    return { x: e.touches[0].clientX, y: e.touches[0].clientY };
-  } else if ("clientX" in e && e.clientY) {
-    return { x: e.clientX, y: e.clientY };
-  } else {
-    throw new Error("Can't read mouse location");
-  }
-}
+
 
 function getRandomArbitrary(min: number, max: number) {
   return Math.random() * (max - min) + min;
@@ -328,7 +387,6 @@ function draw(
   cameraOffset: { x: number; y: number },
   roughCanvas: RoughCanvas,
   elements: Element[],
-  leafScale: number
   //TODO stocker en rectangle et convertir en feuille au moment du draw?
 ) {
   const ctx = canvas.getContext("2d")!;
@@ -346,12 +404,12 @@ function draw(
 
 function mousePosToCanvasPos(
   context: CanvasRenderingContext2D,
-  x: number,
-  y: number
+  e: any
 ) {
-  const transform = context.getTransform();
-  var matrix = context.getTransform(); // W3C (future)
-  var imatrix = matrix.invertSelf(); // invert
+  const x = getMousePos(context.canvas, e)!.x;
+  const y = getMousePos(context.canvas, e)!.y;
+  const matrix = context.getTransform();
+  const imatrix = matrix.invertSelf(); // invert
 
   // apply to point:
   const px = x * imatrix.a + y * imatrix.c + imatrix.e;
@@ -372,18 +430,16 @@ function printAt(
   fitWidth: number,
   emoji?: string
 ) {
+  context.textAlign = "center";
+
   fitWidth = fitWidth || 0;
 
   if (fitWidth <= 0) {
     context.fillText(text, x, y);
     return;
   }
-  const font = context.font;
-  context.font = `${FONT_SIZE}px Comic Sans MS`;
-  context.fillStyle = "#fff";
   for (var idx = 1; idx <= text.length; idx++) {
     var str = text.substring(0, idx);
-    console.log(str, context.measureText(str).width, fitWidth);
     if (context.measureText(str).width > fitWidth) {
       context.fillText(text.substring(0, idx - 1), x, y);
       printAt(
@@ -399,15 +455,11 @@ function printAt(
     }
   }
   context.fillText(text, x, y);
-  context.textAlign = "center";
-  const w = context.measureText(text).width / 2;
-  context.font = `${FONT_SIZE + 10}px Comic Sans MS`;
-  emoji && context.fillText(emoji, x + w, y + lineHeight + 10);
-  context.textAlign = "left";
-  context.font = font;
-  context.fillStyle = "black";
+  context.font = "20px solid comic sans ms"
+  emoji && context.fillText(emoji, x, y + lineHeight + 10);
 }
 
+const emojis = ["🥳", "💊", "🩺", "🍽️"]
 function getMousePos(canvas: HTMLCanvasElement, evt: any) {
   var rect = canvas.getBoundingClientRect();
   return {
@@ -421,35 +473,13 @@ let SCROLL_SENSITIVITY = 0.0005;
 let INITIAL_ZOOM = 1;
 export default function Canvas() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [width, height] = useDeviceSize();
+  const [width, height, devicePixelRatio] = useDeviceSize();
+  const [hide, setHide] = useState(true);
   const [roughCanvas, setRoughCanvas] = useState<RoughCanvas | null>(null);
-  const [appState, setAppState] = useState<AppState>(() => ({
-    cameraZoom: INITIAL_ZOOM,
-    scaleMultiplier: 0.8,
-    cameraOffset: { x: width / 2, y: height / 2 },
-    isDragging: false,
-    dragStart: { x: 0, y: 0 },
-    initialPinchDistance: null,
-    draggedElement: null,
-    mode: "select",
-    leafScale: LEAF_SCALE.MEDIUM,
-    elements: [
-      {
-        x: 110,
-        y: 100,
-        seed: getRandomArbitrary(1, 1000),
-        color: colors[2],
-        id: guidGenerator(),
-        text: "Sport",
-        icon: "💪",
-        type: "circle",
-        width: RC_WIDTH,
-      },
-    ],
-  }));
+  const [appState, setAppState] = useState<AppState>(() => JSON.parse(dState));
 
   useKeyboard(setAppState);
-  const { cameraZoom, elements, cameraOffset, isDragging, leafScale } =
+  const { cameraZoom, elements, cameraOffset, isDragging } =
     appState;
   const { x: cameraOffsetX, y: cameraOffsetY } = cameraOffset;
   const lastZoom = useRef(cameraZoom);
@@ -463,19 +493,18 @@ export default function Canvas() {
   useLayoutEffect(() => {
     if (!roughCanvas) return;
     const canvas = canvasRef.current!;
-    //const scale = devicePixelRatio;
+    console.log(window.devicePixelRatio);
+
     canvas.width = width;
     canvas.height = height;
     canvas.style.width = `${width}px`;
     canvas.style.height = `${height}px`;
-
     draw(
       canvas,
       cameraZoom,
       { x: cameraOffsetX, y: cameraOffsetY },
       roughCanvas,
       elements,
-      leafScale
     );
   }, [
     cameraOffsetX,
@@ -485,16 +514,17 @@ export default function Canvas() {
     height,
     roughCanvas,
     width,
-    leafScale,
   ]);
 
   function setMode(m: string) {
     setAppState((prev) => ({ ...prev, mode: m }));
   }
   const handlePointerDown = (e: PointerEvent<HTMLCanvasElement>) => {
-    const { x, y } = getMousePos(canvasRef.current!, e);
+    const ctx = canvasRef.current!.getContext("2d")!;
+    const { x, y } = mousePosToCanvasPos(ctx, e);
+
     const el = elements.find((el) =>
-      hitTest(x, y, el, canvasRef.current!, cameraZoom)
+      hitTest(x, y, el)
     );
     if (el && appState.mode === "drag") {
       setAppState((prev) => ({
@@ -507,8 +537,8 @@ export default function Canvas() {
         ...prev,
         isDragging: true,
         dragStart: {
-          x: getEventLocation(e)!.x / prev.cameraZoom - prev.cameraOffset.x,
-          y: getEventLocation(e)!.y / prev.cameraZoom - prev.cameraOffset.y,
+          x: getMousePos(canvasRef.current!, e)!.x / prev.cameraZoom - prev.cameraOffset.x,
+          y: getMousePos(canvasRef.current!, e)!.y / prev.cameraZoom - prev.cameraOffset.y,
         },
       }));
 
@@ -529,7 +559,8 @@ export default function Canvas() {
   };
 
   const handlePointerMove = (e: PointerEvent<HTMLCanvasElement>) => {
-    const { x, y } = getMousePos(canvasRef.current!, e);
+    const ctx = canvasRef.current!.getContext("2d")!
+    const { x, y } = mousePosToCanvasPos(ctx, e);
     const target = e.target;
     if (!(target instanceof HTMLElement)) {
       return;
@@ -538,18 +569,10 @@ export default function Canvas() {
       const canvas = canvasRef.current!;
       const context = canvas.getContext("2d")!;
       let { x: startX, y: startY } = appState.draggedElement;
-      const { x: px, y: py } = mousePosToCanvasPos(context, x, y);
-      const dx = px - startX;
-      const dy = py - startY;
+      const dx = x - startX;
+      const dy = y - startY;
       let dragTarget: Element;
-      if (appState.draggedElement.type === "leaf") {
-        //TODO moving to center is hacky, find a better way
-        dragTarget = {
-          ...appState.draggedElement,
-          x: startX + dx + (RC_WIDTH * leafScale) / 2,
-          y: startY + dy - (RC_HEIGTH * leafScale) / 2,
-        };
-      } else if (appState.draggedElement.type === "category") {
+      if (appState.draggedElement.type === "category") {
         dragTarget = {
           ...appState.draggedElement,
           x: startX + dx - appState.draggedElement.width! / 2,
@@ -573,7 +596,7 @@ export default function Canvas() {
       return;
     }
     if (
-      elements.find((el) => hitTest(x, y, el, canvasRef.current!, cameraZoom))
+      elements.find((el) => hitTest(x, y, el))
     ) {
       document.documentElement.style.cursor = "pointer";
     } else if (!isDragging) {
@@ -583,8 +606,8 @@ export default function Canvas() {
       setAppState((prev) => ({
         ...prev,
         cameraOffset: {
-          x: getEventLocation(e)!.x / prev.cameraZoom - prev.dragStart.x,
-          y: getEventLocation(e)!.y / prev.cameraZoom - prev.dragStart.y,
+          x: getMousePos(canvasRef.current!, e)!.x / prev.cameraZoom - prev.dragStart.x,
+          y: getMousePos(canvasRef.current!, e)!.y / prev.cameraZoom - prev.dragStart.y,
         },
       }));
     }
@@ -635,8 +658,9 @@ export default function Canvas() {
   return (
     <>
       <div className="container">
-        <div className="sidePanel">
-          <div className="panelColumn">
+        <div className="sidePanel" style={{ display: hide ? "none" : "" }}>
+          <div className="panelColumn"
+          >
             <button
               onClick={() => {
                 const el = addText(canvasRef.current!.getContext("2d")!);
@@ -671,22 +695,6 @@ export default function Canvas() {
             >
               Add circle
             </button>
-            <h4>Leaf size:</h4>
-            <select
-              value={appState.leafScale}
-              onChange={(e) =>
-                setAppState((prev) => ({
-                  ...prev,
-                  leafScale: +e.target.value,
-                }))
-              }
-            >
-              {Object.keys(LEAF_SCALE).map((k, i) => (
-                <option key={i} value={LEAF_SCALE[k]}>
-                  {k}
-                </option>
-              ))}
-            </select>
             <h4>Mode:</h4>
             <select
               value={appState.mode}
@@ -802,10 +810,11 @@ export default function Canvas() {
         <canvas
           onClick={(e) => {
             if (appState.mode !== "select") return;
-            const { x, y } = getEventLocation(e);
-            console.log({ x, y });
+            const ctx = canvasRef.current!.getContext("2d")!;
+            const { x, y } = mousePosToCanvasPos(ctx, e);
+            ctx.fillText(`${Math.floor(x)}-${Math.floor(y)}`, x, y);
             for (const element of elements) {
-              if (hitTest(x, y, element, canvasRef.current!, cameraZoom)) {
+              if (hitTest(x, y, element)) {
                 setAppState((prev) => ({
                   ...prev,
                   elements: prev.elements.map((e) => {
@@ -822,17 +831,14 @@ export default function Canvas() {
             }
           }}
           onMouseDown={handlePointerDown}
-          onTouchStart={(e) => handleTouch(e, handlePointerDown)}
           onMouseUp={handlePointerUp}
-          onTouchEnd={(e) => handleTouch(e, handlePointerUp)}
           onMouseMove={handlePointerMove}
-          onTouchMove={(e) => handleTouch(e, handlePointerMove)}
           onWheel={(e) => adjustZoom(e.deltaY * SCROLL_SENSITIVITY, null)}
           ref={ref}
           width={width}
           height={height}
         />
-      </div>
+      </div>d
       <div
         style={{
           position: "absolute",
@@ -857,6 +863,9 @@ export default function Canvas() {
           userSelect: "none",
         }}
       >
+        <input type="checkbox"
+          onChange={() => setHide(prev => !prev)}
+          checked={hide}></input>
         {appState.elements
           .filter((el) => el.type === "category")
           .map((el) => {
