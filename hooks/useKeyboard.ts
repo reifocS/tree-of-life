@@ -28,7 +28,7 @@ function useKeyboard(setAppState: (value: SetStateAction<AppState>) => void) {
           setAppState((prev) => ({
             ...prev,
             cameraOffset: {
-              x: prev.cameraOffset.x - STEP,
+              x: prev.cameraOffset.x + STEP,
               y: prev.cameraOffset.y,
             },
           }));
@@ -36,7 +36,7 @@ function useKeyboard(setAppState: (value: SetStateAction<AppState>) => void) {
           setAppState((prev) => ({
             ...prev,
             cameraOffset: {
-              x: prev.cameraOffset.x + STEP,
+              x: prev.cameraOffset.x - STEP,
               y: prev.cameraOffset.y,
             },
           }));
@@ -45,7 +45,7 @@ function useKeyboard(setAppState: (value: SetStateAction<AppState>) => void) {
             ...prev,
             cameraOffset: {
               x: prev.cameraOffset.x,
-              y: prev.cameraOffset.y - STEP,
+              y: prev.cameraOffset.y + STEP,
             },
           }));
         else if (e.key === KEYS.ARROW_DOWN)
@@ -53,7 +53,7 @@ function useKeyboard(setAppState: (value: SetStateAction<AppState>) => void) {
             ...prev,
             cameraOffset: {
               x: prev.cameraOffset.x,
-              y: prev.cameraOffset.y + STEP,
+              y: prev.cameraOffset.y - STEP,
             },
           }));
       }
