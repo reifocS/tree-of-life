@@ -17,22 +17,22 @@ import useKeyboard from "../../hooks/useKeyboard";
 
 const dState = '{"cameraZoom":1,"scaleMultiplier":0.8,"cameraOffset":{"x":0, "y":0},"isDragging":false,"dragStart":{"x":351.43799991453756,"y":-72.44875229308384},"initialPinchDistance":null,"draggedElement":null,"mode":"drag","elements":[{"x":675.2075242662087,"y":85.40465041041038,"seed":905.5909808585167,"color":"#82c91e","id":"f288ff26-c9c7-d869-2446-45567796dec9","text":"Loisirs","icon":"💪","type":"circle","width":100},{"id":"54d5a69c-7f47-42c1-b477-eb82f2dbd790","x":537.2757893463547,"y":99.65807589390477,"color":"#82c91e","seed":8811.258671040496,"text":"Médicaments","icon":"🦍","type":"circle","width":100},{"id":"d0cef24f-260b-3634-5b81-0d1bdf6dc051","x":481.66417374981467,"y":259.89110600829713,"color":"orange","seed":3333.9280333845422,"text":"Tension artérielle","icon":"🦍","type":"circle","width":100},{"id":"b76b7ac7-d548-1e11-3246-b7e38151f374","x":668.677165395256,"y":277.20712375324536,"color":"orange","seed":3753.0185677539907,"text":"Alimentation","icon":"🦍","type":"circle","width":100},{"id":"b52e11be-5747-46fe-f1c5-db9afdc6a6ce","x":1023.1178768022256,"y":244.33862761349334,"color":"orange","seed":8184.468572435464,"text":"","icon":"🦍","type":"circle","width":100},{"id":"ebf93e96-2d9d-b5ed-47eb-d45485e10148","x":891.3189688777178,"y":47.60937534382356,"color":"orange","seed":7063.317967328478,"text":"","icon":"🦍","type":"circle","width":100},{"id":"5e289118-9cef-c57b-c8b9-5b88951070bd","x":1061.8822614859046,"y":61.17690998311116,"color":"orange","seed":7912.385849210267,"text":"","icon":"🦍","type":"circle","width":100},{"id":"8c67694b-f56f-9746-2fdd-48e603deacd4","x":1137.4728116190781,"y":279.2265738288042,"color":"orange","seed":2862.52223786426,"text":"","icon":"🦍","type":"circle","width":100},{"id":"d6b27aaf-e2fc-be7c-6bd6-4e02ab09d555","x":855.461913045315,"y":287.9485603826319,"color":"orange","seed":13.836951464031252,"text":"","icon":"🦍","type":"circle","width":100},{"id":"9eb9ec83-502b-a665-6b8a-8d5c3bb5efad","x":568.6054663860921,"y":449.7898664369908,"color":"#82c91e","seed":5190.185108611817,"text":"","icon":"🦍","type":"circle","width":100},{"id":"6473d1cb-a83f-8afb-1d8b-4006b7b731ec","x":414.517037268469,"y":474.01760686429003,"color":"orange","seed":8019.879358396649,"text":"","icon":"🦍","type":"circle","width":100},{"id":"80f4fc52-e7d6-a12a-ef52-23dc2911ec89","x":682.9604012029445,"y":613.5693917255336,"color":"#82c91e","seed":7571.643283927932,"text":"","icon":"🦍","type":"circle","width":100},{"id":"b74ab532-ed86-260d-3ff9-883301194104","x":1007.612122928754,"y":426.53123562678354,"color":"#82c91e","seed":9384.01623454882,"text":"","icon":"🦍","type":"circle","width":100},{"id":"cc26bed7-e4a7-2f56-acaf-29bec2e958c0","x":1171.391648217297,"y":472.07938763010605,"color":"#82c91e","seed":5477.656705370557,"text":"","icon":"🦍","type":"circle","width":100}]}'
 
+type Point = {
+  x: number;
+  y: number
+}
+
 export type AppState = {
   cameraZoom: number;
   scaleMultiplier: number;
-  cameraOffset: {
-    x: number;
-    y: number;
-  };
+  cameraOffset: Point;
   isDragging: boolean;
-  dragStart: {
-    x: number;
-    y: number;
-  };
+  dragStart: Point;
   initialPinchDistance: null | number;
   elements: Element[];
   draggedElement: Element | null;
   mode: string;
+  downPoint?: Point;
 };
 const useDeviceSize = () => {
   const [width, setWidth] = useState(0);
@@ -530,6 +530,7 @@ export default function Canvas() {
       setAppState((prev) => ({
         ...prev,
         draggedElement: el,
+        downPoint: { x, y }
       }));
       return;
     } else if (!el && appState.mode === "drag") {
@@ -569,22 +570,11 @@ export default function Canvas() {
       const canvas = canvasRef.current!;
       const context = canvas.getContext("2d")!;
       let { x: startX, y: startY } = appState.draggedElement;
-      const dx = x - startX;
-      const dy = y - startY;
-      let dragTarget: Element;
-      if (appState.draggedElement.type === "category") {
-        dragTarget = {
-          ...appState.draggedElement,
-          x: startX + dx - appState.draggedElement.width! / 2,
-          y: startY + dy,
-        };
-      } else if (appState.draggedElement.type === "circle") {
-        dragTarget = {
-          ...appState.draggedElement,
-          x: startX + dx + appState.draggedElement.width! / 4,
-          y: startY + dy,
-        };
-      }
+      let dragTarget = {
+        ...appState.draggedElement,
+        x: startX + (x - appState.downPoint!.x),
+        y: startY + (y - appState.downPoint!.y),
+      };
       const newElems = appState.elements.map((e) => {
         if (e.id === dragTarget.id) {
           return dragTarget;
