@@ -150,18 +150,25 @@ const FONT_SIZE = 14;
 const colors = ["gray", "orange", "#82c91e"];
 
 const sectors = [{
-  color: "gray",
+  color: "red",
   text: "Mes reins fatiguent"
 }, {
-  color: "orange",
+  color: "gray",
+  text: "Mes ressources"
+}, {
+  color: "red",
   text: "Ma vie sociale"
 }, {
-  color: "purple",
+  color: "red",
   text: "Mon parcours de soins"
 }, {
-  color: "green",
+  color: "gray",
+  text: "Mes racines"
+}, {
+  color: "red",
   text: "Mon quotidien"
-}]
+},
+]
 
 function drawCircle(
   ctx: CanvasRenderingContext2D,
@@ -175,6 +182,27 @@ function drawCircle(
   const TAU = 2 * PI;
   const rad = dia / 2;
   const arc = TAU / sectors.length;
+  const drawHead = () => {
+    const length = rad / 2;
+    const endX = x + length * Math.cos(PI / 2);
+    const endY = y - length * Math.sin(PI / 2);
+    rc.circle(endX, endY, 200, {
+      fill: "red",
+      seed: 2,
+      fillStyle: "solid"
+    })
+    rc.circle(endX - 40, endY - 60, 15, {
+      fill: "black",
+      seed: 2,
+      fillStyle: "solid"
+    })
+    rc.circle(endX + 40, endY - 60, 15, {
+      fill: "black",
+      seed: 2,
+      fillStyle: "solid"
+    })
+  }
+  drawHead();
   const drawSector = (i: number) => {
     const ang = arc * i;
     ctx.save();
@@ -182,7 +210,9 @@ function drawCircle(
     rc.arc(x, y, rad, rad, ang, ang + arc, true, {
       fill: sectors[i].color,
       seed: 2,
-      stroke: "#fff"
+      stroke: "black",
+      strokeWidth: 0.2,
+      fillStyle: "solid"
     });
     // TEXT
     const length = rad / 4;
@@ -195,6 +225,8 @@ function drawCircle(
     ctx.font = font;
   };
   sectors.forEach((_, i) => drawSector(i));
+
+
 }
 
 function drawGrid(ctx: CanvasRenderingContext2D) {
@@ -261,20 +293,22 @@ function drawGrid(ctx: CanvasRenderingContext2D) {
 function drawIt(
   rc: RoughCanvas,
   canvas: HTMLCanvasElement,
-  elements: Element[]
+  elements: Element[],
+  selectedId?: string
 ) {
   const ctx = canvas.getContext("2d")!;
   let radius = 2000;
-  //drawCircle(ctx, sectors, canvas.width / 2, canvas.height / 2, radius, rc);
- 
-  drawGrid(ctx);
+  //drawGrid(ctx);
+
+  drawCircle(ctx, sectors, canvas.width / 2, canvas.height / 2, radius, rc);
+
   ctx.fillStyle = "black";
   let i = 0;
   for (const element of elements) {
     if (element.type === "category") {
       drawCategory(element, ctx);
     } else {
-      drawSector(element, ctx, rc, i++);
+      drawSector(element, ctx, rc, i++, element.id === selectedId);
     }
   }
 
@@ -284,31 +318,39 @@ function drawIt(
     seed: 2
   })
 
-  const {x, y} = geometricMedian(elements.map(e => ({x: e.x, y: e.y})), elements.length)
+  const { x, y } = geometricMedian(elements.map(e => ({ x: e.x, y: e.y })), elements.length)
 
-  rc.circle(x, y, 20, {
+  /*rc.circle(x, y, 20, {
     fill: "green",
     fillStyle: "solid",
     seed: 2
-  })
+  })*/
 }
 
 function drawSector(
   el: Element,
   ctx: CanvasRenderingContext2D,
   rc: RoughCanvas,
-  i: number
+  i: number,
+  isSelected = false
 ) {
   rc.circle(el.x, el.y, el.width!, {
     fill: el.color,
     seed: el.seed,
     fillStyle: "solid",
   });
-  //ctx.font = "10px comic sans ms";
-  //printAt(ctx, el.text, el.x, el.y, 15, el.width! - 15, emojis[i]);
-  ctx.font = "20px comic sans ms";
+  ctx.font = "13px comic sans ms";
+  if (isSelected) {
+    rc.rectangle(el.x - el.width! / 2, el.y - el.width! / 2, el.width!, el.width!, {
+      seed: 2,
+      strokeLineDash: [5, 5],
+      roughness: 0
+    })
+  }
+  printAt(ctx, el.text, el.x, el.y, 15, el.width! - 15, emojis[i]);
+  //ctx.font = "20px comic sans ms";
 
-  ctx.fillText(`${Math.floor(el.x)}-${Math.floor(el.y)}`, el.x, el.y)
+  //ctx.fillText(`${Math.floor(el.x)}-${Math.floor(el.y)}`, el.x, el.y)
 }
 
 
@@ -402,6 +444,7 @@ function draw(
   cameraOffset: { x: number; y: number },
   roughCanvas: RoughCanvas,
   elements: Element[],
+  selectedId?: string
   //TODO stocker en rectangle et convertir en feuille au moment du draw?
 ) {
   const ctx = canvas.getContext("2d")!;
@@ -413,7 +456,7 @@ function draw(
     ctx
   );
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawIt(roughCanvas, canvas, elements);
+  drawIt(roughCanvas, canvas, elements, selectedId);
   //buildTree(ctx, roughCanvas);
 }
 
@@ -494,7 +537,7 @@ export default function Canvas() {
   const [appState, setAppState] = useState<AppState>(() => JSON.parse(dState));
 
   useKeyboard(setAppState);
-  const { cameraZoom, elements, cameraOffset, isDragging } =
+  const { cameraZoom, elements, cameraOffset, isDragging, draggedElement } =
     appState;
   const { x: cameraOffsetX, y: cameraOffsetY } = cameraOffset;
   const lastZoom = useRef(cameraZoom);
@@ -519,6 +562,7 @@ export default function Canvas() {
       { x: cameraOffsetX, y: cameraOffsetY },
       roughCanvas,
       elements,
+      draggedElement?.id
     );
   }, [
     cameraOffsetX,
@@ -528,6 +572,7 @@ export default function Canvas() {
     height,
     roughCanvas,
     width,
+    draggedElement
   ]);
 
   function setMode(m: string) {
