@@ -32,7 +32,9 @@ export type AppState = {
   elements: Element[];
   draggedElement: Element | null;
   downPoint?: Point;
+  selectedElement: Element | null;
 };
+
 const useDeviceSize = () => {
   const [width, setWidth] = useState(0);
   const [height, setHeight] = useState(0);
@@ -583,7 +585,7 @@ export default function Canvas() {
   const [appState, setAppState] = useState<AppState>(() => JSON.parse(dState));
 
   useKeyboard(setAppState);
-  const { cameraZoom, elements, cameraOffset, isDragging, draggedElement } =
+  const { cameraZoom, elements, cameraOffset, isDragging, draggedElement, selectedElement } =
     appState;
   const { x: cameraOffsetX, y: cameraOffsetY } = cameraOffset;
   const lastZoom = useRef(cameraZoom);
@@ -608,7 +610,7 @@ export default function Canvas() {
       { x: cameraOffsetX, y: cameraOffsetY },
       roughCanvas,
       elements,
-      draggedElement?.id
+      selectedElement?.id
     );
   }, [
     cameraOffsetX,
@@ -618,7 +620,7 @@ export default function Canvas() {
     height,
     roughCanvas,
     width,
-    draggedElement
+    selectedElement
   ]);
 
   const handlePointerDown = (e: PointerEvent<HTMLCanvasElement>) => {
@@ -632,13 +634,15 @@ export default function Canvas() {
       setAppState((prev) => ({
         ...prev,
         draggedElement: el,
-        downPoint: { x, y }
+        downPoint: { x, y },
+        selectedElement: el
       }));
       return;
     } else {
       setAppState((prev) => ({
         ...prev,
         isDragging: true,
+        selectedElement: null,
         dragStart: {
           x: getMousePos(canvasRef.current!, e)!.x / prev.cameraZoom - prev.cameraOffset.x,
           y: getMousePos(canvasRef.current!, e)!.y / prev.cameraZoom - prev.cameraOffset.y,
@@ -947,7 +951,7 @@ export default function Canvas() {
         <input type="checkbox"
           onChange={() => setHide(prev => !prev)}
           checked={hide}></input>
-        <pre>{JSON.stringify(draggedElement, null, 2)}</pre>
+        <pre>{JSON.stringify(selectedElement, null, 2)}</pre>
       </div>
     </>
   );
