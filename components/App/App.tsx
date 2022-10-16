@@ -15,7 +15,7 @@ import geometricMedian from "../../utils/geometric-median"
 //TODO
 //Remove magic variables (tree size for example)
 
-const dState = '{"cameraZoom":1,"scaleMultiplier":0.8,"cameraOffset":{"x":0, "y":0},"isDragging":false,"dragStart":{"x":351.43799991453756,"y":-72.44875229308384},"initialPinchDistance":null,"draggedElement":null,"mode":"drag","elements":[{"x":675.2075242662087,"y":85.40465041041038,"seed":905.5909808585167,"color":"#82c91e","id":"f288ff26-c9c7-d869-2446-45567796dec9","text":"Loisirs","icon":"💪","type":"circle","width":100},{"id":"54d5a69c-7f47-42c1-b477-eb82f2dbd790","x":537.2757893463547,"y":99.65807589390477,"color":"#82c91e","seed":8811.258671040496,"text":"Médicaments","icon":"🦍","type":"circle","width":100},{"id":"d0cef24f-260b-3634-5b81-0d1bdf6dc051","x":481.66417374981467,"y":259.89110600829713,"color":"orange","seed":3333.9280333845422,"text":"Tension artérielle","icon":"🦍","type":"circle","width":100},{"id":"b76b7ac7-d548-1e11-3246-b7e38151f374","x":668.677165395256,"y":277.20712375324536,"color":"orange","seed":3753.0185677539907,"text":"Alimentation","icon":"🦍","type":"circle","width":100},{"id":"b52e11be-5747-46fe-f1c5-db9afdc6a6ce","x":1023.1178768022256,"y":244.33862761349334,"color":"orange","seed":8184.468572435464,"text":"","icon":"🦍","type":"circle","width":100},{"id":"ebf93e96-2d9d-b5ed-47eb-d45485e10148","x":891.3189688777178,"y":47.60937534382356,"color":"orange","seed":7063.317967328478,"text":"","icon":"🦍","type":"circle","width":100},{"id":"5e289118-9cef-c57b-c8b9-5b88951070bd","x":1061.8822614859046,"y":61.17690998311116,"color":"orange","seed":7912.385849210267,"text":"","icon":"🦍","type":"circle","width":100},{"id":"8c67694b-f56f-9746-2fdd-48e603deacd4","x":1137.4728116190781,"y":279.2265738288042,"color":"orange","seed":2862.52223786426,"text":"","icon":"🦍","type":"circle","width":100},{"id":"d6b27aaf-e2fc-be7c-6bd6-4e02ab09d555","x":855.461913045315,"y":287.9485603826319,"color":"orange","seed":13.836951464031252,"text":"","icon":"🦍","type":"circle","width":100},{"id":"9eb9ec83-502b-a665-6b8a-8d5c3bb5efad","x":568.6054663860921,"y":449.7898664369908,"color":"#82c91e","seed":5190.185108611817,"text":"","icon":"🦍","type":"circle","width":100},{"id":"6473d1cb-a83f-8afb-1d8b-4006b7b731ec","x":414.517037268469,"y":474.01760686429003,"color":"orange","seed":8019.879358396649,"text":"","icon":"🦍","type":"circle","width":100},{"id":"80f4fc52-e7d6-a12a-ef52-23dc2911ec89","x":682.9604012029445,"y":613.5693917255336,"color":"#82c91e","seed":7571.643283927932,"text":"","icon":"🦍","type":"circle","width":100},{"id":"b74ab532-ed86-260d-3ff9-883301194104","x":1007.612122928754,"y":426.53123562678354,"color":"#82c91e","seed":9384.01623454882,"text":"","icon":"🦍","type":"circle","width":100},{"id":"cc26bed7-e4a7-2f56-acaf-29bec2e958c0","x":1171.391648217297,"y":472.07938763010605,"color":"#82c91e","seed":5477.656705370557,"text":"","icon":"🦍","type":"circle","width":100}]}'
+const dState = '{"cameraZoom":0.47000000000000036,"scaleMultiplier":0.8,"cameraOffset":{"x":0,"y":0},"isDragging":false,"dragStart":{"x":351.43799991453756,"y":-72.44875229308384},"initialPinchDistance":null,"draggedElement":null,"mode":"drag","elements":[{"x":19.88837366790824,"y":-231.61662698941683,"seed":905.5909808585167,"color":"#82c91e","id":"f288ff26-c9c7-d869-2446-45567796dec9","text":"Loisirs","icon":"💪","type":"circle","width":100},{"id":"54d5a69c-7f47-42c1-b477-eb82f2dbd790","x":343.2757893463547,"y":-97.34192410609523,"color":"#82c91e","seed":8811.258671040496,"text":"Médicaments","icon":"🦍","type":"circle","width":100},{"id":"d0cef24f-260b-3634-5b81-0d1bdf6dc051","x":-252.33582625018533,"y":-118.10889399170287,"color":"orange","seed":3333.9280333845422,"text":"Tension artérielle","icon":"🦍","type":"circle","width":100},{"id":"b76b7ac7-d548-1e11-3246-b7e38151f374","x":158.03886622774894,"y":-82.36734524387418,"color":"orange","seed":3753.0185677539907,"text":"Alimentation","icon":"🦍","type":"circle","width":100},{"id":"b52e11be-5747-46fe-f1c5-db9afdc6a6ce","x":318.8625558670391,"y":-242.8954161755029,"color":"orange","seed":8184.468572435464,"text":"","icon":"🦍","type":"circle","width":100},{"id":"ebf93e96-2d9d-b5ed-47eb-d45485e10148","x":116.85088180699915,"y":-333.241689451942,"color":"orange","seed":7063.317967328478,"text":"","icon":"🦍","type":"circle","width":100},{"id":"5e289118-9cef-c57b-c8b9-5b88951070bd","x":-48.756039203422915,"y":-347.33372935089443,"color":"orange","seed":7912.385849210267,"text":"","icon":"🦍","type":"circle","width":100},{"id":"8c67694b-f56f-9746-2fdd-48e603deacd4","x":-385.9314475639844,"y":-101.62449096696145,"color":"orange","seed":2862.52223786426,"text":"","icon":"🦍","type":"circle","width":100},{"id":"d6b27aaf-e2fc-be7c-6bd6-4e02ab09d555","x":-246.6657493245541,"y":-271.62590912176114,"color":"orange","seed":13.836951464031252,"text":"","icon":"🦍","type":"circle","width":100},{"id":"9eb9ec83-502b-a665-6b8a-8d5c3bb5efad","x":-231.3945356430022,"y":85.96007828014206,"color":"#82c91e","seed":5190.185108611817,"text":"","icon":"🦍","type":"circle","width":100},{"id":"6473d1cb-a83f-8afb-1d8b-4006b7b731ec","x":-34.419134082964376,"y":293.16654257579813,"color":"orange","seed":8019.879358396649,"text":"","icon":"🦍","type":"circle","width":100},{"id":"80f4fc52-e7d6-a12a-ef52-23dc2911ec89","x":278.70508102866825,"y":192.29279491234036,"color":"#82c91e","seed":7571.643283927932,"text":"","icon":"🦍","type":"circle","width":100},{"id":"b74ab532-ed86-260d-3ff9-883301194104","x":-311.5368165873052,"y":228.65889469937463,"color":"#82c91e","seed":9384.01623454882,"text":"","icon":"🦍","type":"circle","width":100},{"id":"cc26bed7-e4a7-2f56-acaf-29bec2e958c0","x":371.3916461882027,"y":78.46236535515283,"color":"#82c91e","seed":5477.656705370557,"text":"","icon":"🦍","type":"circle","width":100}],"downPoint":{"x":1157.446811446349,"y":444.6808521917038}}'
 
 type Point = {
   x: number;
@@ -147,24 +147,24 @@ function hitTest(
 const RC_WIDTH = 100;
 const FONT_SIZE = 14;
 
-const colors = ["gray", "orange", "#82c91e"];
+const colors = ["dark", "orange", "#82c91e"];
 
 const sectors = [{
   color: "red",
   text: "Mes reins fatiguent"
 }, {
-  color: "gray",
-  text: "Mes ressources"
-}, {
   color: "red",
   text: "Ma vie sociale"
 }, {
   color: "red",
-  text: "Mon parcours de soins"
+  text: "Parcours de soins"
 }, {
-  color: "gray",
-  text: "Mes racines"
+  color: "red",
+  text: "Mon quotidien"
 }, {
+  color: "red",
+  text: "Mon quotidien"
+},{
   color: "red",
   text: "Mon quotidien"
 },
@@ -182,21 +182,57 @@ function drawCircle(
   const TAU = 2 * PI;
   const rad = dia / 2;
   const arc = TAU / sectors.length;
+
+  const drawFlys = () => {
+    rc.arc(x, y, rad, rad, PI/2 - arc / 10,  PI/2 + arc / 10, true, {
+      fill: "black",
+      fillStyle: "solid",
+      seed: 2
+    })
+  }
+
   const drawHead = () => {
     const length = rad / 2;
     const endX = x + length * Math.cos(PI / 2);
     const endY = y - length * Math.sin(PI / 2);
-    rc.circle(endX, endY, 200, {
-      fill: "red",
-      seed: 2,
-      fillStyle: "solid"
-    })
-    rc.circle(endX - 40, endY - 60, 15, {
+    //head
+    rc.circle(endX, endY, 400, {
       fill: "black",
       seed: 2,
       fillStyle: "solid"
     })
-    rc.circle(endX + 40, endY - 60, 15, {
+
+    //eyes
+    rc.circle(endX - 60, endY - 120, 25, {
+      fill: "#fff",
+      seed: 2,
+      fillStyle: "solid"
+    })
+    rc.circle(endX + 60, endY - 120, 25, {
+      fill: "#fff",
+      seed: 2,
+      fillStyle: "solid"
+    })
+
+    //antennes
+    const antenneX = endX + 300 * Math.cos(PI / 4);
+    const antenneY = endY - 300 * Math.sin(PI / 4);
+    rc.line(endX, endY, antenneX, antenneY, {
+      strokeWidth: 20,
+      seed: 2
+    })
+    const antenne2X = endX + 300 * Math.cos(3 * PI / 4);
+    const antenne2Y = endY - 300 * Math.sin(3 * PI / 4);
+    rc.line(endX, endY, antenne2X, antenne2Y, {
+      strokeWidth: 20,
+      seed: 2
+    })
+    rc.circle(antenne2X, antenne2Y, 35, {
+      fill: "black",
+      seed: 2,
+      fillStyle: "solid"
+    })
+    rc.circle(antenneX, antenneY, 35, {
       fill: "black",
       seed: 2,
       fillStyle: "solid"
@@ -204,8 +240,7 @@ function drawCircle(
   }
   drawHead();
   const drawSector = (i: number) => {
-    const ang = arc * i;
-    ctx.save();
+    const ang = arc * i - PI / 2;
     // COLOR
     rc.arc(x, y, rad, rad, ang, ang + arc, true, {
       fill: sectors[i].color,
@@ -214,18 +249,26 @@ function drawCircle(
       strokeWidth: 0.2,
       fillStyle: "solid"
     });
-    // TEXT
+  };
+
+  const drawText = (i : number) => {
+    const ang = arc * i - PI / 2;
     const length = rad / 4;
     const endX = x + length * Math.cos(-(ang + arc / 2));
     const endY = y - length * Math.sin(-(ang + arc / 2));
     const font = ctx.font;
-    ctx.fillStyle = "black";
+    ctx.fillStyle = "#eee";
     ctx.font = `bold ${25}px ${"comic sans ms"}`;
     printAt(ctx, sectors[i].text, endX, endY, 40, 300);
     ctx.font = font;
-  };
-  sectors.forEach((_, i) => drawSector(i));
-
+  }
+  for (let i = 0; i < sectors.length; ++i) {
+    drawSector(i)
+  }
+  //drawFlys();
+  for (let i = 0; i < sectors.length; ++i) {
+    drawText(i)
+  }
 
 }
 
@@ -298,9 +341,9 @@ function drawIt(
 ) {
   const ctx = canvas.getContext("2d")!;
   let radius = 2000;
-  //drawGrid(ctx);
-
   drawCircle(ctx, sectors, canvas.width / 2, canvas.height / 2, radius, rc);
+  ctx.translate(canvas.width / 2, canvas.height / 2);
+  //drawGrid(ctx);
 
   ctx.fillStyle = "black";
   let i = 0;
@@ -319,7 +362,6 @@ function drawIt(
   })
 
   const { x, y } = geometricMedian(elements.map(e => ({ x: e.x, y: e.y })), elements.length)
-
   /*rc.circle(x, y, 20, {
     fill: "green",
     fillStyle: "solid",
@@ -488,12 +530,14 @@ function printAt(
   fitWidth: number,
   emoji?: string
 ) {
+  const fillStyle = context.fillStyle;
   context.textAlign = "center";
-
+  context.fillStyle = "#fff"
   fitWidth = fitWidth || 0;
 
   if (fitWidth <= 0) {
     context.fillText(text, x, y);
+    context.fillStyle = fillStyle;
     return;
   }
   for (var idx = 1; idx <= text.length; idx++) {
@@ -509,10 +553,13 @@ function printAt(
         fitWidth,
         emoji
       );
+      context.fillStyle = fillStyle;
       return;
     }
   }
   context.fillText(text, x, y);
+  context.fillStyle = fillStyle;
+
   context.font = "20px solid comic sans ms"
   emoji && context.fillText(emoji, x, y + lineHeight + 10);
 }
@@ -627,7 +674,6 @@ export default function Canvas() {
     }
     if (appState.draggedElement) {
       const canvas = canvasRef.current!;
-      const context = canvas.getContext("2d")!;
       let { x: startX, y: startY } = appState.draggedElement;
       let dragTarget = {
         ...appState.draggedElement,
@@ -640,7 +686,6 @@ export default function Canvas() {
         }
         return e;
       });
-      context.restore();
       setAppState((prev) => ({ ...prev, elements: newElems }));
       return;
     }
@@ -897,9 +942,9 @@ export default function Canvas() {
           left: 10,
         }}
       >
-        <button onClick={(e) => adjustZoom(-0.25, null)}>-</button>
+        <button onClick={() => adjustZoom(-0.25, null)}>-</button>
         <div>{Math.floor(cameraZoom * 100)}%</div>
-        <button onClick={(e) => adjustZoom(0.25, null)}>+</button>
+        <button onClick={() => adjustZoom(0.25, null)}>+</button>
       </div>
       <div
         style={{
