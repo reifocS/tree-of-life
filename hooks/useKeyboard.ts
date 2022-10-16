@@ -57,18 +57,6 @@ function useKeyboard(setAppState: (value: SetStateAction<AppState>) => void) {
             },
           }));
       }
-      if (e.code === "KeyS") {
-        setAppState((prev) => ({
-          ...prev,
-          mode: "select",
-        }));
-      }
-      if (e.code === "KeyD") {
-        setAppState((prev) => ({
-          ...prev,
-          mode: "drag",
-        }));
-      }
     }
 
     document.addEventListener("keydown", handleKeyDown, false);
