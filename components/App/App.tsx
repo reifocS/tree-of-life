@@ -31,7 +31,6 @@ export type AppState = {
   initialPinchDistance: null | number;
   elements: Element[];
   draggedElement: Element | null;
-  mode: string;
   downPoint?: Point;
 };
 const useDeviceSize = () => {
@@ -115,10 +114,6 @@ function toCanvasCoord(
   return { x: newX, y: newY };
 }
 
-function toLeafBoundingRect(x: number, y: number, scale: number) {
-  return { x: x - 60 * scale, y: y * scale };
-}
-
 function hitTest(
   x: number,
   y: number,
@@ -164,7 +159,7 @@ const sectors = [{
 }, {
   color: "red",
   text: "Mon quotidien"
-},{
+}, {
   color: "red",
   text: "Mon quotidien"
 },
@@ -184,7 +179,7 @@ function drawCircle(
   const arc = TAU / sectors.length;
 
   const drawFlys = () => {
-    rc.arc(x, y, rad, rad, PI/2 - arc / 10,  PI/2 + arc / 10, true, {
+    rc.arc(x, y, rad, rad, PI / 2 - arc / 10, PI / 2 + arc / 10, true, {
       fill: "black",
       fillStyle: "solid",
       seed: 2
@@ -251,7 +246,7 @@ function drawCircle(
     });
   };
 
-  const drawText = (i : number) => {
+  const drawText = (i: number) => {
     const ang = arc * i - PI / 2;
     const length = rad / 4;
     const endX = x + length * Math.cos(-(ang + arc / 2));
@@ -349,17 +344,11 @@ function drawIt(
   let i = 0;
   for (const element of elements) {
     if (element.type === "category") {
-      drawCategory(element, ctx);
+      drawCategory(element, ctx, rc, element.id === selectedId);
     } else {
       drawSector(element, ctx, rc, i++, element.id === selectedId);
     }
   }
-
-  rc.circle(canvas.width / 2, canvas.height / 2, 20, {
-    fill: "red",
-    fillStyle: "solid",
-    seed: 2
-  })
 
   const { x, y } = geometricMedian(elements.map(e => ({ x: e.x, y: e.y })), elements.length)
   /*rc.circle(x, y, 20, {
@@ -438,8 +427,8 @@ function updateText(
 function addText(context: CanvasRenderingContext2D) {
   //TODO type it
   const element: any = {
-    x: context.canvas.width / 2,
-    y: context.canvas.height / 2,
+    x: 0,
+    y: 0,
     type: "category",
     id: guidGenerator(),
   };
@@ -465,12 +454,22 @@ function addText(context: CanvasRenderingContext2D) {
   return element;
 }
 
-function drawCategory(category: Element, ctx: CanvasRenderingContext2D) {
+function drawCategory(category: Element, ctx: CanvasRenderingContext2D, rc: RoughCanvas, isSelected: boolean) {
   const font = ctx.font;
   ctx.font = category.font!;
+  const align = ctx.textAlign;
+  ctx.textAlign = "left"
   const { x, y, text } = category;
   ctx.fillText(text, x, y + category.actualBoundingBoxAscent!);
+  if (isSelected) {
+    rc.rectangle(x, y, ctx.measureText(text).width, category.actualBoundingBoxAscent!, {
+      seed: 2,
+      strokeLineDash: [5, 5],
+      roughness: 0
+    })
+  }
   ctx.font = font;
+  ctx.textAlign = align;
 }
 
 function scale(x: number, y: number, ctx: CanvasRenderingContext2D) {
@@ -622,9 +621,6 @@ export default function Canvas() {
     draggedElement
   ]);
 
-  function setMode(m: string) {
-    setAppState((prev) => ({ ...prev, mode: m }));
-  }
   const handlePointerDown = (e: PointerEvent<HTMLCanvasElement>) => {
     const ctx = canvasRef.current!.getContext("2d")!;
     const { x, y } = mousePosToCanvasPos(ctx, e);
@@ -632,14 +628,14 @@ export default function Canvas() {
     const el = elements.find((el) =>
       hitTest(x, y, el)
     );
-    if (el && appState.mode === "drag") {
+    if (el) {
       setAppState((prev) => ({
         ...prev,
         draggedElement: el,
         downPoint: { x, y }
       }));
       return;
-    } else if (!el && appState.mode === "drag") {
+    } else {
       setAppState((prev) => ({
         ...prev,
         isDragging: true,
@@ -789,14 +785,6 @@ export default function Canvas() {
             >
               Add circle
             </button>
-            <h4>Mode:</h4>
-            <select
-              value={appState.mode}
-              onChange={(e) => setMode(e.target.value)}
-            >
-              <option value="drag">drag</option>
-              <option value="select">select</option>
-            </select>
           </div>
           <div>
             <h4>Circle</h4>
@@ -903,7 +891,6 @@ export default function Canvas() {
         </div>
         <canvas
           onClick={(e) => {
-            if (appState.mode !== "select") return;
             const ctx = canvasRef.current!.getContext("2d")!;
             const { x, y } = mousePosToCanvasPos(ctx, e);
             ctx.fillText(`${Math.floor(x)}-${Math.floor(y)}`, x, y);
@@ -960,31 +947,7 @@ export default function Canvas() {
         <input type="checkbox"
           onChange={() => setHide(prev => !prev)}
           checked={hide}></input>
-        {appState.elements
-          .filter((el) => el.type === "category")
-          .map((el) => {
-            return (
-              <>
-                {el.text}
-                <ul key={el.id}>
-                  {appState.elements
-                    .filter((leaf) => leaf.categoryId === el.id)
-                    .map((leaf) => {
-                      return (
-                        <li
-                          style={{
-                            backgroundColor: leaf.color,
-                          }}
-                          key={leaf.id}
-                        >
-                          {leaf.text}
-                        </li>
-                      );
-                    })}
-                </ul>
-              </>
-            );
-          })}
+        <pre>{JSON.stringify(draggedElement, null, 2)}</pre>
       </div>
     </>
   );
