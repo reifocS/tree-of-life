@@ -673,7 +673,6 @@ export default function Canvas() {
       return;
     }
     if (appState.draggedElement) {
-      const canvas = canvasRef.current!;
       let { x: startX, y: startY } = appState.draggedElement;
       let dragTarget = {
         ...appState.draggedElement,
@@ -687,6 +686,7 @@ export default function Canvas() {
         return e;
       });
       setAppState((prev) => ({ ...prev, elements: newElems }));
+      document.documentElement.style.cursor = "move"
       return;
     }
     if (
