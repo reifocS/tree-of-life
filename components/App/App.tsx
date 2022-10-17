@@ -425,7 +425,7 @@ function updateText(
   return element;
 }
 
-function addText(context: CanvasRenderingContext2D) {
+function addText(context: CanvasRenderingContext2D, text: string | null = null) {
   //TODO type it
   const element: any = {
     x: 0,
@@ -433,9 +433,11 @@ function addText(context: CanvasRenderingContext2D) {
     type: "category",
     id: guidGenerator(),
   };
-  const text = prompt("What text do you want?");
   if (text === null) {
-    return;
+    text = prompt("What text do you want?");
+    if (text === null) {
+      return;
+    }
   }
   element.text = text;
   element.font = "20px Virgil";
@@ -792,23 +794,45 @@ export default function Canvas() {
             </button>
             <pre>{JSON.stringify(selectedElement, null, 2)}</pre>
             {selectedElement && <>
-            <input 
-              onChange={(e) => {
-                setAppState(prev => ({
-                  ...prev, 
-                  elements: prev.elements.map(el=> {
-                    if(el.id === selectedElement.id) {
-                      return {
-                        ...el, 
-                        width: +e.target.value
+              {selectedElement.type !== "category" && <input
+                onChange={(e) => {
+                  setAppState(prev => ({
+                    ...prev,
+                    elements: prev.elements.map(el => {
+                      if (el.id === selectedElement.id) {
+                        return {
+                          ...el,
+                          width: +e.target.value
+                        }
                       }
-                    }
-                    return el;
-                  })
-                }))
-              }}
-              type="range" min={50} max={300} value={elements.find(el => el.id === selectedElement.id)?.width!}></input>
-        
+                      return el;
+                    })
+                  }))
+                }}
+                type="range" min={50} max={300} value={elements.find(el => el.id === selectedElement.id)?.width!}></input>}
+              <input
+                onChange={(e) => {
+                  setAppState(prev => ({
+                    ...prev,
+                    elements: prev.elements.map(el => {
+                      if (el.id === selectedElement.id) {
+                        if (el.type === "circle")
+                          return {
+                            ...el,
+                            text: e.target.value,
+                          }
+                        return {
+                          ...addText(canvasRef.current!.getContext("2d")!, e.target.value ?? ""),
+                          x: el.x,
+                          y: el.y,
+                          id: el.id
+                        }
+                      }
+                      return el;
+                    })
+                  }))
+                }}
+                value={elements.find(el => el.id === selectedElement.id)?.text!}></input>
             </>}
           </div>
         </div>
