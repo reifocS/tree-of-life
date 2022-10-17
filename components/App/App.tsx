@@ -807,7 +807,7 @@ export default function Canvas() {
                   })
                 }))
               }}
-              type="range" min={50} max={300} value={selectedElement.width}></input>
+              type="range" min={50} max={300} value={elements.find(el => el.id === selectedElement.id)?.width!}></input>
         
             </>}
           </div>
