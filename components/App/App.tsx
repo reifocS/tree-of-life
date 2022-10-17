@@ -144,26 +144,26 @@ function hitTest(
 const RC_WIDTH = 100;
 const FONT_SIZE = 14;
 
-const colors = ["dark", "orange", "#82c91e"];
+const colors = ["gray", "orange", "#82c91e"];
 
 const sectors = [{
-  color: "red",
+  color: "#f15275",
   text: "Mes reins fatiguent"
 }, {
-  color: "red",
+  color: "#f15275",
   text: "Ma vie sociale"
 }, {
-  color: "red",
+  color: "#f15275",
   text: "Parcours de soins"
 }, {
-  color: "red",
+  color: "#f15275",
+  text: "Mes ressources"
+}, {
+  color: "#f15275",
   text: "Mon quotidien"
 }, {
-  color: "red",
-  text: "Mon quotidien"
-}, {
-  color: "red",
-  text: "Mon quotidien"
+  color: "#f15275",
+  text: "Mes racines"
 },
 ]
 
@@ -254,7 +254,6 @@ function drawCircle(
     const endX = x + length * Math.cos(-(ang + arc / 2));
     const endY = y - length * Math.sin(-(ang + arc / 2));
     const font = ctx.font;
-    ctx.fillStyle = "#eee";
     ctx.font = `bold ${25}px ${"comic sans ms"}`;
     printAt(ctx, sectors[i].text, endX, endY, 40, 300);
     ctx.font = font;
@@ -533,7 +532,7 @@ function printAt(
 ) {
   const fillStyle = context.fillStyle;
   context.textAlign = "center";
-  context.fillStyle = "#fff"
+  context.fillStyle = "black"
   fitWidth = fitWidth || 0;
 
   if (fitWidth <= 0) {
@@ -624,6 +623,7 @@ export default function Canvas() {
   ]);
 
   const handlePointerDown = (e: PointerEvent<HTMLCanvasElement>) => {
+    e.preventDefault();
     const ctx = canvasRef.current!.getContext("2d")!;
     const { x, y } = mousePosToCanvasPos(ctx, e);
 
@@ -655,6 +655,7 @@ export default function Canvas() {
 
   const handlePointerUp = (e: PointerEvent<HTMLCanvasElement>) => {
     //const { x, y } = getMousePos(canvasRef.current!, e);
+    e.preventDefault();
     setAppState((prev) => ({
       ...prev,
       isDragging: false,
@@ -789,112 +790,31 @@ export default function Canvas() {
             >
               Add circle
             </button>
-          </div>
-          <div>
-            <h4>Circle</h4>
-            <ul>
-              {elements
-                .filter((e) => e.type === "circle")
-                .map((e) => (
-                  <li key={e.id}>
-                    <input
-                      value={e.text}
-                      onChange={(ev) => {
-                        setAppState((p) => ({
-                          ...p,
-                          elements: p.elements.map((el) => {
-                            if (el.id === e.id) {
-                              return {
-                                ...el,
-                                text: ev.target.value,
-                              };
-                            }
-                            return el;
-                          }),
-                        }));
-                      }}
-                    ></input>
-                    <button
-                      onClick={() => {
-                        setAppState((p) => ({
-                          ...p,
-                          elements: p.elements.filter((el) => el.id !== e.id),
-                        }));
-                      }}
-                    >
-                      X
-                    </button>
-                    <select
-                      value={e.categoryId}
-                      onChange={(ev) => {
-                        setAppState((p) => ({
-                          ...p,
-                          elements: p.elements.map((el) => {
-                            if (el.id === e.id) {
-                              return {
-                                ...el,
-                                categoryId: ev.target.value,
-                              };
-                            }
-                            return el;
-                          }),
-                        }));
-                      }}
-                    >
-                      <option value={undefined}>none</option>
-                      {elements
-                        .filter((ele) => ele.type === "category")
-                        .map((c) => (
-                          <option value={c.id} key={c.id}>
-                            {c.text}
-                          </option>
-                        ))}
-                    </select>
-                  </li>
-                ))}
-            </ul>
-            <h4>Category</h4>
-            <ul>
-              {elements
-                .filter((e) => e.type === "category")
-                .map((e) => (
-                  <li key={e.id}>
-                    <input
-                      value={e.text}
-                      onChange={(ev) => {
-                        const newOne = updateText(
-                          canvasRef.current!.getContext("2d")!,
-                          { ...e },
-                          ev.target.value
-                        );
-                        setAppState((p) => ({
-                          ...p,
-                          elements: p.elements.map((el) => {
-                            if (el.id === e.id) {
-                              return newOne;
-                            }
-                            return el;
-                          }),
-                        }));
-                      }}
-                    ></input>
-                    <button
-                      onClick={() => {
-                        setAppState((p) => ({
-                          ...p,
-                          elements: p.elements.filter((el) => el.id !== e.id),
-                        }));
-                      }}
-                    >
-                      X
-                    </button>
-                  </li>
-                ))}
-            </ul>
+            <pre>{JSON.stringify(selectedElement, null, 2)}</pre>
+            {selectedElement && <>
+            <input 
+              onChange={(e) => {
+                setAppState(prev => ({
+                  ...prev, 
+                  elements: prev.elements.map(el=> {
+                    if(el.id === selectedElement.id) {
+                      return {
+                        ...el, 
+                        width: +e.target.value
+                      }
+                    }
+                    return el;
+                  })
+                }))
+              }}
+              type="range" min={50} max={300} value={selectedElement.width}></input>
+        
+            </>}
           </div>
         </div>
         <canvas
           onClick={(e) => {
+            e.preventDefault();
             const ctx = canvasRef.current!.getContext("2d")!;
             const { x, y } = mousePosToCanvasPos(ctx, e);
             ctx.fillText(`${Math.floor(x)}-${Math.floor(y)}`, x, y);
@@ -923,7 +843,7 @@ export default function Canvas() {
           width={width}
           height={height}
         />
-      </div>d
+      </div>
       <div
         style={{
           position: "absolute",
@@ -951,7 +871,6 @@ export default function Canvas() {
         <input type="checkbox"
           onChange={() => setHide(prev => !prev)}
           checked={hide}></input>
-        <pre>{JSON.stringify(selectedElement, null, 2)}</pre>
       </div>
     </>
   );
