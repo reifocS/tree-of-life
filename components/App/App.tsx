@@ -352,7 +352,7 @@ function drawGrid(ctx: CanvasRenderingContext2D) {
 
 function drawTronc(rc: RoughCanvas, startX: number, startY: number, endX: number, endY: number) {
   rc.line(startX, startY, endX, endY, {
-    strokeWidth: 30,
+    strokeWidth: 80,
     roughness: 0,
     stroke: 'rgb(' + (((Math.random() * 64) + 64) >> 0) + ',50,25)'
   })

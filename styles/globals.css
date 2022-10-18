@@ -23,7 +23,7 @@ body {
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.01), 1px 1px 5px rgb(0 0 0/12%);
   transition: box-shadow 0.5s ease-in-out;
   border-radius: 6px;
-  background-color: hsla(0,0%,100%,0.96);
+  background-color: hsla(0, 0%, 100%, 0.96);
   padding: 10px;
   user-select: none;
 }
@@ -92,6 +92,16 @@ button {
 .sidePanel li {
   padding: 2px;
 }
-.sidePanel li button{
+.sidePanel li button {
   margin-right: 5px;
+}
+button {
+  border: none;
+  padding: 6px 10px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  background-color: #555555;
+  cursor: pointer;
+  color: #fff;
 }
