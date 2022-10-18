@@ -22,6 +22,8 @@ type Point = {
   y: number
 }
 
+
+type Sector = { color: string, text: string, id: string }
 export type AppState = {
   cameraZoom: number;
   scaleMultiplier: number;
@@ -33,6 +35,8 @@ export type AppState = {
   draggedElement: Element | null;
   downPoint?: Point;
   selectedElement: Element | null;
+  sectors: Sector[];
+  radius: number
 };
 
 const useDeviceSize = () => {
@@ -76,6 +80,42 @@ function guidGenerator() {
     S4() +
     S4()
   );
+}
+
+function drawRecursiveTree(ctx: CanvasRenderingContext2D, startX: number, startY: number, length: number, angle: number, depth: number, branchWidth: number) {
+  let rand = Math.random,
+    newLength, newAngle, newDepth, maxBranch = 3,
+    endX, endY, maxAngle = 2 * Math.PI / 4,
+    subBranches, lenShrink;
+  ctx.beginPath();
+  ctx.moveTo(startX, startY);
+  endX = startX + length * Math.cos(angle);
+  endY = startY + length * Math.sin(angle);
+
+  ctx.lineCap = 'round';
+  ctx.lineWidth = branchWidth;
+  ctx.lineTo(endX, endY);
+
+
+  ctx.strokeStyle = 'rgb(' + (((rand() * 64) + 64) >> 0) + ',50,25)';
+
+  ctx.stroke();
+
+  newDepth = depth - 1;
+
+  if (!newDepth) {
+    return;
+  }
+
+  subBranches = (rand() * (maxBranch - 1)) + 1;
+
+  branchWidth *= 0.7;
+
+  for (var i = 0; i < subBranches; i++) {
+    newAngle = angle + rand() * maxAngle - maxAngle * 0.5;
+    newLength = length * (0.7 + rand() * 0.3);
+    drawRecursiveTree(ctx, endX, endY, newLength, newAngle, newDepth, branchWidth);
+  }
 }
 
 function getTransformedPoint(
@@ -146,26 +186,6 @@ const FONT_SIZE = 14;
 
 const colors = ["gray", "orange", "#82c91e"];
 
-const sectors = [{
-  color: "#f15275",
-  text: "Mes reins fatiguent"
-}, {
-  color: "#f15275",
-  text: "Ma vie sociale"
-}, {
-  color: "#f15275",
-  text: "Parcours de soins"
-}, {
-  color: "#f15275",
-  text: "Mes ressources"
-}, {
-  color: "#f15275",
-  text: "Mon quotidien"
-}, {
-  color: "#f15275",
-  text: "Mes racines"
-},
-]
 
 function drawCircle(
   ctx: CanvasRenderingContext2D,
@@ -333,14 +353,24 @@ function drawIt(
   rc: RoughCanvas,
   canvas: HTMLCanvasElement,
   elements: Element[],
-  selectedId?: string
+  sectors: { color: string, text: string }[],
+  selectedId?: string,
 ) {
   const ctx = canvas.getContext("2d")!;
-  let radius = 2000;
-  drawCircle(ctx, sectors, canvas.width / 2, canvas.height / 2, radius, rc);
-  ctx.translate(canvas.width / 2, canvas.height / 2);
-  //drawGrid(ctx);
+  //let radius = 2000;
+  //drawCircle(ctx, sectors, canvas.width / 2, canvas.height / 2, radius, rc);
+  //ctx.translate(canvas.width / 2, canvas.height / 2);
+  const treeHeight = canvas.height - 500;
+  const level = treeHeight / sectors.length;
+  const baseTreeX = canvas.width / 2;
+  const baseTreeY = canvas.height
+  drawGrid(ctx);
+  rc.line(baseTreeX, baseTreeY, canvas.width / 2, treeHeight, {
+    strokeWidth: 10,
+    roughness: 0
+  })
 
+  drawRecursiveTree(ctx, ctx.canvas.width / 2, 500, 60, -Math.PI / 2, 3, 12);
   ctx.fillStyle = "black";
   let i = 0;
   for (const element of elements) {
@@ -351,7 +381,7 @@ function drawIt(
     }
   }
 
-  const { x, y } = geometricMedian(elements.map(e => ({ x: e.x, y: e.y })), elements.length)
+  //const { x, y } = geometricMedian(elements.map(e => ({ x: e.x, y: e.y })), elements.length)
   /*rc.circle(x, y, 20, {
     fill: "green",
     fillStyle: "solid",
@@ -404,26 +434,6 @@ function getXY(mouseX: number, mouseY: number) {
   return { x: newX, y: newY };
 }
 */
-
-//Todo factorise duplicated code
-function updateText(
-  context: CanvasRenderingContext2D,
-  element: Element,
-  text: string
-) {
-  element.text = text;
-  element.font = "20px Virgil";
-  const font = context.font;
-  context.font = element.font;
-  const { actualBoundingBoxAscent, actualBoundingBoxDescent, width } =
-    context.measureText(text);
-  element.actualBoundingBoxAscent = actualBoundingBoxAscent;
-  context.font = font;
-  const height = actualBoundingBoxAscent + actualBoundingBoxDescent;
-  element.width = width;
-  element.height = height;
-  return element;
-}
 
 function addText(context: CanvasRenderingContext2D, text: string | null = null) {
   //TODO type it
@@ -488,6 +498,7 @@ function draw(
   cameraOffset: { x: number; y: number },
   roughCanvas: RoughCanvas,
   elements: Element[],
+  sectors: { color: string, text: string }[],
   selectedId?: string
   //TODO stocker en rectangle et convertir en feuille au moment du draw?
 ) {
@@ -500,7 +511,7 @@ function draw(
     ctx
   );
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawIt(roughCanvas, canvas, elements, selectedId);
+  drawIt(roughCanvas, canvas, elements, sectors, selectedId);
   //buildTree(ctx, roughCanvas);
 }
 
@@ -583,10 +594,49 @@ export default function Canvas() {
   const [width, height, devicePixelRatio] = useDeviceSize();
   const [hide, setHide] = useState(true);
   const [roughCanvas, setRoughCanvas] = useState<RoughCanvas | null>(null);
-  const [appState, setAppState] = useState<AppState>(() => JSON.parse(dState));
+  const [appState, setAppState] = useState<AppState>(
+    {
+      selectedElement: null,
+      radius: 1000,
+      sectors: [{
+        color: "#f15275",
+        text: "Mes reins fatiguent",
+        id: guidGenerator()
+      }, {
+        color: "#f15275",
+        text: "Ma vie sociale",
+        id: guidGenerator()
+      }, {
+        color: "#f15275",
+        text: "Parcours de soins",
+        id: guidGenerator()
+      }, {
+        color: "#f15275",
+        text: "Mes ressources",
+        id: guidGenerator()
+      }, {
+        color: "#f15275",
+        text: "Mon quotidien",
+        id: guidGenerator()
+      }, {
+        color: "#f15275",
+        text: "Mes racines",
+        id: guidGenerator()
+      },
+      ],
+      cameraZoom: INITIAL_ZOOM,
+      scaleMultiplier: 0.8,
+      cameraOffset: { "x": 0, "y": 0 },
+      isDragging: false,
+      dragStart: { "x": 0, "y": 0 },
+      initialPinchDistance: null,
+      draggedElement: null,
+      elements: [],
+      downPoint: { "x": 1157.446811446349, "y": 444.6808521917038 }
+    });
 
   useKeyboard(setAppState);
-  const { cameraZoom, elements, cameraOffset, isDragging, draggedElement, selectedElement } =
+  const { cameraZoom, elements, cameraOffset, isDragging, sectors, selectedElement } =
     appState;
   const { x: cameraOffsetX, y: cameraOffsetY } = cameraOffset;
   const lastZoom = useRef(cameraZoom);
@@ -611,6 +661,7 @@ export default function Canvas() {
       { x: cameraOffsetX, y: cameraOffsetY },
       roughCanvas,
       elements,
+      sectors,
       selectedElement?.id
     );
   }, [
@@ -621,7 +672,8 @@ export default function Canvas() {
     height,
     roughCanvas,
     width,
-    selectedElement
+    selectedElement,
+    sectors
   ]);
 
   const handlePointerDown = (e: PointerEvent<HTMLCanvasElement>) => {
@@ -777,8 +829,8 @@ export default function Canvas() {
                     ...prev.elements,
                     {
                       id: guidGenerator(),
-                      x: width / 2,
-                      y: height / 2,
+                      x: 0,
+                      y: 0,
                       color: colors[0],
                       seed: getRandomArbitrary(1, 10000),
                       text: "hello world!",
@@ -792,7 +844,29 @@ export default function Canvas() {
             >
               Add circle
             </button>
-            <pre>{JSON.stringify(selectedElement, null, 2)}</pre>
+            <ul>
+              {sectors.map(s => <li key={s.id}>
+                <input value={s.text} onChange={(e) => {
+                  setAppState(prev => ({
+                    ...prev,
+                    sectors: prev.sectors.map(sec => {
+                      if (s.id === sec.id) {
+                        return { ...sec, text: e.target.value }
+                      }
+                      return sec
+                    })
+                  }))
+                }}></input>
+                <button onClick={() => setAppState(prev => ({
+                  ...prev,
+                  sectors: prev.sectors.filter(sec => sec.id !== s.id)
+                }))}>X</button>
+              </li>)}
+            </ul>
+            <button onClick={() => setAppState(prev => ({
+              ...prev,
+              sectors: [...prev.sectors, { id: guidGenerator(), color: "#f15275", text: "new sector" }]
+            }))}>Add sector</button>
             {selectedElement && <>
               {selectedElement.type !== "category" && <input
                 onChange={(e) => {
