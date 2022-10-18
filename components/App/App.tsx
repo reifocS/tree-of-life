@@ -372,7 +372,7 @@ function drawIt(
 
   drawRecursiveTree(ctx, ctx.canvas.width / 2, 500, 60, -Math.PI / 2, 3, 12);
   ctx.fillStyle = "black";
-  let i = 0;
+  let i = 0; 
   for (const element of elements) {
     if (element.type === "category") {
       drawCategory(element, ctx, rc, element.id === selectedId);
