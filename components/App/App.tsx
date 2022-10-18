@@ -12,6 +12,7 @@ import rough from "roughjs/bin/rough";
 import { RoughCanvas } from "roughjs/bin/canvas";
 import useKeyboard from "../../hooks/useKeyboard";
 import geometricMedian from "../../utils/geometric-median"
+import { start } from "repl";
 //TODO
 //Remove magic variables (tree size for example)
 
@@ -349,6 +350,29 @@ function drawGrid(ctx: CanvasRenderingContext2D) {
 
 }
 
+function drawTronc(rc: RoughCanvas, startX: number, startY: number, endX: number, endY: number) {
+  rc.line(startX, startY, endX, endY, {
+    strokeWidth: 30,
+    roughness: 0,
+    stroke: 'rgb(' + (((Math.random() * 64) + 64) >> 0) + ',50,25)'
+  })
+}
+
+function drawBranch(rc: RoughCanvas, startX: number, startY: number, endX: number, endY: number) {
+  rc.line(startX, startY, endX, endY, {
+    strokeWidth: 30,
+    roughness: 0,
+    stroke: 'rgb(' + (((Math.random() * 64) + 64) >> 0) + ',50,25)'
+  })
+}
+
+const getAngle = (i: number) => i % 2 === 0 ? Math.PI / 4 : 3 * Math.PI / 4;
+const getLineFromAngle = (x: number, y: number, length: number, angle: number) => ({
+  endX: x + length * Math.cos(-angle),
+  endY: y + length * Math.sin(-angle)
+})
+
+
 function drawIt(
   rc: RoughCanvas,
   canvas: HTMLCanvasElement,
@@ -360,19 +384,31 @@ function drawIt(
   //let radius = 2000;
   //drawCircle(ctx, sectors, canvas.width / 2, canvas.height / 2, radius, rc);
   //ctx.translate(canvas.width / 2, canvas.height / 2);
-  const treeHeight = canvas.height - 500;
-  const level = treeHeight / sectors.length;
+  const endTreeY = -800;
+  const endTreeX = canvas.width / 2;
   const baseTreeX = canvas.width / 2;
-  const baseTreeY = canvas.height
+  const baseTreeY = canvas.height;
+  ctx.lineCap = 'round';
+  const branchLength = 600;
+  let PI = Math.PI;
   drawGrid(ctx);
-  rc.line(baseTreeX, baseTreeY, canvas.width / 2, treeHeight, {
-    strokeWidth: 10,
-    roughness: 0
-  })
+  drawTronc(rc, baseTreeX, baseTreeY, endTreeX, endTreeY)
 
-  drawRecursiveTree(ctx, ctx.canvas.width / 2, 500, 60, -Math.PI / 2, 3, 12);
+  //Draw Branch
+  let startX = baseTreeX;
+  let startY = baseTreeY - 180;
+  const numberOfBranches = 5;
+  let spaceBetweenBranches = (canvas.height + Math.abs(endTreeY) - 100) / numberOfBranches;
+  for (let i = 0; i < numberOfBranches; ++i) {
+    let { endX, endY } = getLineFromAngle(startX, startY, branchLength, getAngle(i));
+    drawBranch(rc, startX, startY, endX, endY);
+    startY -= spaceBetweenBranches;
+  }
+
+  //Draw Leaf
+  //drawRecursiveTree(ctx, ctx.canvas.width / 2, 500, 60, -Math.PI / 2, 3, 12);
   ctx.fillStyle = "black";
-  let i = 0; 
+  let i = 0;
   for (const element of elements) {
     if (element.type === "category") {
       drawCategory(element, ctx, rc, element.id === selectedId);
@@ -380,7 +416,6 @@ function drawIt(
       drawSector(element, ctx, rc, i++, element.id === selectedId);
     }
   }
-
   //const { x, y } = geometricMedian(elements.map(e => ({ x: e.x, y: e.y })), elements.length)
   /*rc.circle(x, y, 20, {
     fill: "green",
