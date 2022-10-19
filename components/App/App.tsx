@@ -357,7 +357,7 @@ function drawGrid(ctx: CanvasRenderingContext2D) {
 }
 
 
-function drawLeaf(rc: RoughCanvas, ctx: CanvasRenderingContext2D, x: number, y: number, color: string, width: number, height: number, image: HTMLImageElement, isSelected: boolean) {
+function drawLeaf(rc: RoughCanvas, ctx: CanvasRenderingContext2D, x: number, y: number, text: string, color: string, width: number, height: number, image: HTMLImageElement, isSelected: boolean) {
 
   //ctx.fillStyle = 'gray'
   //ctx.fillRect(x, y, width, height)
@@ -370,6 +370,7 @@ function drawLeaf(rc: RoughCanvas, ctx: CanvasRenderingContext2D, x: number, y: 
       roughness: 0
     })
   }
+  printAt(ctx, text, x + width / 2, y + height / 2, 15, width - 15);
   /*ctx.beginPath();
   ctx.lineJoin = 'miter';
   //ctx.quadraticCurveTo(117.5, 30, 184, -2);
@@ -457,7 +458,7 @@ function drawIt(
     } else if (element.type === "circle") {
       drawSector(element, ctx, rc, i++, element.id === selectedId);
     } else {
-      drawLeaf(rc, ctx, element.x, element.y, element.color, element.width!, element.height!, images.find(c => c.color === element.color)!.image, element.id === selectedId)
+      drawLeaf(rc, ctx, element.x, element.y, element.text, element.color, element.width!, element.height!, images.find(c => c.color === element.color)!.image, element.id === selectedId)
     }
   }
   //const { x, y } = geometricMedian(elements.map(e => ({ x: e.x, y: e.y })), elements.length)
@@ -991,30 +992,49 @@ export default function Canvas() {
               sectors: [...prev.sectors, { id: guidGenerator(), color: "#f15275", text: "new sector" }]
             }))}>Add sector</button>
             {selectedElement && <>
-              {selectedElement.type !== "category" && <input
-                onChange={(e) => {
-                  setAppState(prev => ({
-                    ...prev,
-                    elements: prev.elements.map(el => {
-                      if (el.id === selectedElement.id) {
-                        return {
-                          ...el,
-                          width: +e.target.value,
-                          height: +e.target.value
+              {selectedElement.type !== "category" && <>
+                width
+                <input
+                  onChange={(e) => {
+                    setAppState(prev => ({
+                      ...prev,
+                      elements: prev.elements.map(el => {
+                        if (el.id === selectedElement.id) {
+                          return {
+                            ...el,
+                            width: +e.target.value,
+                          }
                         }
-                      }
-                      return el;
-                    })
-                  }))
-                }}
-                type="range" min={50} max={300} value={elements.find(el => el.id === selectedElement.id)?.width!}></input>}
+                        return el;
+                      })
+                    }))
+                  }}
+                  type="range" min={50} max={300} value={elements.find(el => el.id === selectedElement.id)?.width!}></input>
+                {selectedElement.type === "leaf" && <>height<input
+                  onChange={(e) => {
+                    setAppState(prev => ({
+                      ...prev,
+                      elements: prev.elements.map(el => {
+                        if (el.id === selectedElement.id) {
+                          return {
+                            ...el,
+                            height: +e.target.value
+                          }
+                        }
+                        return el;
+                      })
+                    }))
+                  }}
+                  type="range" min={50} max={300} value={elements.find(el => el.id === selectedElement.id)?.height!}></input>
+                </>}
+              </>}
               <input
                 onChange={(e) => {
                   setAppState(prev => ({
                     ...prev,
                     elements: prev.elements.map(el => {
                       if (el.id === selectedElement.id) {
-                        if (el.type === "circle")
+                        if (el.type !== "category")
                           return {
                             ...el,
                             text: e.target.value,
