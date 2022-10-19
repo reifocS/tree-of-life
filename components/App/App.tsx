@@ -189,7 +189,7 @@ function hitTest(
 }
 
 const RC_WIDTH = 100;
-const LEAF_WIDTH = 50;
+const LEAF_WIDTH = 60;
 const LEAF_HEIGHT = 80;
 const colors = ["gray", "orange", "green"];
 
@@ -672,7 +672,7 @@ let INITIAL_ZOOM = 1;
 export default function Canvas() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [width, height, devicePixelRatio] = useDeviceSize();
-  const [hide, setHide] = useState(true);
+  const [hide, setHide] = useState(false);
   const [roughCanvas, setRoughCanvas] = useState<RoughCanvas | null>(null);
   const [appState, setAppState] = useState<AppState>(
     {
@@ -711,7 +711,9 @@ export default function Canvas() {
       dragStart: { "x": 0, "y": 0 },
       initialPinchDistance: null,
       draggedElement: null,
-      elements: [],
+      elements: [
+        { "id": "b72ece49-3009-c842-8620-7ffbc3ba393d", "x": 146, "y": -152, "color": "orange", "seed": 2558.276717397499, "text": "hello world!", "icon": "🦍", "type": "leaf", "width": LEAF_WIDTH, "height": LEAF_HEIGHT }, { "id": "47cc3bbe-01ab-5d30-458f-b9e131c1aaea", "x": 195, "y": -51, "color": "green", "seed": 3934.491707227224, "text": "hello world!", "icon": "🦍", "type": "leaf", "width": LEAF_WIDTH, "height": LEAF_HEIGHT }, { "id": "c9de5ef0-6143-5a3f-ba20-883b79fb9744", "x": 87, "y": -104, "color": "orange", "seed": 295.5389757004682, "text": "hello world!", "icon": "🦍", "type": "leaf", "width": LEAF_WIDTH, "height": LEAF_HEIGHT }, { "id": "70ed4e77-d4a1-8678-baae-26d3b3e7a63f", "x": 146, "y": -2, "color": "orange", "seed": 1827.226735750161, "text": "hello world!", "icon": "🦍", "type": "leaf", "width": LEAF_WIDTH, "height": LEAF_HEIGHT }
+      ],
       downPoint: { "x": 1157.446811446349, "y": 444.6808521917038 }
     });
 
