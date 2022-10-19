@@ -726,8 +726,6 @@ export default function Canvas() {
    
    </svg>`;
       image.src = `data:image/svg+xml;base64,${window.btoa(svg)}`;
-      console.log(image.src)
-
       return { color: c, image };
     })
   }, [])
@@ -999,7 +997,8 @@ export default function Canvas() {
                       if (el.id === selectedElement.id) {
                         return {
                           ...el,
-                          width: +e.target.value
+                          width: +e.target.value,
+                          height: +e.target.value
                         }
                       }
                       return el;
