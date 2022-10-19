@@ -350,9 +350,37 @@ function drawGrid(ctx: CanvasRenderingContext2D) {
 
 }
 
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" version="1.0" width="1706.667" height="1706.667" viewBox="0 0 1280 1280"><path fill="#729C62" d="m0,0c0,0.2 2,3.9 4.6,8.1c16.8,28.5 35.2,72.7 43.5,104.4c6.2,24.2 7.4,33.4 7.3,59.6c0,21 -0.4,28 -3.7,56c-5,44 -5.7,52.3 -6.4,81c-1.8,76.9 13.3,156.7 46.9,247c33.1,89 78.8,155.3 137.3,199.5c34.4,25.9 68.5,41.5 108,49.2c9.5,1.9 14.7,2.2 39,2.3c15.4,0.1 26.9,-0.2 25.5,-0.5c-1.9,-0.5 -1.2,-0.8 3.2,-1.4c3.2,-0.4 6.3,-0.4 6.9,0c0.8,0.4 0.9,0.3 0.5,-0.4c-0.5,-0.8 0,-1.2 1.3,-1.2c1.1,0 7.7,-1.2 14.6,-2.6c7,-1.4 14.1,-2.3 15.8,-2c2.3,0.4 2.6,0.4 1.2,-0.3c-1.7,-0.7 -1.3,-0.9 2.2,-1.5c2.3,-0.4 4.8,-0.4 5.4,0c0.7,0.4 0.9,0.3 0.5,-0.4c-0.8,-1.3 4.6,-2.6 7.6,-1.7c1.6,0.4 1.9,0.3 1,-0.3c-1,-0.7 -0.4,-1.1 2.2,-1.6c2,-0.4 4.1,-0.4 4.8,0c0.7,0.5 0.8,0.3 0.3,-0.6c-0.6,-1 -0.1,-1.2 2.6,-0.7c1.9,0.4 2.8,0.3 2.2,-0.1c-0.8,-0.5 3.3,-2.3 10.5,-4.6c6.4,-2.1 12.4,-4 13.2,-4.3c1.3,-0.4 1.3,-0.3 0,0.6c-0.8,0.6 -1,1.1 -0.5,1.1c1.3,0 4.3,-2 3,-2c-0.5,0 1.7,-1.5 5,-3.3l6,-3.2l1.3,4c2.7,8.4 5.2,23.4 5.8,34.5c1.1,18.9 -2.6,29.2 -15.2,43.1l-7.5,8.3l9.8,2.7c6.4,1.7 10.2,2.3 11,1.7c0.7,-0.5 1.7,-0.7 2.2,-0.4c1.1,0.7 5.6,-4.7 5.6,-6.7c0,-0.7 1.4,-4.1 3.2,-7.7c1.7,-3.6 3.7,-8.7 4.4,-11.3c0.6,-2.7 1.5,-4.4 1.8,-3.8c0.4,0.6 0.7,-5.6 0.6,-13.7c0,-13.3 -0.3,-15.9 -3.2,-26.7c-1.8,-6.6 -4.8,-16.7 -6.7,-22.4c-2,-5.8 -3.4,-10.5 -3.3,-10.6c0.1,-0.1 1.9,-1.2 3.9,-2.4c2.1,-1.2 4.1,-2 4.6,-1.7c0.9,0.6 16.6,-11.8 19.7,-15.5c1.1,-1.3 0.2,-0.8 -2,1.2c-4,3.5 -12.3,10.2 -16,12.9c-3.8,2.7 0,-0.8 9,-8.2c5,-4.1 9.6,-8.2 10.4,-9.1c1.8,-2.3 3.7,-2.2 2,0.1c-0.7,0.9 3.1,-2.6 8.4,-7.8c8.8,-8.6 12.2,-12.3 8.2,-9c-2.6,2.2 -1.6,-0.5 1.1,-3.1c4.7,-4.3 18.6,-22.1 25.7,-32.9c3.8,-5.8 7.4,-10.4 7.9,-10.2c0.5,0.1 0.7,-0.2 0.3,-0.7c-0.9,-1.5 2.4,-7.3 3.7,-6.5c0.7,0.4 0.8,0.3 0.4,-0.4c-0.4,-0.6 1,-4.4 3,-8.4c7.8,-15.5 16.6,-40.5 18.9,-53.8c0.8,-4.1 0.9,-4.3 1.6,-2c0.6,1.8 0.7,1.3 0.3,-1.5c-0.3,-2.3 -0.1,-6.1 0.5,-8.5c0.5,-2.5 1.5,-11.2 2.2,-19.3c2.3,-29.1 -2,-60.1 -14.5,-105.9c-9.8,-35.4 -22,-67.7 -38.1,-100.3c-25.1,-51.1 -52,-89 -90,-127.1c-42.5,-42.6 -81.4,-69.6 -149.5,-103.8c-51.6,-25.8 -85.4,-40.1 -147.5,-62.1c-56.7,-20.2 -75.5,-27.9 -116,-47.5c-49.2,-23.9 -79.5,-36.7 -79.5,-33.6zm54.9,52.1c95.8,104.1 263.6,310.1 304.5,374c47.2,73.7 92.3,159.3 123.5,234.7c17.7,42.7 36.6,99.4 34.8,104.2c-0.9,2.3 -5.6,5.1 -6.8,3.9c-1.2,-1.2 -2.8,-7.2 -5,-14.9c-25.2,-86.3 -70.5,-185.3 -128.2,-279.9c-24,-39.3 -60.2,-92 -89.5,-130.4c-30.5,-40 -134.5,-168 -207.1,-255c-22.2,-26.7 -42.6,-51.4 -45.4,-55c-4.8,-6.2 -4.8,-6.4 -1.3,-3.1c2.1,1.9 11.3,11.6 20.5,21.5z"/></svg>`
+
+function drawLeaf(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number) {
+  const image = new Image();
+  image.src = `data:image/svg+xml;base64,${window.btoa(svg)}`;
+  ctx.fillStyle = 'green'
+  //ctx.fillRect(0, 0, width, height)
+  //ctx.drawImage(image, sx, sy, sLargeur, sHauteur, dx, dy, dLargeur, dHauteur);
+  ctx.drawImage(image, x, y, width, height)
+  /*ctx.beginPath();
+  ctx.lineJoin = 'miter';
+  //ctx.quadraticCurveTo(117.5, 30, 184, -2);
+
+  //ctx.quadraticCurveTo(117.5, 30, 148, 68);
+  const PI = Math.PI
+  ctx.moveTo(190, 88);
+  ctx.quadraticCurveTo(120, 88, 120, 88)
+  //ctx.arc(120, 88, 34.5, PI/2, 3 * PI / 2);
+  //ctx.quadraticCurveTo(117.5, 35, 120, 20);
+  ctx.closePath();
+  ctx.strokeStyle = '#000';
+  ctx.lineWidth = 2;
+  ctx.fillStyle = 'green'
+  ctx.stroke();
+  ctx.fill();*/
+}
+
+
 function drawTronc(rc: RoughCanvas, startX: number, startY: number, endX: number, endY: number) {
   rc.line(startX, startY, endX, endY, {
-    strokeWidth: 80,
+    strokeWidth: 50,
     roughness: 0,
     stroke: 'rgb(' + (((Math.random() * 64) + 64) >> 0) + ',50,25)'
   })
@@ -381,23 +409,30 @@ function drawIt(
   selectedId?: string,
 ) {
   const ctx = canvas.getContext("2d")!;
+  const numberOfBranches = 6;
   //let radius = 2000;
   //drawCircle(ctx, sectors, canvas.width / 2, canvas.height / 2, radius, rc);
   //ctx.translate(canvas.width / 2, canvas.height / 2);
-  const endTreeY = -800;
+  const endTreeY = 100 - (30 * numberOfBranches);
   const endTreeX = canvas.width / 2;
   const baseTreeX = canvas.width / 2;
   const baseTreeY = canvas.height;
   ctx.lineCap = 'round';
-  const branchLength = 600;
+  const branchLength = 300;
   let PI = Math.PI;
   drawGrid(ctx);
   drawTronc(rc, baseTreeX, baseTreeY, endTreeX, endTreeY)
+  drawLeaf(ctx, 560, -10, 100, 100)
+  drawLeaf(ctx, 610, 20, 100, 100)
+
+  drawLeaf(ctx, 526, 70, 100, 100)
+  drawLeaf(ctx, 592, 140, 100, 100)
+
+  drawLeaf(ctx, 943, 80, 100, 100)
 
   //Draw Branch
   let startX = baseTreeX;
-  let startY = baseTreeY - 180;
-  const numberOfBranches = 5;
+  let startY = baseTreeY - 100;
   let spaceBetweenBranches = (canvas.height + Math.abs(endTreeY) - 100) / numberOfBranches;
   for (let i = 0; i < numberOfBranches; ++i) {
     let { endX, endY } = getLineFromAngle(startX, startY, branchLength, getAngle(i));
@@ -436,7 +471,7 @@ function drawSector(
     seed: el.seed,
     fillStyle: "solid",
   });
-  ctx.font = "13px comic sans ms";
+  ctx.font = "6px comic sans ms";
   if (isSelected) {
     rc.rectangle(el.x - el.width! / 2, el.y - el.width! / 2, el.width!, el.width!, {
       seed: 2,
@@ -444,7 +479,7 @@ function drawSector(
       roughness: 0
     })
   }
-  printAt(ctx, el.text, el.x, el.y, 15, el.width! - 15, emojis[i]);
+  printAt(ctx, el.text, el.x, el.y, 5, el.width! - 15, emojis[i]);
   //ctx.font = "20px comic sans ms";
 
   //ctx.fillText(`${Math.floor(el.x)}-${Math.floor(el.y)}`, el.x, el.y)
@@ -608,8 +643,8 @@ function printAt(
   context.fillText(text, x, y);
   context.fillStyle = fillStyle;
 
-  context.font = "20px solid comic sans ms"
-  emoji && context.fillText(emoji, x, y + lineHeight + 10);
+  context.font = "10px solid comic sans ms"
+  emoji && context.fillText(emoji, x, y + lineHeight + 5);
 }
 
 const emojis = ["🥳", "💊", "🩺", "🍽️"]
