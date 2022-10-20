@@ -142,6 +142,7 @@ type Element = {
   actualBoundingBoxAscent?: number;
   font?: string;
   categoryId?: string;
+  angle?: number
 };
 
 const matrix = [1, 0, 0, 1, 0, 0];
@@ -356,13 +357,28 @@ function drawGrid(ctx: CanvasRenderingContext2D) {
 
 }
 
-
-function drawLeaf(rc: RoughCanvas, ctx: CanvasRenderingContext2D, x: number, y: number, text: string, color: string, width: number, height: number, image: HTMLImageElement, isSelected: boolean) {
+function drawImage(rc: RoughCanvas, ctx: CanvasRenderingContext2D, image: HTMLImageElement, x: number, y: number, selected: boolean, rotation: number, width: number, height: number) {
+  ctx.save();
+  ctx.translate(x + width / 2, y + height / 2); // sets scale and origin
+  ctx.rotate(rotation);
+  ctx.drawImage(image, -width / 2, -height / 2, width, height);
+  if (selected) {
+    rc.rectangle(-width / 2, -height / 2, width, height, {
+      seed: 2,
+      strokeLineDash: [5, 5],
+      roughness: 0
+    })
+  }
+  ctx.restore();
+}
+function drawLeaf(rc: RoughCanvas, ctx: CanvasRenderingContext2D, x: number, y: number, text: string, color: string, width: number, height: number, image: HTMLImageElement, isSelected: boolean, angle = 0) {
 
   //ctx.fillStyle = 'gray'
   //ctx.fillRect(x, y, width, height)
-  //ctx.drawImage(image, sx, sy, sLargeur, sHauteur, dx, dy, dLargeur, dHauteur);
-  ctx.drawImage(image, x, y, width, height)
+  drawImage(rc, ctx, image, x, y, isSelected, angle, width, height)
+
+
+  //ctx.drawImage(image, x, y, width, height)
   if (isSelected) {
     rc.rectangle(x, y, width, height, {
       seed: 2,
@@ -372,36 +388,38 @@ function drawLeaf(rc: RoughCanvas, ctx: CanvasRenderingContext2D, x: number, y: 
   }
   printAt(ctx, text, x + width / 2, y + height / 2, 15, width - 15);
   /*ctx.beginPath();
-  ctx.lineJoin = 'miter';
-  //ctx.quadraticCurveTo(117.5, 30, 184, -2);
+ctx.lineJoin = 'miter';
+//ctx.quadraticCurveTo(117.5, 30, 184, -2);
 
-  //ctx.quadraticCurveTo(117.5, 30, 148, 68);
-  const PI = Math.PI
-  ctx.moveTo(190, 88);
-  ctx.quadraticCurveTo(120, 88, 120, 88)
-  //ctx.arc(120, 88, 34.5, PI/2, 3 * PI / 2);
-  //ctx.quadraticCurveTo(117.5, 35, 120, 20);
-  ctx.closePath();
-  ctx.strokeStyle = '#000';
-  ctx.lineWidth = 2;
-  ctx.fillStyle = 'green'
-  ctx.stroke();
-  ctx.fill();*/
+//ctx.quadraticCurveTo(117.5, 30, 148, 68);
+const PI = Math.PI
+ctx.moveTo(190, 88);
+ctx.quadraticCurveTo(120, 88, 120, 88)
+//ctx.arc(120, 88, 34.5, PI/2, 3 * PI / 2);
+//ctx.quadraticCurveTo(117.5, 35, 120, 20);
+ctx.closePath();
+ctx.strokeStyle = '#000';
+ctx.lineWidth = 2;
+ctx.fillStyle = 'green'
+ctx.stroke();
+ctx.fill();*/
 }
 
 
 function drawTronc(rc: RoughCanvas, startX: number, startY: number, endX: number, endY: number) {
   rc.line(startX, startY, endX, endY, {
     strokeWidth: 50,
-    roughness: 0,
-    stroke: 'rgb(' + (((Math.random() * 64) + 64) >> 0) + ',50,25)'
+    roughness: 5,
+    seed: 2,
+    stroke: 'rgb(90,50,25)'
   })
 }
 
 function drawBranch(rc: RoughCanvas, startX: number, startY: number, endX: number, endY: number) {
   rc.line(startX, startY, endX, endY, {
-    strokeWidth: 30,
-    roughness: 0,
+    strokeWidth: 25,
+    roughness: 5,
+    seed: 2,
     stroke: 'rgb(' + (((Math.random() * 64) + 64) >> 0) + ',50,25)'
   })
 }
@@ -458,7 +476,7 @@ function drawIt(
     } else if (element.type === "circle") {
       drawSector(element, ctx, rc, i++, element.id === selectedId);
     } else {
-      drawLeaf(rc, ctx, element.x, element.y, element.text, element.color, element.width!, element.height!, images.find(c => c.color === element.color)!.image, element.id === selectedId)
+      drawLeaf(rc, ctx, element.x, element.y, element.text, element.color, element.width!, element.height!, images.find(c => c.color === element.color)!.image, element.id === selectedId, element.angle)
     }
   }
   //const { x, y } = geometricMedian(elements.map(e => ({ x: e.x, y: e.y })), elements.length)
@@ -627,6 +645,8 @@ function printAt(
   const fillStyle = context.fillStyle;
   context.textAlign = "center";
   context.fillStyle = "black"
+  context.font = "15px comic sans ms"
+
   fitWidth = fitWidth || 0;
 
   if (fitWidth <= 0) {
@@ -654,7 +674,6 @@ function printAt(
   context.fillText(text, x, y);
   context.fillStyle = fillStyle;
 
-  context.font = "10px solid comic sans ms"
   emoji && context.fillText(emoji, x, y + lineHeight + 5);
 }
 
@@ -1009,7 +1028,24 @@ export default function Canvas() {
                       })
                     }))
                   }}
-                  type="range" min={50} max={300} value={elements.find(el => el.id === selectedElement.id)?.width!}></input>
+                  type="range" min={0} max={360} value={elements.find(el => el.id === selectedElement.id)?.width}></input>
+                angle
+                <input
+                  onChange={(e) => {
+                    setAppState(prev => ({
+                      ...prev,
+                      elements: prev.elements.map(el => {
+                        if (el.id === selectedElement.id) {
+                          return {
+                            ...el,
+                            angle: +e.target.value,
+                          }
+                        }
+                        return el;
+                      })
+                    }))
+                  }}
+                  type="range" min={0} max={8} step={0.001} value={elements.find(el => el.id === selectedElement.id)?.angle ?? 0}></input>
                 {selectedElement.type === "leaf" && <>height<input
                   onChange={(e) => {
                     setAppState(prev => ({
