@@ -158,10 +158,27 @@ function toCanvasCoord(
   return { x: newX, y: newY };
 }
 
+export function rotate(
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+  angle: number,
+) {
+  // 𝑎′𝑥=(𝑎𝑥−𝑐𝑥)cos𝜃−(𝑎𝑦−𝑐𝑦)sin𝜃+𝑐𝑥
+  // 𝑎′𝑦=(𝑎𝑥−𝑐𝑥)sin𝜃+(𝑎𝑦−𝑐𝑦)cos𝜃+𝑐𝑦.
+  // https://math.stackexchange.com/questions/2204520/how-do-i-rotate-a-line-segment-in-a-specific-point-on-the-line
+  return [
+    (x1 - x2) * Math.cos(angle) - (y1 - y2) * Math.sin(angle) + x2,
+    (x1 - x2) * Math.sin(angle) + (y1 - y2) * Math.cos(angle) + y2,
+  ];
+}
+
 function hitTest(
   x: number,
   y: number,
   element: Element,
+  ctx: CanvasRenderingContext2D
 ) {
   // Destructure to get the x and y values out of the transformed DOMPoint.
   //TODO Change mouse coord to canvas coord instead of the opposite
@@ -181,11 +198,19 @@ function hitTest(
     const hit = dx * dx + dy * dy < r * r;
     return hit;
   } else {
-    const { x: newX, y: newY } = element
-    return (x >= newX &&
-      x <= newX + element.width! &&
-      y >= newY &&
-      y <= newY + element.height!)
+    let { x: x1, y: y1, angle = 0 } = element;
+    let x2 = x1 + element.width!;
+    let y2 = y1 + element.height!;
+    const cx = (x1 + x2) / 2;
+    const cy = (y1 + y2) / 2;
+    // reverse rotate the pointer
+    [x, y] = rotate(x, y, cx, cy, -angle);
+    return (
+      x > x1 &&
+      x < x2 &&
+      y > y1 &&
+      y < y2
+    );
   }
 }
 
@@ -372,37 +397,8 @@ function drawImage(rc: RoughCanvas, ctx: CanvasRenderingContext2D, image: HTMLIm
   ctx.restore();
 }
 function drawLeaf(rc: RoughCanvas, ctx: CanvasRenderingContext2D, x: number, y: number, text: string, color: string, width: number, height: number, image: HTMLImageElement, isSelected: boolean, angle = 0) {
-
-  //ctx.fillStyle = 'gray'
-  //ctx.fillRect(x, y, width, height)
   drawImage(rc, ctx, image, x, y, isSelected, angle, width, height)
-
-
-  //ctx.drawImage(image, x, y, width, height)
-  if (isSelected) {
-    rc.rectangle(x, y, width, height, {
-      seed: 2,
-      strokeLineDash: [5, 5],
-      roughness: 0
-    })
-  }
   printAt(ctx, text, x + width / 2, y + height / 2, 15, width - 15);
-  /*ctx.beginPath();
-ctx.lineJoin = 'miter';
-//ctx.quadraticCurveTo(117.5, 30, 184, -2);
-
-//ctx.quadraticCurveTo(117.5, 30, 148, 68);
-const PI = Math.PI
-ctx.moveTo(190, 88);
-ctx.quadraticCurveTo(120, 88, 120, 88)
-//ctx.arc(120, 88, 34.5, PI/2, 3 * PI / 2);
-//ctx.quadraticCurveTo(117.5, 35, 120, 20);
-ctx.closePath();
-ctx.strokeStyle = '#000';
-ctx.lineWidth = 2;
-ctx.fillStyle = 'green'
-ctx.stroke();
-ctx.fill();*/
 }
 
 
@@ -424,7 +420,7 @@ function drawBranch(rc: RoughCanvas, startX: number, startY: number, endX: numbe
   })
 }
 
-const getAngle = (i: number) => i % 2 === 0 ? Math.PI / 4 : 3 * Math.PI / 4;
+const getAngle = (i: number) => i % 2 === 0 ? Math.PI / 6 : 5 * Math.PI / 6;
 const getLineFromAngle = (x: number, y: number, length: number, angle: number) => ({
   endX: x + length * Math.cos(-angle),
   endY: y + length * Math.sin(-angle)
@@ -801,7 +797,7 @@ export default function Canvas() {
     const { x, y } = mousePosToCanvasPos(ctx, e);
 
     const el = elements.find((el) =>
-      hitTest(x, y, el)
+      hitTest(x, y, el, canvasRef.current!.getContext("2d")!)
     );
     if (el) {
       setAppState((prev) => ({
@@ -1097,7 +1093,7 @@ export default function Canvas() {
             const { x, y } = mousePosToCanvasPos(ctx, e);
             ctx.fillText(`${Math.floor(x)}-${Math.floor(y)}`, x, y);
             for (const element of elements) {
-              if (hitTest(x, y, element)) {
+              if (hitTest(x, y, element, canvasRef.current!.getContext("2d")!)) {
                 setAppState((prev) => ({
                   ...prev,
                   elements: prev.elements.map((e) => {
