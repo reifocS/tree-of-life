@@ -1,0 +1,144 @@
+<tree>
+    <branch>
+        <theme>
+            Parcours de soin
+        </theme>
+        <leafs>
+            <leaf>
+                <subtheme>
+                   Mes bilans biologiques 
+                </subtheme>
+            </leaf>
+            <leaf>
+                <subtheme>
+                   Psychologue 
+                </subtheme>
+            </leaf>
+            <leaf>
+                <subtheme>
+                   Assistance sociale
+                </subtheme>
+            </leaf>
+            <leaf>
+                <subtheme>
+                   Nephrologue
+                </subtheme>
+            </leaf>
+            <leaf>
+                <subtheme>
+                   Infirmière
+                </subtheme>
+            </leaf>
+            <leaf>
+                <subtheme>
+                   Diététicien
+                </subtheme>
+            </leaf>
+            <leaf>
+                <subtheme>
+                   Association de patients
+                </subtheme>
+            </leaf>
+        </leafs>
+    </branch>
+    <branch>
+        <theme>
+            Mes reins me fatiguent
+        </theme>
+        <leafs>
+            <leaf>
+                <subtheme>
+                    Hémodialyse
+                </subtheme>
+            </leaf>
+            <leaf>
+                <subtheme>
+                    Dialyse péritonéale
+                </subtheme>
+            </leaf>
+            <leaf>
+                <subtheme>
+                    Greffe
+                </subtheme>
+            </leaf>
+            <leaf>
+                <subtheme>
+                    Traitement conservateur
+                </subtheme>
+            </leaf>
+        </leafs>
+    </branch>
+    <branch>
+        <theme>
+            Mon quotidien
+        </theme>
+        <leafs>
+            <leaf>
+                <subtheme>
+                    Tension artérielle
+                </subtheme>
+            </leaf>
+            <leaf>
+                <subtheme>
+                    Poids
+                </subtheme>
+            </leaf>
+            <leaf>
+                <subtheme>
+                    Activité physique
+                </subtheme>
+            </leaf>
+            <leaf>
+                <subtheme>
+                    Médicaments
+                </subtheme>
+            </leaf>
+            <leaf>
+                <subtheme>
+                    Alimentation
+                </subtheme>
+            </leaf>
+            <leaf>
+                <subtheme>
+                    Projets
+                </subtheme>
+            </leaf>
+            <leaf>
+                <subtheme>
+                    Finances
+                </subtheme>
+            </leaf>
+        </leafs>
+    </branch>
+    <branch>
+        <theme>
+            Ma vie sociale
+        </theme>
+        <leafs>
+                <subtheme>
+                    Loisirs
+                </subtheme>
+            </leaf>
+                <subtheme>
+                    Famille
+                </subtheme>
+            </leaf>
+                <subtheme>
+                    Amis
+                </subtheme>
+            </leaf>
+                <subtheme>
+                    Couple
+                </subtheme>
+            </leaf>
+                <subtheme>
+                    Travail
+                </subtheme>
+            </leaf>
+                <subtheme>
+                    Sexualité
+                </subtheme>
+            </leaf>
+        </leafs>
+    </branch>
+</tree>

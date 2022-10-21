@@ -1,0 +1,29 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Tree {
+  id       Int     @id @default(autoincrement())
+  label    String  @unique
+  branches Branch?
+}
+
+model Branch {
+  id    Int    @id @default(autoincrement())
+  label String @unique
+  treeId Int @unique
+  tree  Tree   @relation(fields: [treeId], references: [id])
+  leafs Leaf?
+}
+
+model Leaf {
+  id     Int    @id @default(autoincrement())
+  label  String @unique
+  branchId Int @unique
+  branch  Branch   @relation(fields: [branchId], references: [id])
+}
