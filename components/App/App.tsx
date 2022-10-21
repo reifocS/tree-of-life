@@ -411,13 +411,41 @@ function drawTronc(rc: RoughCanvas, startX: number, startY: number, endX: number
   })
 }
 
+function getMid(startX: number, startY: number, endX: number, endY: number) {
+  let midX = startX + (endX - startX) * 0.50;
+  let midY = startY + (endY - startY) * 0.50;
+  return [midX, midY];
+}
+
 function drawBranch(rc: RoughCanvas, startX: number, startY: number, endX: number, endY: number) {
+  let [midX, midY] = getMid(startX, startY, endX, endY);
+  const stroke = 'rgb(' + (((Math.random() * 64) + 64) >> 0) + ',50,25)';
+
   rc.line(startX, startY, endX, endY, {
     strokeWidth: 25,
     roughness: 5,
     seed: 2,
-    stroke: 'rgb(' + (((Math.random() * 64) + 64) >> 0) + ',50,25)'
+    stroke
+  });
+/*
+  let [qX, qY] = getMid(startX, startY, midX, midY);
+
+  rc.curve([[startX, startY], [qX + 20, qY + 20], [midX, midY]], {
+    seed: 2,
+    strokeWidth: 20,
+    stroke
   })
+  let points: any = [];
+  for (let i = 0; i < 20; i++) {
+    let x = (400 / 20) * i + 10;
+    let xdeg = (Math.PI / 100) * x;
+    let y = Math.round(Math.sin(xdeg) * 90) + 500;
+    points.push([x, y]);
+  }
+  rc.curve(points, {
+    stroke, strokeWidth: 3,
+  });
+  */
 }
 
 const getAngle = (i: number) => i % 2 === 0 ? Math.PI / 6 : 5 * Math.PI / 6;
@@ -860,7 +888,7 @@ export default function Canvas() {
       return;
     }
     if (
-      elements.find((el) => hitTest(x, y, el))
+      elements.find((el) => hitTest(x, y, el, canvasRef.current!.getContext("2d")!))
     ) {
       document.documentElement.style.cursor = "pointer";
     } else if (!isDragging) {
