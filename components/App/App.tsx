@@ -302,6 +302,7 @@ function drawCircle(
 
 function drawGrid(ctx: CanvasRenderingContext2D) {
   try {
+    const textBaseline = ctx.textBaseline;
     /* vertical lines */
     for (var x = 0.5; x < ctx.canvas.width; x += 10) {
       ctx.moveTo(x, 0);
@@ -356,6 +357,8 @@ function drawGrid(ctx: CanvasRenderingContext2D) {
       ctx.textBaseline = "bottom";
       ctx.fillText("(" + ctx.canvas.width + "," + ctx.canvas.height + ")", ctx.canvas.width, ctx.canvas.height);
     } catch (err) { }
+
+    ctx.textBaseline = textBaseline;
 
   } catch (err) { }
 
@@ -432,6 +435,7 @@ function drawIt(
   images: { color: string, image: HTMLImageElement }[],
   sectors: { color: string, text: string }[],
   selectedId?: string,
+  mode?: string
 ) {
   const ctx = canvas.getContext("2d")!;
   const numberOfBranches = 6;
@@ -443,7 +447,7 @@ function drawIt(
   const branchLength = 300;
   ctx.translate(canvas.width / 2, canvas.height / 2);
 
-  drawGrid(ctx);
+  if (mode === "edit") drawGrid(ctx);
   drawTronc(rc, baseTreeX, baseTreeY, endTreeX, endTreeY)
 
 
@@ -607,7 +611,8 @@ function draw(
   elements: Element[],
   sectors: { color: string, text: string }[],
   images: { color: string, image: HTMLImageElement }[],
-  selectedId?: string
+  selectedId?: string,
+  mode?: string
 ) {
   const ctx = canvas.getContext("2d")!;
   translate(canvas.width / 2, canvas.height / 2, ctx);
@@ -618,7 +623,7 @@ function draw(
     ctx
   );
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawIt(roughCanvas, canvas, elements, images, sectors, selectedId);
+  drawIt(roughCanvas, canvas, elements, images, sectors, selectedId, mode);
   //buildTree(ctx, roughCanvas);
 }
 
@@ -763,7 +768,7 @@ export default function Canvas() {
   }, [])
 
   useKeyboard(setAppState);
-  const { cameraZoom, elements, cameraOffset, isDragging, sectors, selectedElement } =
+  const { cameraZoom, elements, cameraOffset, isDragging, sectors, selectedElement, mode } =
     appState;
   const { x: cameraOffsetX, y: cameraOffsetY } = cameraOffset;
   const lastZoom = useRef(cameraZoom);
@@ -790,7 +795,8 @@ export default function Canvas() {
       elements,
       sectors,
       images,
-      selectedElement?.id
+      selectedElement?.id,
+      mode
     );
   }, [
     cameraOffsetX,
@@ -802,7 +808,8 @@ export default function Canvas() {
     width,
     selectedElement,
     sectors,
-    images
+    images,
+    mode
   ]);
 
   const handlePointerDown = (e: PointerEvent<HTMLCanvasElement>) => {
