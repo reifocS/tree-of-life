@@ -180,8 +180,6 @@ function hitTest(
   element: Element,
   ctx: CanvasRenderingContext2D
 ) {
-  // Destructure to get the x and y values out of the transformed DOMPoint.
-  //TODO Change mouse coord to canvas coord instead of the opposite
   if (element.type === "circle") {
     const { x: newX, y: newY } = element
     const dx = x - newX;
