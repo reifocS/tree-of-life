@@ -34,7 +34,8 @@ export type AppState = {
   downPoint?: Point;
   selectedElement: Element | null;
   sectors: Sector[];
-  radius: number
+  radius: number;
+  mode: 'edit' | 'view';
 };
 
 const useDeviceSize = () => {
@@ -536,9 +537,10 @@ function updateTextFont(element: Element, context: CanvasRenderingContext2D, new
 
 }
 
-function addText(context: CanvasRenderingContext2D, text: string | null = null) {
+function addText(context: CanvasRenderingContext2D, text: string | null = null, elem?: Element) {
   //TODO type it
   const element: any = {
+    ...elem,
     x: 0,
     y: 0,
     type: "category",
@@ -551,7 +553,7 @@ function addText(context: CanvasRenderingContext2D, text: string | null = null) 
     }
   }
   element.text = text;
-  element.font = "20px Virgil";
+  element.font = element.font || "20px Virgil";
   const font = context.font;
   context.font = element.font;
   const { actualBoundingBoxAscent, actualBoundingBoxDescent, width } =
@@ -730,6 +732,7 @@ export default function Canvas() {
         id: guidGenerator()
       },
       ],
+      mode: "edit",
       cameraZoom: INITIAL_ZOOM,
       scaleMultiplier: 0.8,
       cameraOffset: { "x": 0, "y": 0 },
@@ -810,7 +813,7 @@ export default function Canvas() {
     const el = elements.find((el) =>
       hitTest(x, y, el, canvasRef.current!.getContext("2d")!)
     );
-    if (el) {
+    if (el && appState.mode === "edit") {
       setAppState((prev) => ({
         ...prev,
         draggedElement: el,
@@ -818,7 +821,7 @@ export default function Canvas() {
         selectedElement: el
       }));
       return;
-    } else {
+    } else if (!el) {
       setAppState((prev) => ({
         ...prev,
         isDragging: true,
@@ -887,25 +890,6 @@ export default function Canvas() {
       }));
     }
   };
-  function handlePinch(e: any) {
-    e.preventDefault();
-
-    let touch1 = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-    let touch2 = { x: e.touches[1].clientX, y: e.touches[1].clientY };
-
-    // This is distance squared, but no need for an expensive sqrt as it's only used in ratio
-    let currentDistance =
-      (touch1.x - touch2.x) ** 2 + (touch1.y - touch2.y) ** 2;
-
-    if (appState.initialPinchDistance === null) {
-      setAppState((prev) => ({
-        ...prev,
-        initialPinchDistance: currentDistance,
-      }));
-    } else {
-      adjustZoom(null, currentDistance / appState.initialPinchDistance);
-    }
-  }
 
   function adjustZoom(zoomAmount: number | null, zoomFactor: number | null) {
     if (!isDragging) {
@@ -922,18 +906,10 @@ export default function Canvas() {
     }
   }
 
-  const handleTouch = (e: any, singleTouchHandler: (e: any) => void) => {
-    if (e.touches.length == 1) {
-      singleTouchHandler(e);
-    } else if (e.type == "touchmove" && e.touches.length == 2) {
-      setAppState((prev) => ({ ...prev, isDragging: false }));
-      handlePinch(e);
-    }
-  };
   return (
     <>
       <div className="container">
-        <div className="sidePanel" style={{ display: hide ? "none" : "" }}>
+        <div className="sidePanel" style={{ display: appState.mode === "view" ? "none" : "" }}>
           <div className="panelColumn"
           >
             <button
@@ -995,7 +971,7 @@ export default function Canvas() {
               Add Leaf
             </button>
             <ul>
-              {sectors.map(s => <li key={s.id}>
+              {/*sectors.map(s => <li key={s.id}>
                 <input value={s.text} onChange={(e) => {
                   setAppState(prev => ({
                     ...prev,
@@ -1011,12 +987,12 @@ export default function Canvas() {
                   ...prev,
                   sectors: prev.sectors.filter(sec => sec.id !== s.id)
                 }))}>X</button>
-              </li>)}
+              </li>)*/}
             </ul>
-            <button onClick={() => setAppState(prev => ({
+            { /*       <button onClick={() => setAppState(prev => ({
               ...prev,
               sectors: [...prev.sectors, { id: guidGenerator(), color: "#f15275", text: "new sector" }]
-            }))}>Add sector</button>
+            }))}>Add sector</button>*/}
             {selectedElement && <>
               {selectedElement.type !== "category" && <>
                 width
@@ -1098,7 +1074,7 @@ export default function Canvas() {
                             text: e.target.value,
                           }
                         return {
-                          ...addText(canvasRef.current!.getContext("2d")!, e.target.value ?? ""),
+                          ...addText(canvasRef.current!.getContext("2d")!, e.target.value ?? "", el),
                           x: el.x,
                           y: el.y,
                           id: el.id
@@ -1115,9 +1091,10 @@ export default function Canvas() {
         <canvas
           onClick={(e) => {
             e.preventDefault();
+            if (appState.mode === "edit") return;
             const ctx = canvasRef.current!.getContext("2d")!;
             const { x, y } = mousePosToCanvasPos(ctx, e);
-            ctx.fillText(`${Math.floor(x)}-${Math.floor(y)}`, x, y);
+            //ctx.fillText(`${Math.floor(x)}-${Math.floor(y)}`, x, y);
             for (const element of elements) {
               if (hitTest(x, y, element, canvasRef.current!.getContext("2d")!)) {
                 setAppState((prev) => ({
@@ -1160,17 +1137,21 @@ export default function Canvas() {
       <div
         style={{
           position: "absolute",
-          top: 10,
-          right: 10,
+          left: "50%",
+          top: 20,
+          transform: "translate(-50%, -50%)",
           borderRadius: 6,
-          backgroundColor: "#fff",
           padding: 6,
           userSelect: "none",
         }}
       >
-        <input type="checkbox"
-          onChange={() => setHide(prev => !prev)}
-          checked={hide}></input>
+        <button
+          onClick={() => setAppState(prev => ({
+            ...prev,
+            mode: prev.mode === "edit" ? "view" : "edit",
+            selectedElement: null
+          }))}
+        >Switch to {appState.mode === "edit" ? "view" : "edit"} mode</button>
       </div>
     </>
   );
