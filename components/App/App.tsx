@@ -1,7 +1,5 @@
 import {
-  MouseEvent,
   PointerEvent,
-  TouchEvent,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -12,7 +10,6 @@ import {
 import rough from "roughjs/bin/rough";
 import { RoughCanvas } from "roughjs/bin/canvas";
 import useKeyboard from "../../hooks/useKeyboard";
-import geometricMedian from "../../utils/geometric-median"
 //TODO
 //Remove magic variables (tree size for example)
 
@@ -223,14 +220,6 @@ function drawCircle(
   const rad = dia / 2;
   const arc = TAU / sectors.length;
 
-  const drawFlys = () => {
-    rc.arc(x, y, rad, rad, PI / 2 - arc / 10, PI / 2 + arc / 10, true, {
-      fill: "black",
-      fillStyle: "solid",
-      seed: 2
-    })
-  }
-
   const drawHead = () => {
     const length = rad / 2;
     const endX = x + length * Math.cos(PI / 2);
@@ -304,7 +293,6 @@ function drawCircle(
   for (let i = 0; i < sectors.length; ++i) {
     drawSector(i)
   }
-  //drawFlys();
   for (let i = 0; i < sectors.length; ++i) {
     drawText(i)
   }
@@ -410,7 +398,6 @@ function getMid(startX: number, startY: number, endX: number, endY: number) {
 const branchColors = Array(10).fill(0).map(_ => 'rgb(' + (((Math.random() * 64) + 64) >> 0) + ',50,25)');
 
 function drawBranch(rc: RoughCanvas, startX: number, startY: number, endX: number, endY: number, i: number) {
-  let [midX, midY] = getMid(startX, startY, endX, endY);
   const stroke = branchColors[i];
 
   rc.line(startX, startY, endX, endY, {
@@ -419,7 +406,7 @@ function drawBranch(rc: RoughCanvas, startX: number, startY: number, endX: numbe
     seed: 2,
     stroke
   });
-
+  let [midX, midY] = getMid(startX, startY, endX, endY);
   let [qX, qY] = getMid(startX, startY, midX, midY);
 
   /*rc.curve([[startX, startY], [qX + 20, qY + 20], [midX, midY]], {
@@ -429,7 +416,7 @@ function drawBranch(rc: RoughCanvas, startX: number, startY: number, endX: numbe
   })*/
 
 }
-
+//TODO Add some random here
 const getAngle = (i: number) => i % 2 === 0 ? Math.PI / 6 : 5 * Math.PI / 6;
 const getLineFromAngle = (x: number, y: number, length: number, angle: number) => ({
   endX: x + length * Math.cos(-angle),
@@ -501,7 +488,6 @@ function drawSector(
     seed: el.seed,
     fillStyle: "solid",
   });
-  ctx.font = "6px comic sans ms";
   if (isSelected) {
     rc.rectangle(el.x - el.width! / 2, el.y - el.width! / 2, el.width!, el.width!, {
       seed: 2,
@@ -509,10 +495,7 @@ function drawSector(
       roughness: 0
     })
   }
-  printAt(ctx, el.text, el.x, el.y, 5, el.width! - 15, emojis[i]);
-  //ctx.font = "20px comic sans ms";
-
-  //ctx.fillText(`${Math.floor(el.x)}-${Math.floor(el.y)}`, el.x, el.y)
+  printAt(ctx, el.text, el.x, el.y, 15, el.width! - 15, emojis[i]);
 }
 
 
@@ -591,19 +574,6 @@ function drawCategory(category: Element, ctx: CanvasRenderingContext2D, rc: Roug
   const align = ctx.textAlign;
   ctx.textAlign = "left"
   const { x, y, text, width = 0, height = 0 } = category;
-  /*
-  ctx.save();
-  ctx.translate(x + width / 2, y + height / 2); // sets scale and origin
-  ctx.rotate(rotation);
-  ctx.drawImage(image, -width / 2, -height / 2, width, height);
-  if (selected) {
-    rc.rectangle(-width / 2, -height / 2, width, height, {
-      seed: 2,
-      strokeLineDash: [5, 5],
-      roughness: 0
-    })
-  }
-  ctx.restore();*/
   ctx.save();
   ctx.translate(x + width / 2, y + height! / 2); // sets scale and origin
   ctx.rotate(angle);
@@ -636,7 +606,6 @@ function draw(
   sectors: { color: string, text: string }[],
   images: { color: string, image: HTMLImageElement }[],
   selectedId?: string
-  //TODO stocker en rectangle et convertir en feuille au moment du draw?
 ) {
   const ctx = canvas.getContext("2d")!;
   translate(canvas.width / 2, canvas.height / 2, ctx);
