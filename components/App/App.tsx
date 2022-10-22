@@ -938,6 +938,7 @@ export default function Canvas() {
             <button
               onClick={() => {
                 const el = addText(canvasRef.current!.getContext("2d")!);
+                if(!el) return;
                 setAppState((prev) => ({
                   ...prev,
                   elements: [...prev.elements, el],
