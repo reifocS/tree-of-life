@@ -417,9 +417,11 @@ function getMid(startX: number, startY: number, endX: number, endY: number) {
   return [midX, midY];
 }
 
-function drawBranch(rc: RoughCanvas, startX: number, startY: number, endX: number, endY: number) {
+const branchColors = Array(10).fill(0).map(_ => 'rgb(' + (((Math.random() * 64) + 64) >> 0) + ',50,25)');
+
+function drawBranch(rc: RoughCanvas, startX: number, startY: number, endX: number, endY: number, i: number) {
   let [midX, midY] = getMid(startX, startY, endX, endY);
-  const stroke = 'rgb(' + (((Math.random() * 64) + 64) >> 0) + ',50,25)';
+  const stroke = branchColors[i];
 
   rc.line(startX, startY, endX, endY, {
     strokeWidth: 25,
@@ -427,25 +429,15 @@ function drawBranch(rc: RoughCanvas, startX: number, startY: number, endX: numbe
     seed: 2,
     stroke
   });
-/*
+
   let [qX, qY] = getMid(startX, startY, midX, midY);
 
-  rc.curve([[startX, startY], [qX + 20, qY + 20], [midX, midY]], {
+  /*rc.curve([[startX, startY], [qX + 20, qY + 20], [midX, midY]], {
     seed: 2,
     strokeWidth: 20,
     stroke
-  })
-  let points: any = [];
-  for (let i = 0; i < 20; i++) {
-    let x = (400 / 20) * i + 10;
-    let xdeg = (Math.PI / 100) * x;
-    let y = Math.round(Math.sin(xdeg) * 90) + 500;
-    points.push([x, y]);
-  }
-  rc.curve(points, {
-    stroke, strokeWidth: 3,
-  });
-  */
+  })*/
+
 }
 
 const getAngle = (i: number) => i % 2 === 0 ? Math.PI / 6 : 5 * Math.PI / 6;
@@ -487,11 +479,10 @@ function drawIt(
   let spaceBetweenBranches = (canvas.height + Math.abs(endTreeY) - 100) / numberOfBranches;
   for (let i = 0; i < numberOfBranches; ++i) {
     let { endX, endY } = getLineFromAngle(startX, startY, branchLength, getAngle(i));
-    drawBranch(rc, startX, startY, endX, endY);
+    drawBranch(rc, startX, startY, endX, endY, i);
     startY -= spaceBetweenBranches;
   }
 
-  //drawRecursiveTree(ctx, ctx.canvas.width / 2, 500, 60, -Math.PI / 2, 3, 12);
   ctx.fillStyle = "black";
   let i = 0;
   for (const element of elements) {
@@ -556,6 +547,24 @@ function getXY(mouseX: number, mouseY: number) {
   return { x: newX, y: newY };
 }
 */
+
+
+function updateTextFont(element: Element, context: CanvasRenderingContext2D, newFont: string) {
+  const newElem = { ...element };
+  const font = context.font;
+  context.font = newFont;
+  const { actualBoundingBoxAscent, actualBoundingBoxDescent, width } =
+    context.measureText(newElem.text);
+  newElem.actualBoundingBoxAscent = actualBoundingBoxAscent;
+  context.font = font;
+  const height = actualBoundingBoxAscent + actualBoundingBoxDescent;
+
+  newElem.font = newFont;
+  newElem.width = width;
+  newElem.height = height;
+  return newElem;
+
+}
 
 function addText(context: CanvasRenderingContext2D, text: string | null = null) {
   //TODO type it
@@ -1087,6 +1096,21 @@ export default function Canvas() {
                   }}
                   type="range" min={50} max={300} value={elements.find(el => el.id === selectedElement.id)?.height!}></input>
                 </>}
+              </>}
+              {selectedElement.type === "category" && <>
+                font
+                <input value={elements.find(el => el.id === selectedElement.id)?.font!} onChange={(e) => {
+                  setAppState(prev => ({
+                    ...prev,
+                    elements: prev.elements.map(el => {
+                      if (el.id === selectedElement.id) {
+                        return updateTextFont(el, canvasRef.current!.getContext("2d")!, e.target.value)
+                      }
+                      return el;
+                    })
+                  }))
+                }
+                }></input>
               </>}
               <input
                 onChange={(e) => {
