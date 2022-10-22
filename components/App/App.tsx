@@ -549,6 +549,8 @@ function updateTextFont(element: Element, context: CanvasRenderingContext2D, new
   const height = actualBoundingBoxAscent + actualBoundingBoxDescent;
 
   newElem.font = newFont;
+  newElem.x -= width / 2;
+  newElem.y -= actualBoundingBoxAscent;
   newElem.width = width;
   newElem.height = height;
   return newElem;
