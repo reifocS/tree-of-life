@@ -182,15 +182,7 @@ function hitTest(
 ) {
   // Destructure to get the x and y values out of the transformed DOMPoint.
   //TODO Change mouse coord to canvas coord instead of the opposite
-  if (element.type === "category") {
-    const { x: newX, y: newY } = element;
-    return (
-      x >= newX &&
-      x <= newX + element.width! &&
-      y >= newY &&
-      y <= newY + element.height!
-    );
-  } else if (element.type === "circle") {
+  if (element.type === "circle") {
     const { x: newX, y: newY } = element
     const dx = x - newX;
     const dy = y - newY;
@@ -457,15 +449,12 @@ function drawIt(
 ) {
   const ctx = canvas.getContext("2d")!;
   const numberOfBranches = 6;
-  //let radius = 2000;
-  //drawCircle(ctx, sectors, canvas.width / 2, canvas.height / 2, radius, rc);
   const endTreeY = 100 - (30 * numberOfBranches);
   const endTreeX = 0;
   const baseTreeX = 0;
   const baseTreeY = canvas.height;
   ctx.lineCap = 'round';
   const branchLength = 300;
-  let PI = Math.PI;
   ctx.translate(canvas.width / 2, canvas.height / 2);
 
   drawGrid(ctx);
@@ -487,7 +476,7 @@ function drawIt(
   let i = 0;
   for (const element of elements) {
     if (element.type === "category") {
-      drawCategory(element, ctx, rc, element.id === selectedId);
+      drawCategory(element, ctx, rc, element.id === selectedId, element.angle);
     } else if (element.type === "circle") {
       drawSector(element, ctx, rc, i++, element.id === selectedId);
     } else {
@@ -598,20 +587,37 @@ function addText(context: CanvasRenderingContext2D, text: string | null = null) 
   return element;
 }
 
-function drawCategory(category: Element, ctx: CanvasRenderingContext2D, rc: RoughCanvas, isSelected: boolean) {
+function drawCategory(category: Element, ctx: CanvasRenderingContext2D, rc: RoughCanvas, isSelected: boolean, angle = 0) {
   const font = ctx.font;
   ctx.font = category.font!;
   const align = ctx.textAlign;
   ctx.textAlign = "left"
-  const { x, y, text } = category;
-  ctx.fillText(text, x, y + category.actualBoundingBoxAscent!);
-  if (isSelected) {
-    rc.rectangle(x, y, ctx.measureText(text).width, category.actualBoundingBoxAscent!, {
+  const { x, y, text, width = 0, height = 0 } = category;
+  /*
+  ctx.save();
+  ctx.translate(x + width / 2, y + height / 2); // sets scale and origin
+  ctx.rotate(rotation);
+  ctx.drawImage(image, -width / 2, -height / 2, width, height);
+  if (selected) {
+    rc.rectangle(-width / 2, -height / 2, width, height, {
       seed: 2,
       strokeLineDash: [5, 5],
       roughness: 0
     })
   }
+  ctx.restore();*/
+  ctx.save();
+  ctx.translate(x + width / 2, y + height! / 2); // sets scale and origin
+  ctx.rotate(angle);
+  ctx.fillText(text, -width / 2, height / 2);
+  if (isSelected) {
+    rc.rectangle((-width) / 2, -height / 2, width, height, {
+      seed: 2,
+      strokeLineDash: [5, 5],
+      roughness: 0
+    })
+  }
+  ctx.restore();
   ctx.font = font;
   ctx.textAlign = align;
 }
@@ -765,6 +771,7 @@ export default function Canvas() {
       initialPinchDistance: null,
       draggedElement: null,
       elements: [
+        { "x": -163.0099639892578, "y": -134.90625, "type": "category", "id": "bd61106d-78f9-5981-09cd-645b1c4bd40f", "text": "category", "font": "20px Virgil", "actualBoundingBoxAscent": 16.90625, "width": 84.01992797851562, "height": 20, "color": "green", "angle": 0.86, seed: 2, icon: "" },
         { "id": "b72ece49-3009-c842-8620-7ffbc3ba393d", "x": 146, "y": -152, "color": "orange", "seed": 2558.276717397499, "text": "hello world!", "icon": "🦍", "type": "leaf", "width": LEAF_WIDTH, "height": LEAF_HEIGHT }, { "id": "47cc3bbe-01ab-5d30-458f-b9e131c1aaea", "x": 195, "y": -51, "color": "green", "seed": 3934.491707227224, "text": "hello world!", "icon": "🦍", "type": "leaf", "width": LEAF_WIDTH, "height": LEAF_HEIGHT }, { "id": "c9de5ef0-6143-5a3f-ba20-883b79fb9744", "x": 87, "y": -104, "color": "orange", "seed": 295.5389757004682, "text": "hello world!", "icon": "🦍", "type": "leaf", "width": LEAF_WIDTH, "height": LEAF_HEIGHT }, { "id": "70ed4e77-d4a1-8678-baae-26d3b3e7a63f", "x": 146, "y": -2, "color": "orange", "seed": 1827.226735750161, "text": "hello world!", "icon": "🦍", "type": "leaf", "width": LEAF_WIDTH, "height": LEAF_HEIGHT }
       ],
       downPoint: { "x": 1157.446811446349, "y": 444.6808521917038 }
@@ -1062,23 +1069,6 @@ export default function Canvas() {
                     }))
                   }}
                   type="range" min={0} max={360} value={elements.find(el => el.id === selectedElement.id)?.width}></input>
-                angle
-                <input
-                  onChange={(e) => {
-                    setAppState(prev => ({
-                      ...prev,
-                      elements: prev.elements.map(el => {
-                        if (el.id === selectedElement.id) {
-                          return {
-                            ...el,
-                            angle: +e.target.value,
-                          }
-                        }
-                        return el;
-                      })
-                    }))
-                  }}
-                  type="range" min={0} max={8} step={0.001} value={elements.find(el => el.id === selectedElement.id)?.angle ?? 0}></input>
                 {selectedElement.type === "leaf" && <>height<input
                   onChange={(e) => {
                     setAppState(prev => ({
@@ -1112,6 +1102,23 @@ export default function Canvas() {
                 }
                 }></input>
               </>}
+              angle
+              <input
+                onChange={(e) => {
+                  setAppState(prev => ({
+                    ...prev,
+                    elements: prev.elements.map(el => {
+                      if (el.id === selectedElement.id) {
+                        return {
+                          ...el,
+                          angle: +e.target.value,
+                        }
+                      }
+                      return el;
+                    })
+                  }))
+                }}
+                type="range" min={0} max={2 * Math.PI} step={0.001} value={elements.find(el => el.id === selectedElement.id)?.angle ?? 0}></input>
               <input
                 onChange={(e) => {
                   setAppState(prev => ({
