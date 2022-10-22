@@ -185,10 +185,24 @@ function hitTest(
     const r = (element.width!) / 2;
     const hit = dx * dx + dy * dy < r * r;
     return hit;
-  } else {
+  } else if (element.type === "leaf") {
     let { x: x1, y: y1, angle = 0 } = element;
     let x2 = x1 + element.width!;
     let y2 = y1 + element.height!;
+    const cx = (x1 + x2) / 2;
+    const cy = (y1 + y2) / 2;
+    // reverse rotate the pointer
+    [x, y] = rotate(x, y, cx, cy, -angle);
+    return (
+      x > x1 &&
+      x < x2 &&
+      y > y1 &&
+      y < y2
+    );
+  } else {
+    let { x: x1, y: y1, angle = 0 } = element;
+    let x2 = x1 + element.width!;
+    let y2 = y1 + element.actualBoundingBoxAscent!;
     const cx = (x1 + x2) / 2;
     const cy = (y1 + y2) / 2;
     // reverse rotate the pointer
@@ -579,13 +593,13 @@ function drawCategory(category: Element, ctx: CanvasRenderingContext2D, rc: Roug
   ctx.font = category.font!;
   const align = ctx.textAlign;
   ctx.textAlign = "left"
-  const { x, y, text, width = 0, height = 0 } = category;
+  const { x, y, text, width = 0, actualBoundingBoxAscent = 0 } = category;
   ctx.save();
-  ctx.translate(x + width / 2, y + height! / 2); // sets scale and origin
+  ctx.translate(x + width / 2, y + actualBoundingBoxAscent! / 2); // sets scale and origin
   ctx.rotate(angle);
-  ctx.fillText(text, -width / 2, height / 2);
+  ctx.fillText(text, -width / 2, actualBoundingBoxAscent / 2);
   if (isSelected) {
-    rc.rectangle((-width) / 2, -height / 2, width, height, {
+    rc.rectangle((-width) / 2, -actualBoundingBoxAscent / 2, width, category.actualBoundingBoxAscent!, {
       seed: 2,
       strokeLineDash: [5, 5],
       roughness: 0
