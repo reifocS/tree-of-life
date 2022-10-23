@@ -10,16 +10,11 @@ import {
 import rough from "roughjs/bin/rough";
 import { RoughCanvas } from "roughjs/bin/canvas";
 import useKeyboard from "../../hooks/useKeyboard";
-//TODO
-//Remove magic variables (tree size for example)
-
-const dState = '{"cameraZoom":0.47000000000000036,"scaleMultiplier":0.8,"cameraOffset":{"x":0,"y":0},"isDragging":false,"dragStart":{"x":351.43799991453756,"y":-72.44875229308384},"initialPinchDistance":null,"draggedElement":null,"mode":"drag","elements":[{"x":19.88837366790824,"y":-231.61662698941683,"seed":905.5909808585167,"color":"#82c91e","id":"f288ff26-c9c7-d869-2446-45567796dec9","text":"Loisirs","icon":"💪","type":"circle","width":100},{"id":"54d5a69c-7f47-42c1-b477-eb82f2dbd790","x":343.2757893463547,"y":-97.34192410609523,"color":"#82c91e","seed":8811.258671040496,"text":"Médicaments","icon":"🦍","type":"circle","width":100},{"id":"d0cef24f-260b-3634-5b81-0d1bdf6dc051","x":-252.33582625018533,"y":-118.10889399170287,"color":"orange","seed":3333.9280333845422,"text":"Tension artérielle","icon":"🦍","type":"circle","width":100},{"id":"b76b7ac7-d548-1e11-3246-b7e38151f374","x":158.03886622774894,"y":-82.36734524387418,"color":"orange","seed":3753.0185677539907,"text":"Alimentation","icon":"🦍","type":"circle","width":100},{"id":"b52e11be-5747-46fe-f1c5-db9afdc6a6ce","x":318.8625558670391,"y":-242.8954161755029,"color":"orange","seed":8184.468572435464,"text":"","icon":"🦍","type":"circle","width":100},{"id":"ebf93e96-2d9d-b5ed-47eb-d45485e10148","x":116.85088180699915,"y":-333.241689451942,"color":"orange","seed":7063.317967328478,"text":"","icon":"🦍","type":"circle","width":100},{"id":"5e289118-9cef-c57b-c8b9-5b88951070bd","x":-48.756039203422915,"y":-347.33372935089443,"color":"orange","seed":7912.385849210267,"text":"","icon":"🦍","type":"circle","width":100},{"id":"8c67694b-f56f-9746-2fdd-48e603deacd4","x":-385.9314475639844,"y":-101.62449096696145,"color":"orange","seed":2862.52223786426,"text":"","icon":"🦍","type":"circle","width":100},{"id":"d6b27aaf-e2fc-be7c-6bd6-4e02ab09d555","x":-246.6657493245541,"y":-271.62590912176114,"color":"orange","seed":13.836951464031252,"text":"","icon":"🦍","type":"circle","width":100},{"id":"9eb9ec83-502b-a665-6b8a-8d5c3bb5efad","x":-231.3945356430022,"y":85.96007828014206,"color":"#82c91e","seed":5190.185108611817,"text":"","icon":"🦍","type":"circle","width":100},{"id":"6473d1cb-a83f-8afb-1d8b-4006b7b731ec","x":-34.419134082964376,"y":293.16654257579813,"color":"orange","seed":8019.879358396649,"text":"","icon":"🦍","type":"circle","width":100},{"id":"80f4fc52-e7d6-a12a-ef52-23dc2911ec89","x":278.70508102866825,"y":192.29279491234036,"color":"#82c91e","seed":7571.643283927932,"text":"","icon":"🦍","type":"circle","width":100},{"id":"b74ab532-ed86-260d-3ff9-883301194104","x":-311.5368165873052,"y":228.65889469937463,"color":"#82c91e","seed":9384.01623454882,"text":"","icon":"🦍","type":"circle","width":100},{"id":"cc26bed7-e4a7-2f56-acaf-29bec2e958c0","x":371.3916461882027,"y":78.46236535515283,"color":"#82c91e","seed":5477.656705370557,"text":"","icon":"🦍","type":"circle","width":100}],"downPoint":{"x":1157.446811446349,"y":444.6808521917038}}'
 
 type Point = {
   x: number;
   y: number
 }
-
 
 type Sector = { color: string, text: string, id: string }
 export type AppState = {
@@ -79,42 +74,6 @@ function guidGenerator() {
     S4() +
     S4()
   );
-}
-
-function drawRecursiveTree(ctx: CanvasRenderingContext2D, startX: number, startY: number, length: number, angle: number, depth: number, branchWidth: number) {
-  let rand = Math.random,
-    newLength, newAngle, newDepth, maxBranch = 3,
-    endX, endY, maxAngle = 2 * Math.PI / 4,
-    subBranches, lenShrink;
-  ctx.beginPath();
-  ctx.moveTo(startX, startY);
-  endX = startX + length * Math.cos(angle);
-  endY = startY + length * Math.sin(angle);
-
-  ctx.lineCap = 'round';
-  ctx.lineWidth = branchWidth;
-  ctx.lineTo(endX, endY);
-
-
-  ctx.strokeStyle = 'rgb(' + (((rand() * 64) + 64) >> 0) + ',50,25)';
-
-  ctx.stroke();
-
-  newDepth = depth - 1;
-
-  if (!newDepth) {
-    return;
-  }
-
-  subBranches = (rand() * (maxBranch - 1)) + 1;
-
-  branchWidth *= 0.7;
-
-  for (var i = 0; i < subBranches; i++) {
-    newAngle = angle + rand() * maxAngle - maxAngle * 0.5;
-    newLength = length * (0.7 + rand() * 0.3);
-    drawRecursiveTree(ctx, endX, endY, newLength, newAngle, newDepth, branchWidth);
-  }
 }
 
 function getTransformedPoint(
@@ -635,8 +594,6 @@ function printAtWordWrap(context: CanvasRenderingContext2D,
 
 }
 
-
-const emojis = ["🥳", "💊", "🩺", "🍽️"]
 function getMousePos(canvas: HTMLCanvasElement, evt: any) {
   var rect = canvas.getBoundingClientRect();
   return {
@@ -651,7 +608,6 @@ let INITIAL_ZOOM = 1;
 export default function Canvas() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [width, height, devicePixelRatio] = useDeviceSize();
-  const [hide, setHide] = useState(false);
   const [roughCanvas, setRoughCanvas] = useState<RoughCanvas | null>(null);
   const [appState, setAppState] = useState<AppState>(
     {
@@ -924,27 +880,6 @@ export default function Canvas() {
             >
               Add Leaf
             </button>
-            {/*sectors.map(s => <li key={s.id}>
-                <input value={s.text} onChange={(e) => {
-                  setAppState(prev => ({
-                    ...prev,
-                    sectors: prev.sectors.map(sec => {
-                      if (s.id === sec.id) {
-                        return { ...sec, text: e.target.value }
-                      }
-                      return sec
-                    })
-                  }))
-                }}></input>
-                <button onClick={() => setAppState(prev => ({
-                  ...prev,
-                  sectors: prev.sectors.filter(sec => sec.id !== s.id)
-                }))}>X</button>
-              </li>)*/}
-            { /*       <button onClick={() => setAppState(prev => ({
-              ...prev,
-              sectors: [...prev.sectors, { id: guidGenerator(), color: "#f15275", text: "new sector" }]
-            }))}>Add sector</button>*/}
             {selectedElement && <>
               {selectedElement.type !== "category" && <>
                 width
