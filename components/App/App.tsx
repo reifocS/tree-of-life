@@ -202,7 +202,7 @@ function hitTest(
   } else {
     let { x: x1, y: y1, angle = 0 } = element;
     let x2 = x1 + element.width!;
-    let y2 = y1 + element.actualBoundingBoxAscent!;
+    let y2 = y1 + element.height!;
     const cx = (x1 + x2) / 2;
     const cy = (y1 + y2) / 2;
     // reverse rotate the pointer
@@ -220,99 +220,6 @@ const RC_WIDTH = 100;
 const LEAF_WIDTH = 60;
 const LEAF_HEIGHT = 80;
 const colors = ["gray", "orange", "green"];
-
-
-function drawCircle(
-  ctx: CanvasRenderingContext2D,
-  sectors: { color: string, text: string }[],
-  x: number,
-  y: number,
-  dia: number,
-  rc: RoughCanvas
-) {
-  const PI = Math.PI;
-  const TAU = 2 * PI;
-  const rad = dia / 2;
-  const arc = TAU / sectors.length;
-
-  const drawHead = () => {
-    const length = rad / 2;
-    const endX = x + length * Math.cos(PI / 2);
-    const endY = y - length * Math.sin(PI / 2);
-    //head
-    rc.circle(endX, endY, 400, {
-      fill: "black",
-      seed: 2,
-      fillStyle: "solid"
-    })
-
-    //eyes
-    rc.circle(endX - 60, endY - 120, 25, {
-      fill: "#fff",
-      seed: 2,
-      fillStyle: "solid"
-    })
-    rc.circle(endX + 60, endY - 120, 25, {
-      fill: "#fff",
-      seed: 2,
-      fillStyle: "solid"
-    })
-
-    //antennes
-    const antenneX = endX + 300 * Math.cos(PI / 4);
-    const antenneY = endY - 300 * Math.sin(PI / 4);
-    rc.line(endX, endY, antenneX, antenneY, {
-      strokeWidth: 20,
-      seed: 2
-    })
-    const antenne2X = endX + 300 * Math.cos(3 * PI / 4);
-    const antenne2Y = endY - 300 * Math.sin(3 * PI / 4);
-    rc.line(endX, endY, antenne2X, antenne2Y, {
-      strokeWidth: 20,
-      seed: 2
-    })
-    rc.circle(antenne2X, antenne2Y, 35, {
-      fill: "black",
-      seed: 2,
-      fillStyle: "solid"
-    })
-    rc.circle(antenneX, antenneY, 35, {
-      fill: "black",
-      seed: 2,
-      fillStyle: "solid"
-    })
-  }
-  drawHead();
-  const drawSector = (i: number) => {
-    const ang = arc * i - PI / 2;
-    // COLOR
-    rc.arc(x, y, rad, rad, ang, ang + arc, true, {
-      fill: sectors[i].color,
-      seed: 2,
-      stroke: "black",
-      strokeWidth: 0.2,
-      fillStyle: "solid"
-    });
-  };
-
-  const drawText = (i: number) => {
-    const ang = arc * i - PI / 2;
-    const length = rad / 4;
-    const endX = x + length * Math.cos(-(ang + arc / 2));
-    const endY = y - length * Math.sin(-(ang + arc / 2));
-    const font = ctx.font;
-    ctx.font = `bold ${25}px ${"comic sans ms"}`;
-    printAt(ctx, sectors[i].text, endX, endY, 40, 300);
-    ctx.font = font;
-  }
-  for (let i = 0; i < sectors.length; ++i) {
-    drawSector(i)
-  }
-  for (let i = 0; i < sectors.length; ++i) {
-    drawText(i)
-  }
-
-}
 
 function drawGrid(ctx: CanvasRenderingContext2D) {
   try {
@@ -394,7 +301,7 @@ function drawImage(rc: RoughCanvas, ctx: CanvasRenderingContext2D, image: HTMLIm
 }
 function drawLeaf(rc: RoughCanvas, ctx: CanvasRenderingContext2D, x: number, y: number, text: string, color: string, width: number, height: number, image: HTMLImageElement, isSelected: boolean, angle = 0) {
   drawImage(rc, ctx, image, x, y, isSelected, angle, width, height)
-  printAt(ctx, text, x + width / 2, y + height / 2, 15, width - 15);
+  printAtWordWrap(ctx, text, x + width / 2, y + height / 2, 15, width - 15);
 }
 
 
@@ -514,7 +421,7 @@ function drawSector(
       roughness: 0
     })
   }
-  printAt(ctx, el.text, el.x, el.y, 15, el.width! - 15, emojis[i]);
+  printAtWordWrap(ctx, el.text, el.x, el.y, 15, el.width! - 15);
 }
 
 
@@ -538,40 +445,19 @@ function getXY(mouseX: number, mouseY: number) {
 */
 
 
-function updateTextFont(element: Element, context: CanvasRenderingContext2D, newFont: string) {
-  const newElem = { ...element };
-  const font = context.font;
-  context.font = newFont;
-  const { actualBoundingBoxAscent, actualBoundingBoxDescent, width } =
-    context.measureText(newElem.text);
-  newElem.actualBoundingBoxAscent = actualBoundingBoxAscent;
-  context.font = font;
-  const height = actualBoundingBoxAscent + actualBoundingBoxDescent;
-
-  newElem.font = newFont;
-  newElem.x -= width / 2;
-  newElem.y -= actualBoundingBoxAscent;
-  newElem.width = width;
-  newElem.height = height;
-  return newElem;
-
-}
-
-function addText(context: CanvasRenderingContext2D, text: string | null = null, elem?: Element) {
+function addText(context: CanvasRenderingContext2D) {
   //TODO type it
   const element: any = {
-    ...elem,
     x: 0,
     y: 0,
     type: "category",
     id: guidGenerator(),
   };
+  let text = prompt("What text do you want?");
   if (text === null) {
-    text = prompt("What text do you want?");
-    if (text === null) {
-      return;
-    }
+    return;
   }
+
   element.text = text;
   element.font = element.font || "20px Virgil";
   const font = context.font;
@@ -590,18 +476,64 @@ function addText(context: CanvasRenderingContext2D, text: string | null = null, 
   return element;
 }
 
+function updateText(context: CanvasRenderingContext2D, text: string, elem: Element, font?: string) {
+  const element: Element = {
+    ...elem,
+    text,
+    font: font || elem.font
+  };
+  const ctxFont = context.font;
+  context.font = element.font || "20px virgil";
+  const lines = text.split('\n');
+  if (lines.length === 1) {
+    const { actualBoundingBoxAscent, actualBoundingBoxDescent, width } =
+      context.measureText(text);
+    element.actualBoundingBoxAscent = actualBoundingBoxAscent;
+    const height = actualBoundingBoxAscent + actualBoundingBoxDescent;
+    element.width = width;
+    element.height = height;
+    context.font = ctxFont;
+    return element;
+  } else {
+    let maxWidth = 0;
+    let height = -SPACE_BETWEEN_LINES;
+    for (let i = 0; i < lines.length; ++i) {
+      let currentText = lines[i];
+      let { actualBoundingBoxAscent, actualBoundingBoxDescent, width } =
+        context.measureText(currentText);
+
+      if (width > maxWidth) {
+        maxWidth = width;
+      }
+      height += actualBoundingBoxAscent + SPACE_BETWEEN_LINES + actualBoundingBoxDescent;
+    }
+    context.font = ctxFont;
+    element.width = maxWidth;
+    element.height = height;
+    return element;
+  }
+
+}
+
+const SPACE_BETWEEN_LINES = 3;
 function drawCategory(category: Element, ctx: CanvasRenderingContext2D, rc: RoughCanvas, isSelected: boolean, angle = 0) {
   const font = ctx.font;
   ctx.font = category.font!;
   const align = ctx.textAlign;
   ctx.textAlign = "left"
-  const { x, y, text, width = 0, actualBoundingBoxAscent = 0 } = category;
+  const baseLine = ctx.textBaseline;
+  ctx.textBaseline = "top"
+  const { x, y, text, width = 0, height = 0 } = category;
   ctx.save();
-  ctx.translate(x + width / 2, y + actualBoundingBoxAscent! / 2); // sets scale and origin
+  ctx.translate(x + width / 2, y + height! / 2); // sets scale and origin
   ctx.rotate(angle);
-  ctx.fillText(text, -width / 2, actualBoundingBoxAscent / 2);
+  let lines = text.split('\n');
+  let lineheight = height / lines.length;
+
+  for (let i = 0; i < lines.length; i++)
+    ctx.fillText(lines[i], -width / 2, -height / 2 + (i * lineheight));
   if (isSelected) {
-    rc.rectangle((-width) / 2, -actualBoundingBoxAscent / 2, width, category.actualBoundingBoxAscent!, {
+    rc.rectangle((-width) / 2, -height / 2, width, height, {
       seed: 2,
       strokeLineDash: [5, 5],
       roughness: 0
@@ -610,6 +542,7 @@ function drawCategory(category: Element, ctx: CanvasRenderingContext2D, rc: Roug
   ctx.restore();
   ctx.font = font;
   ctx.textAlign = align;
+  ctx.textBaseline = baseLine;
 }
 
 function scale(x: number, y: number, ctx: CanvasRenderingContext2D) {
@@ -662,20 +595,16 @@ function mousePosToCanvasPos(
 }
 
 //https://stackoverflow.com/a/4478894/14536535
-function printAt(
-  context: CanvasRenderingContext2D,
+function printAtWordWrap(context: CanvasRenderingContext2D,
   text: string,
   x: number,
   y: number,
   lineHeight: number,
-  fitWidth: number,
-  emoji?: string
-) {
+  fitWidth: number,) {
   const fillStyle = context.fillStyle;
   context.textAlign = "center";
   context.fillStyle = "black"
   context.font = "15px comic sans ms"
-
   fitWidth = fitWidth || 0;
 
   if (fitWidth <= 0) {
@@ -683,28 +612,29 @@ function printAt(
     context.fillStyle = fillStyle;
     return;
   }
-  for (var idx = 1; idx <= text.length; idx++) {
-    var str = text.substring(0, idx);
-    if (context.measureText(str).width > fitWidth) {
-      context.fillText(text.substring(0, idx - 1), x, y);
-      printAt(
-        context,
-        text.substring(idx - 1),
-        x,
-        y + lineHeight,
-        lineHeight,
-        fitWidth,
-        emoji
-      );
-      context.fillStyle = fillStyle;
-      return;
+  let words = text.split(' ');
+  let currentLine = 0;
+  let idx = 1;
+  while (words.length > 0 && idx <= words.length) {
+    let str = words.slice(0, idx).join(' ');
+    let w = context.measureText(str).width;
+    if (w > fitWidth) {
+      if (idx == 1) {
+        idx = 2;
+      }
+      context.fillText(words.slice(0, idx - 1).join(' '), x, y + (lineHeight * currentLine));
+      currentLine++;
+      words = words.splice(idx - 1);
+      idx = 1;
     }
+    else { idx++; }
   }
-  context.fillText(text, x, y);
+  if (idx > 0)
+    context.fillText(words.join(' '), x, y + (lineHeight * currentLine));
   context.fillStyle = fillStyle;
 
-  emoji && context.fillText(emoji, x, y + lineHeight + 5);
 }
+
 
 const emojis = ["🥳", "💊", "🩺", "🍽️"]
 function getMousePos(canvas: HTMLCanvasElement, evt: any) {
@@ -938,7 +868,7 @@ export default function Canvas() {
             <button
               onClick={() => {
                 const el = addText(canvasRef.current!.getContext("2d")!);
-                if(!el) return;
+                if (!el) return;
                 setAppState((prev) => ({
                   ...prev,
                   elements: [...prev.elements, el],
@@ -994,8 +924,7 @@ export default function Canvas() {
             >
               Add Leaf
             </button>
-            <ul>
-              {/*sectors.map(s => <li key={s.id}>
+            {/*sectors.map(s => <li key={s.id}>
                 <input value={s.text} onChange={(e) => {
                   setAppState(prev => ({
                     ...prev,
@@ -1012,7 +941,6 @@ export default function Canvas() {
                   sectors: prev.sectors.filter(sec => sec.id !== s.id)
                 }))}>X</button>
               </li>)*/}
-            </ul>
             { /*       <button onClick={() => setAppState(prev => ({
               ...prev,
               sectors: [...prev.sectors, { id: guidGenerator(), color: "#f15275", text: "new sector" }]
@@ -1061,7 +989,7 @@ export default function Canvas() {
                     ...prev,
                     elements: prev.elements.map(el => {
                       if (el.id === selectedElement.id) {
-                        return updateTextFont(el, canvasRef.current!.getContext("2d")!, e.target.value)
+                        return updateText(canvasRef.current!.getContext("2d")!, el.text, el, e.target.value)
                       }
                       return el;
                     })
@@ -1086,7 +1014,8 @@ export default function Canvas() {
                   }))
                 }}
                 type="range" min={0} max={2 * Math.PI} step={0.001} value={elements.find(el => el.id === selectedElement.id)?.angle ?? 0}></input>
-              <input
+              text
+              <textarea
                 onChange={(e) => {
                   setAppState(prev => ({
                     ...prev,
@@ -1098,17 +1027,24 @@ export default function Canvas() {
                             text: e.target.value,
                           }
                         return {
-                          ...addText(canvasRef.current!.getContext("2d")!, e.target.value ?? "", el),
-                          x: el.x,
-                          y: el.y,
-                          id: el.id
+                          ...updateText(canvasRef.current!.getContext("2d")!, e.target.value ?? "", el),
                         }
                       }
                       return el;
                     })
                   }))
                 }}
-                value={elements.find(el => el.id === selectedElement.id)?.text!}></input>
+                value={elements.find(el => el.id === selectedElement.id)?.text!}></textarea>
+              <button
+                style={{ backgroundColor: 'red' }}
+                onClick={() => {
+                  setAppState(prev => ({
+                    ...prev,
+                    elements: prev.elements.filter(e => e.id !== selectedElement.id),
+                    selectedElement: null,
+                    draggedElement: null
+                  }))
+                }}>delete</button>
             </>}
           </div>
         </div>
