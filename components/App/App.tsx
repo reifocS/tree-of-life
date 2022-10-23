@@ -980,6 +980,21 @@ export default function Canvas() {
                     draggedElement: null
                   }))
                 }}>delete</button>
+              <button
+                style={{ backgroundColor: 'gray' }}
+                onClick={() => {
+                  setAppState(prev => ({
+                    ...prev,
+                    elements: [...prev.elements, {
+                      ...elements.find(el => el.id === selectedElement.id)!,
+                      id: guidGenerator(),
+                      x: 0,
+                      y: 0,
+                    }],
+                    selectedElement: null,
+                    draggedElement: null
+                  }))
+                }}>copy</button>
             </>}
           </div>
         </div>
