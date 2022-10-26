@@ -13,10 +13,10 @@ import useKeyboard from "../../hooks/useKeyboard";
 
 type Point = {
   x: number;
-  y: number
-}
+  y: number;
+};
 
-type Sector = { color: string, text: string, id: string }
+type Sector = { color: string; text: string; id: string };
 export type AppState = {
   cameraZoom: number;
   scaleMultiplier: number;
@@ -30,7 +30,7 @@ export type AppState = {
   selectedElement: Element | null;
   sectors: Sector[];
   radius: number;
-  mode: 'edit' | 'view';
+  mode: "edit" | "view";
 };
 
 const useDeviceSize = () => {
@@ -76,15 +76,6 @@ function guidGenerator() {
   );
 }
 
-function getTransformedPoint(
-  x: number,
-  y: number,
-  context: CanvasRenderingContext2D
-) {
-  const originalPoint = new DOMPoint(x, y);
-  return context.getTransform().invertSelf().transformPoint(originalPoint);
-}
-
 type Element = {
   x: number;
   y: number;
@@ -99,28 +90,17 @@ type Element = {
   actualBoundingBoxAscent?: number;
   font?: string;
   categoryId?: string;
-  angle?: number
+  angle?: number;
 };
 
 const matrix = [1, 0, 0, 1, 0, 0];
-
-function toCanvasCoord(
-  x: number,
-  y: number,
-  context: CanvasRenderingContext2D
-) {
-  const transform = context.getTransform();
-  // Destructure to get the x and y values out of the transformed DOMPoint.
-  const { x: newX, y: newY } = transform.transformPoint(new DOMPoint(x, y));
-  return { x: newX, y: newY };
-}
 
 export function rotate(
   x1: number,
   y1: number,
   x2: number,
   y2: number,
-  angle: number,
+  angle: number
 ) {
   // 𝑎′𝑥=(𝑎𝑥−𝑐𝑥)cos𝜃−(𝑎𝑦−𝑐𝑦)sin𝜃+𝑐𝑥
   // 𝑎′𝑦=(𝑎𝑥−𝑐𝑥)sin𝜃+(𝑎𝑦−𝑐𝑦)cos𝜃+𝑐𝑦.
@@ -131,17 +111,23 @@ export function rotate(
   ];
 }
 
-function hitTest(
-  x: number,
-  y: number,
-  element: Element,
-  ctx: CanvasRenderingContext2D
-) {
+function hitTestButton(x: number, y: number, buttons: Point[]) {
+  for (let { x: x1, y: y1 } of buttons) {
+    x1 -= BUTTON_SIZE / 2;
+    y1 -= BUTTON_SIZE / 2;
+    let x2 = x1 + BUTTON_SIZE;
+    let y2 = y1 + BUTTON_SIZE;
+    let hit = x > x1 && x < x2 && y > y1 && y < y2;
+    if (hit) return { x1, x2 };
+  }
+}
+
+function hitTest(x: number, y: number, element: Element) {
   if (element.type === "circle") {
-    const { x: newX, y: newY } = element
+    const { x: newX, y: newY } = element;
     const dx = x - newX;
     const dy = y - newY;
-    const r = (element.width!) / 2;
+    const r = element.width! / 2;
     const hit = dx * dx + dy * dy < r * r;
     return hit;
   } else if (element.type === "leaf") {
@@ -152,12 +138,7 @@ function hitTest(
     const cy = (y1 + y2) / 2;
     // reverse rotate the pointer
     [x, y] = rotate(x, y, cx, cy, -angle);
-    return (
-      x > x1 &&
-      x < x2 &&
-      y > y1 &&
-      y < y2
-    );
+    return x > x1 && x < x2 && y > y1 && y < y2;
   } else {
     let { x: x1, y: y1, angle = 0 } = element;
     let x2 = x1 + element.width!;
@@ -166,12 +147,7 @@ function hitTest(
     const cy = (y1 + y2) / 2;
     // reverse rotate the pointer
     [x, y] = rotate(x, y, cx, cy, -angle);
-    return (
-      x > x1 &&
-      x < x2 &&
-      y > y1 &&
-      y < y2
-    );
+    return x > x1 && x < x2 && y > y1 && y < y2;
   }
 }
 
@@ -208,14 +184,12 @@ function drawGrid(ctx: CanvasRenderingContext2D) {
     ctx.lineTo(500, 40);
     ctx.lineTo(ctx.canvas.width, 40);
 
-
     /* y-axis */
     ctx.moveTo(60, 0);
     ctx.lineTo(60, 153);
     ctx.moveTo(60, 173);
     ctx.lineTo(60, 375);
     ctx.lineTo(60, ctx.canvas.height);
-
 
     /* draw it! */
     ctx.strokeStyle = "#000";
@@ -226,25 +200,37 @@ function drawGrid(ctx: CanvasRenderingContext2D) {
       ctx.font = "bold 12px sans-serif";
       ctx.fillText("x", 248, 43);
       ctx.fillText("y", 58, 165);
-    } catch (err) { }
+    } catch (err) {}
 
     try {
       ctx.textBaseline = "top";
       ctx.fillText("( 0 , 0 )", 8, 5);
-    } catch (err) { }
+    } catch (err) {}
 
     try {
       ctx.textBaseline = "bottom";
-      ctx.fillText("(" + ctx.canvas.width + "," + ctx.canvas.height + ")", ctx.canvas.width, ctx.canvas.height);
-    } catch (err) { }
+      ctx.fillText(
+        "(" + ctx.canvas.width + "," + ctx.canvas.height + ")",
+        ctx.canvas.width,
+        ctx.canvas.height
+      );
+    } catch (err) {}
 
     ctx.textBaseline = textBaseline;
-
-  } catch (err) { }
-
+  } catch (err) {}
 }
 
-function drawImage(rc: RoughCanvas, ctx: CanvasRenderingContext2D, image: HTMLImageElement, x: number, y: number, selected: boolean, rotation: number, width: number, height: number) {
+function drawImage(
+  rc: RoughCanvas,
+  ctx: CanvasRenderingContext2D,
+  image: HTMLImageElement,
+  x: number,
+  y: number,
+  selected: boolean,
+  rotation: number,
+  width: number,
+  height: number
+) {
   ctx.save();
   ctx.translate(x + width / 2, y + height / 2); // sets scale and origin
   ctx.rotate(rotation);
@@ -253,112 +239,107 @@ function drawImage(rc: RoughCanvas, ctx: CanvasRenderingContext2D, image: HTMLIm
     rc.rectangle(-width / 2, -height / 2, width, height, {
       seed: 2,
       strokeLineDash: [5, 5],
-      roughness: 0
-    })
+      roughness: 0,
+    });
   }
   ctx.restore();
 }
-function drawLeaf(rc: RoughCanvas, ctx: CanvasRenderingContext2D, x: number, y: number, text: string, color: string, width: number, height: number, image: HTMLImageElement, isSelected: boolean, angle = 0) {
-  drawImage(rc, ctx, image, x, y, isSelected, angle, width, height)
+
+function drawLeaf(
+  rc: RoughCanvas,
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  text: string,
+  width: number,
+  height: number,
+  image: HTMLImageElement,
+  isSelected: boolean,
+  angle = 0
+) {
+  drawImage(rc, ctx, image, x, y, isSelected, angle, width, height);
   printAtWordWrap(ctx, text, x + width / 2, y + height / 2, 15, width - 15);
 }
 
-
-function drawTronc(rc: RoughCanvas, startX: number, startY: number, endX: number, endY: number) {
+function drawTronc(
+  rc: RoughCanvas,
+  startX: number,
+  startY: number,
+  endX: number,
+  endY: number
+) {
   rc.line(startX, startY, endX, endY, {
     strokeWidth: 50,
     roughness: 5,
     seed: 2,
-    stroke: 'rgb(90,50,25)'
-  })
+    stroke: "rgb(90,50,25)",
+  });
 }
 
 function getMid(startX: number, startY: number, endX: number, endY: number) {
-  let midX = startX + (endX - startX) * 0.50;
-  let midY = startY + (endY - startY) * 0.50;
+  let midX = startX + (endX - startX) * 0.5;
+  let midY = startY + (endY - startY) * 0.5;
   return [midX, midY];
 }
 
-const branchColors = Array(10).fill(0).map(_ => 'rgb(' + (((Math.random() * 64) + 64) >> 0) + ',50,25)');
+const branchColors = Array(10)
+  .fill(0)
+  .map((_) => "rgb(" + ((Math.random() * 64 + 64) >> 0) + ",50,25)");
 
-function drawBranch(rc: RoughCanvas, startX: number, startY: number, endX: number, endY: number, i: number) {
+function drawBranch(
+  rc: RoughCanvas,
+  startX: number,
+  startY: number,
+  endX: number,
+  endY: number,
+  i: number
+) {
   const stroke = branchColors[i];
 
   rc.line(startX, startY, endX, endY, {
     strokeWidth: 25,
     roughness: 5,
     seed: 2,
-    stroke
+    stroke,
   });
-  let [midX, midY] = getMid(startX, startY, endX, endY);
-  let [qX, qY] = getMid(startX, startY, midX, midY);
-
-  /*rc.curve([[startX, startY], [qX + 20, qY + 20], [midX, midY]], {
-    seed: 2,
-    strokeWidth: 20,
-    stroke
-  })*/
-
 }
 //TODO Add some random here
-const getAngle = (i: number) => i % 2 === 0 ? Math.PI / 6 : 5 * Math.PI / 6;
-const getLineFromAngle = (x: number, y: number, length: number, angle: number) => ({
+const getAngle = (i: number) => (i % 2 === 0 ? Math.PI / 6 : (5 * Math.PI) / 6);
+const getLineFromAngle = (
+  x: number,
+  y: number,
+  length: number,
+  angle: number
+) => ({
   endX: x + length * Math.cos(-angle),
-  endY: y + length * Math.sin(-angle)
-})
+  endY: y + length * Math.sin(-angle),
+});
 
+const BUTTON_SIZE = 30;
 
-function drawIt(
-  rc: RoughCanvas,
-  canvas: HTMLCanvasElement,
-  elements: Element[],
-  images: { color: string, image: HTMLImageElement }[],
-  sectors: { color: string, text: string }[],
-  selectedId?: string,
-  mode?: string
-) {
+function drawAddButton(canvas: HTMLCanvasElement, x: number, y: number) {
   const ctx = canvas.getContext("2d")!;
-  const numberOfBranches = 6;
-  const endTreeY = 100 - (30 * numberOfBranches);
-  const endTreeX = 0;
-  const baseTreeX = 0;
-  const baseTreeY = canvas.height;
-  ctx.lineCap = 'round';
-  const branchLength = 300;
-  ctx.translate(canvas.width / 2, canvas.height / 2);
+  const textAlign = ctx.textAlign;
+  const textColor = ctx.fillStyle;
+  const textBaseline = ctx.textBaseline;
+  const font = ctx.font;
+  ctx.fillStyle = "green";
+  ctx.fillRect(
+    x - BUTTON_SIZE / 2,
+    y - BUTTON_SIZE / 2,
+    BUTTON_SIZE,
+    BUTTON_SIZE
+  );
 
-  if (mode === "edit") drawGrid(ctx);
-  drawTronc(rc, baseTreeX, baseTreeY, endTreeX, endTreeY)
-
-
-
-  //Draw Branch
-  let startX = baseTreeX;
-  let startY = baseTreeY - 100;
-  let spaceBetweenBranches = (canvas.height + Math.abs(endTreeY) - 100) / numberOfBranches;
-  for (let i = 0; i < numberOfBranches; ++i) {
-    let { endX, endY } = getLineFromAngle(startX, startY, branchLength, getAngle(i));
-    drawBranch(rc, startX, startY, endX, endY, i);
-    startY -= spaceBetweenBranches;
-  }
-
-  ctx.fillStyle = "black";
-  let i = 0;
-  for (const element of elements) {
-    if (element.type === "category") {
-      drawCategory(element, ctx, rc, element.id === selectedId, element.angle);
-    } else if (element.type === "circle") {
-      drawSector(element, ctx, rc, i++, element.id === selectedId);
-    } else {
-      drawLeaf(rc, ctx, element.x, element.y, element.text, element.color, element.width!, element.height!, images.find(c => c.color === element.color)!.image, element.id === selectedId, element.angle)
-    }
-  }
-  //const { x, y } = geometricMedian(elements.map(e => ({ x: e.x, y: e.y })), elements.length)
-  /*rc.circle(x, y, 20, {
-    fill: "green",
-    fillStyle: "solid",
-    seed: 2
-  })*/
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillStyle = "#eeee";
+  ctx.font = "30px comic sans ms";
+  ctx.fillText("+", x, y);
+  ctx.textAlign = textAlign;
+  ctx.textBaseline = textBaseline;
+  ctx.fillStyle = textColor;
+  ctx.font = font;
 }
 
 function drawSector(
@@ -374,16 +355,20 @@ function drawSector(
     fillStyle: "solid",
   });
   if (isSelected) {
-    rc.rectangle(el.x - el.width! / 2, el.y - el.width! / 2, el.width!, el.width!, {
-      seed: 2,
-      strokeLineDash: [5, 5],
-      roughness: 0
-    })
+    rc.rectangle(
+      el.x - el.width! / 2,
+      el.y - el.width! / 2,
+      el.width!,
+      el.width!,
+      {
+        seed: 2,
+        strokeLineDash: [5, 5],
+        roughness: 0,
+      }
+    );
   }
   printAtWordWrap(ctx, el.text, el.x, el.y, 15, el.width! - 15);
 }
-
-
 
 function getRandomArbitrary(min: number, max: number) {
   return Math.random() * (max - min) + min;
@@ -394,15 +379,6 @@ function translate(x: number, y: number, ctx: CanvasRenderingContext2D) {
   matrix[5] += matrix[1] * x + matrix[3] * y;
   ctx.translate(x, y);
 }
-
-/*
-function getXY(mouseX: number, mouseY: number) {
-  let newX = mouseX * matrix[0] + mouseY * matrix[2] + matrix[4];
-  let newY = mouseX * matrix[1] + mouseY * matrix[3] + matrix[5];
-  return { x: newX, y: newY };
-}
-*/
-
 
 function addText(context: CanvasRenderingContext2D) {
   //TODO type it
@@ -435,15 +411,20 @@ function addText(context: CanvasRenderingContext2D) {
   return element;
 }
 
-function updateText(context: CanvasRenderingContext2D, text: string, elem: Element, font?: string) {
+function updateText(
+  context: CanvasRenderingContext2D,
+  text: string,
+  elem: Element,
+  font?: string
+) {
   const element: Element = {
     ...elem,
     text,
-    font: font || elem.font
+    font: font || elem.font,
   };
   const ctxFont = context.font;
   context.font = element.font || "20px virgil";
-  const lines = text.split('\n');
+  const lines = text.split("\n");
   if (lines.length === 1) {
     const { actualBoundingBoxAscent, actualBoundingBoxDescent, width } =
       context.measureText(text);
@@ -464,39 +445,47 @@ function updateText(context: CanvasRenderingContext2D, text: string, elem: Eleme
       if (width > maxWidth) {
         maxWidth = width;
       }
-      height += actualBoundingBoxAscent + SPACE_BETWEEN_LINES + actualBoundingBoxDescent;
+      height +=
+        actualBoundingBoxAscent +
+        SPACE_BETWEEN_LINES +
+        actualBoundingBoxDescent;
     }
     context.font = ctxFont;
     element.width = maxWidth;
     element.height = height;
     return element;
   }
-
 }
 
 const SPACE_BETWEEN_LINES = 3;
-function drawCategory(category: Element, ctx: CanvasRenderingContext2D, rc: RoughCanvas, isSelected: boolean, angle = 0) {
+function drawCategory(
+  category: Element,
+  ctx: CanvasRenderingContext2D,
+  rc: RoughCanvas,
+  isSelected: boolean,
+  angle = 0
+) {
   const font = ctx.font;
   ctx.font = category.font!;
   const align = ctx.textAlign;
-  ctx.textAlign = "left"
+  ctx.textAlign = "left";
   const baseLine = ctx.textBaseline;
-  ctx.textBaseline = "top"
+  ctx.textBaseline = "top";
   const { x, y, text, width = 0, height = 0 } = category;
   ctx.save();
   ctx.translate(x + width / 2, y + height! / 2); // sets scale and origin
   ctx.rotate(angle);
-  let lines = text.split('\n');
+  let lines = text.split("\n");
   let lineheight = height / lines.length;
 
   for (let i = 0; i < lines.length; i++)
-    ctx.fillText(lines[i], -width / 2, -height / 2 + (i * lineheight));
+    ctx.fillText(lines[i], -width / 2, -height / 2 + i * lineheight);
   if (isSelected) {
-    rc.rectangle((-width) / 2, -height / 2, width, height, {
+    rc.rectangle(-width / 2, -height / 2, width, height, {
       seed: 2,
       strokeLineDash: [5, 5],
-      roughness: 0
-    })
+      roughness: 0,
+    });
   }
   ctx.restore();
   ctx.font = font;
@@ -511,18 +500,45 @@ function scale(x: number, y: number, ctx: CanvasRenderingContext2D) {
   matrix[3] *= y;
   ctx.scale(x, y);
 }
+
+function getBranchEndpoint(height: number) {
+  const numberOfBranches = 6;
+  const endTreeY = 100 - 30 * numberOfBranches;
+  const baseTreeX = 0;
+  const baseTreeY = height;
+  const branchLength = 300;
+  const xys = [];
+  //Draw Branch
+  let startX = baseTreeX;
+  let startY = baseTreeY - 100;
+  let spaceBetweenBranches =
+    (height + Math.abs(endTreeY) - 100) / numberOfBranches;
+  for (let i = 0; i < numberOfBranches; ++i) {
+    let { endX, endY } = getLineFromAngle(
+      startX,
+      startY,
+      branchLength,
+      getAngle(i)
+    );
+    startY -= spaceBetweenBranches;
+    xys.push({ x: endX, y: endY - 40 });
+  }
+  return xys;
+}
+
 function draw(
   canvas: HTMLCanvasElement,
   cameraZoom: number,
   cameraOffset: { x: number; y: number },
-  roughCanvas: RoughCanvas,
+  rc: RoughCanvas,
   elements: Element[],
-  sectors: { color: string, text: string }[],
-  images: { color: string, image: HTMLImageElement }[],
+  sectors: { color: string; text: string }[],
+  images: { color: string; image: HTMLImageElement }[],
   selectedId?: string,
   mode?: string
 ) {
   const ctx = canvas.getContext("2d")!;
+  // Zooming and padding
   translate(canvas.width / 2, canvas.height / 2, ctx);
   scale(cameraZoom, cameraZoom, ctx);
   translate(
@@ -531,14 +547,67 @@ function draw(
     ctx
   );
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawIt(roughCanvas, canvas, elements, images, sectors, selectedId, mode);
-  //buildTree(ctx, roughCanvas);
+
+  // Drawing
+  const numberOfBranches = 6;
+  const endTreeY = 100 - 30 * numberOfBranches;
+  const endTreeX = 0;
+  const baseTreeX = 0;
+  const baseTreeY = canvas.height;
+  ctx.lineCap = "round";
+  const branchLength = 300;
+  ctx.translate(canvas.width / 2, canvas.height / 2);
+
+  if (mode === "edit") drawGrid(ctx);
+  drawTronc(rc, baseTreeX, baseTreeY, endTreeX, endTreeY);
+
+  //Draw Branch
+  let startX = baseTreeX;
+  let startY = baseTreeY - 100;
+  let spaceBetweenBranches =
+    (canvas.height + Math.abs(endTreeY) - 100) / numberOfBranches;
+  let branchesEndpoint = [];
+  for (let i = 0; i < numberOfBranches; ++i) {
+    let { endX, endY } = getLineFromAngle(
+      startX,
+      startY,
+      branchLength,
+      getAngle(i)
+    );
+    drawBranch(rc, startX, startY, endX, endY, i);
+    branchesEndpoint.push({ x: endX, y: endY - 40 });
+    startY -= spaceBetweenBranches;
+  }
+  if (mode === "edit") {
+    for (const { x, y } of branchesEndpoint) {
+      drawAddButton(canvas, x, y);
+    }
+  }
+  ctx.fillStyle = "black";
+  let i = 0;
+  for (const element of elements) {
+    if (element.type === "category") {
+      drawCategory(element, ctx, rc, element.id === selectedId, element.angle);
+    } else if (element.type === "circle") {
+      drawSector(element, ctx, rc, i++, element.id === selectedId);
+    } else {
+      drawLeaf(
+        rc,
+        ctx,
+        element.x,
+        element.y,
+        element.text,
+        element.width!,
+        element.height!,
+        images.find((c) => c.color === element.color)!.image,
+        element.id === selectedId,
+        element.angle
+      );
+    }
+  } //buildTree(ctx, roughCanvas);
 }
 
-function mousePosToCanvasPos(
-  context: CanvasRenderingContext2D,
-  e: any
-) {
+function mousePosToCanvasPos(context: CanvasRenderingContext2D, e: any) {
   const x = getMousePos(context.canvas, e)!.x;
   const y = getMousePos(context.canvas, e)!.y;
   const matrix = context.getTransform();
@@ -554,16 +623,18 @@ function mousePosToCanvasPos(
 }
 
 //https://stackoverflow.com/a/4478894/14536535
-function printAtWordWrap(context: CanvasRenderingContext2D,
+function printAtWordWrap(
+  context: CanvasRenderingContext2D,
   text: string,
   x: number,
   y: number,
   lineHeight: number,
-  fitWidth: number,) {
+  fitWidth: number
+) {
   const fillStyle = context.fillStyle;
   context.textAlign = "center";
-  context.fillStyle = "black"
-  context.font = "15px comic sans ms"
+  context.fillStyle = "black";
+  context.font = "15px comic sans ms";
   fitWidth = fitWidth || 0;
 
   if (fitWidth <= 0) {
@@ -571,27 +642,31 @@ function printAtWordWrap(context: CanvasRenderingContext2D,
     context.fillStyle = fillStyle;
     return;
   }
-  let words = text.split(' ');
+  let words = text.split(" ");
   let currentLine = 0;
   let idx = 1;
   while (words.length > 0 && idx <= words.length) {
-    let str = words.slice(0, idx).join(' ');
+    let str = words.slice(0, idx).join(" ");
     let w = context.measureText(str).width;
     if (w > fitWidth) {
       if (idx == 1) {
         idx = 2;
       }
-      context.fillText(words.slice(0, idx - 1).join(' '), x, y + (lineHeight * currentLine));
+      context.fillText(
+        words.slice(0, idx - 1).join(" "),
+        x,
+        y + lineHeight * currentLine
+      );
       currentLine++;
       words = words.splice(idx - 1);
       idx = 1;
+    } else {
+      idx++;
     }
-    else { idx++; }
   }
   if (idx > 0)
-    context.fillText(words.join(' '), x, y + (lineHeight * currentLine));
+    context.fillText(words.join(" "), x, y + lineHeight * currentLine);
   context.fillStyle = fillStyle;
-
 }
 
 function getMousePos(canvas: HTMLCanvasElement, evt: any) {
@@ -609,53 +684,119 @@ export default function Canvas() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [width, height, devicePixelRatio] = useDeviceSize();
   const [roughCanvas, setRoughCanvas] = useState<RoughCanvas | null>(null);
-  const [appState, setAppState] = useState<AppState>(
-    {
-      selectedElement: null,
-      radius: 1000,
-      sectors: [{
+  const [appState, setAppState] = useState<AppState>({
+    selectedElement: null,
+    radius: 1000,
+    sectors: [
+      {
         color: "#f15275",
         text: "Mes reins fatiguent",
-        id: guidGenerator()
-      }, {
+        id: guidGenerator(),
+      },
+      {
         color: "#f15275",
         text: "Ma vie sociale",
-        id: guidGenerator()
-      }, {
+        id: guidGenerator(),
+      },
+      {
         color: "#f15275",
         text: "Parcours de soins",
-        id: guidGenerator()
-      }, {
+        id: guidGenerator(),
+      },
+      {
         color: "#f15275",
         text: "Mes ressources",
-        id: guidGenerator()
-      }, {
+        id: guidGenerator(),
+      },
+      {
         color: "#f15275",
         text: "Mon quotidien",
-        id: guidGenerator()
-      }, {
+        id: guidGenerator(),
+      },
+      {
         color: "#f15275",
         text: "Mes racines",
-        id: guidGenerator()
+        id: guidGenerator(),
       },
-      ],
-      mode: "edit",
-      cameraZoom: INITIAL_ZOOM,
-      scaleMultiplier: 0.8,
-      cameraOffset: { "x": 0, "y": 0 },
-      isDragging: false,
-      dragStart: { "x": 0, "y": 0 },
-      initialPinchDistance: null,
-      draggedElement: null,
-      elements: [
-        { "x": -163.0099639892578, "y": -134.90625, "type": "category", "id": "bd61106d-78f9-5981-09cd-645b1c4bd40f", "text": "category", "font": "20px Virgil", "actualBoundingBoxAscent": 16.90625, "width": 84.01992797851562, "height": 20, "color": "green", "angle": 0.86, seed: 2, icon: "" },
-        { "id": "b72ece49-3009-c842-8620-7ffbc3ba393d", "x": 146, "y": -152, "color": "orange", "seed": 2558.276717397499, "text": "hello world!", "icon": "🦍", "type": "leaf", "width": LEAF_WIDTH, "height": LEAF_HEIGHT }, { "id": "47cc3bbe-01ab-5d30-458f-b9e131c1aaea", "x": 195, "y": -51, "color": "green", "seed": 3934.491707227224, "text": "hello world!", "icon": "🦍", "type": "leaf", "width": LEAF_WIDTH, "height": LEAF_HEIGHT }, { "id": "c9de5ef0-6143-5a3f-ba20-883b79fb9744", "x": 87, "y": -104, "color": "orange", "seed": 295.5389757004682, "text": "hello world!", "icon": "🦍", "type": "leaf", "width": LEAF_WIDTH, "height": LEAF_HEIGHT }, { "id": "70ed4e77-d4a1-8678-baae-26d3b3e7a63f", "x": 146, "y": -2, "color": "orange", "seed": 1827.226735750161, "text": "hello world!", "icon": "🦍", "type": "leaf", "width": LEAF_WIDTH, "height": LEAF_HEIGHT }
-      ],
-      downPoint: { "x": 1157.446811446349, "y": 444.6808521917038 }
-    });
+    ],
+    mode: "edit",
+    cameraZoom: INITIAL_ZOOM,
+    scaleMultiplier: 0.8,
+    cameraOffset: { x: 0, y: 0 },
+    isDragging: false,
+    dragStart: { x: 0, y: 0 },
+    initialPinchDistance: null,
+    draggedElement: null,
+    elements: [
+      {
+        x: -163.0099639892578,
+        y: -134.90625,
+        type: "category",
+        id: "bd61106d-78f9-5981-09cd-645b1c4bd40f",
+        text: "category",
+        font: "20px Virgil",
+        actualBoundingBoxAscent: 16.90625,
+        width: 84.01992797851562,
+        height: 20,
+        color: "green",
+        angle: 0.86,
+        seed: 2,
+        icon: "",
+      },
+      {
+        id: "b72ece49-3009-c842-8620-7ffbc3ba393d",
+        x: 146,
+        y: -152,
+        color: "orange",
+        seed: 2558.276717397499,
+        text: "hello world!",
+        icon: "🦍",
+        type: "leaf",
+        width: LEAF_WIDTH,
+        height: LEAF_HEIGHT,
+      },
+      {
+        id: "47cc3bbe-01ab-5d30-458f-b9e131c1aaea",
+        x: 195,
+        y: -51,
+        color: "green",
+        seed: 3934.491707227224,
+        text: "hello world!",
+        icon: "🦍",
+        type: "leaf",
+        width: LEAF_WIDTH,
+        height: LEAF_HEIGHT,
+      },
+      {
+        id: "c9de5ef0-6143-5a3f-ba20-883b79fb9744",
+        x: 87,
+        y: -104,
+        color: "orange",
+        seed: 295.5389757004682,
+        text: "hello world!",
+        icon: "🦍",
+        type: "leaf",
+        width: LEAF_WIDTH,
+        height: LEAF_HEIGHT,
+      },
+      {
+        id: "70ed4e77-d4a1-8678-baae-26d3b3e7a63f",
+        x: 146,
+        y: -2,
+        color: "orange",
+        seed: 1827.226735750161,
+        text: "hello world!",
+        icon: "🦍",
+        type: "leaf",
+        width: LEAF_WIDTH,
+        height: LEAF_HEIGHT,
+      },
+    ],
+    downPoint: { x: 1157.446811446349, y: 444.6808521917038 },
+  });
 
   const images = useMemo(() => {
-    return colors.map(c => {
+    return colors.map((c) => {
       const image = new Image();
       const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="660" height="900" version="1.0">
     <g>
@@ -666,12 +807,19 @@ export default function Canvas() {
    </svg>`;
       image.src = `data:image/svg+xml;base64,${window.btoa(svg)}`;
       return { color: c, image };
-    })
-  }, [])
+    });
+  }, []);
 
   useKeyboard(setAppState);
-  const { cameraZoom, elements, cameraOffset, isDragging, sectors, selectedElement, mode } =
-    appState;
+  const {
+    cameraZoom,
+    elements,
+    cameraOffset,
+    isDragging,
+    sectors,
+    selectedElement,
+    mode,
+  } = appState;
   const { x: cameraOffsetX, y: cameraOffsetY } = cameraOffset;
   const lastZoom = useRef(cameraZoom);
   const ref = useCallback((node: HTMLCanvasElement) => {
@@ -680,6 +828,8 @@ export default function Canvas() {
       canvasRef.current = node;
     }
   }, []);
+
+  const buttonEndpoints = useMemo(() => getBranchEndpoint(height), [height]);
 
   useLayoutEffect(() => {
     if (!roughCanvas) return;
@@ -711,7 +861,7 @@ export default function Canvas() {
     selectedElement,
     sectors,
     images,
-    mode
+    mode,
   ]);
 
   const handlePointerDown = (e: PointerEvent<HTMLCanvasElement>) => {
@@ -719,15 +869,15 @@ export default function Canvas() {
     const ctx = canvasRef.current!.getContext("2d")!;
     const { x, y } = mousePosToCanvasPos(ctx, e);
 
-    const el = elements.find((el) =>
-      hitTest(x, y, el, canvasRef.current!.getContext("2d")!)
-    );
+    const el = elements.find((el) => hitTest(x, y, el));
+    //don't drag when clicking button
+    if (hitTestButton(x, y, buttonEndpoints)) return;
     if (el && appState.mode === "edit") {
       setAppState((prev) => ({
         ...prev,
         draggedElement: el,
         downPoint: { x, y },
-        selectedElement: el
+        selectedElement: el,
       }));
       return;
     } else if (!el) {
@@ -736,8 +886,12 @@ export default function Canvas() {
         isDragging: true,
         selectedElement: null,
         dragStart: {
-          x: getMousePos(canvasRef.current!, e)!.x / prev.cameraZoom - prev.cameraOffset.x,
-          y: getMousePos(canvasRef.current!, e)!.y / prev.cameraZoom - prev.cameraOffset.y,
+          x:
+            getMousePos(canvasRef.current!, e)!.x / prev.cameraZoom -
+            prev.cameraOffset.x,
+          y:
+            getMousePos(canvasRef.current!, e)!.y / prev.cameraZoom -
+            prev.cameraOffset.y,
         },
       }));
 
@@ -759,7 +913,7 @@ export default function Canvas() {
   };
 
   const handlePointerMove = (e: PointerEvent<HTMLCanvasElement>) => {
-    const ctx = canvasRef.current!.getContext("2d")!
+    const ctx = canvasRef.current!.getContext("2d")!;
     const { x, y } = mousePosToCanvasPos(ctx, e);
     const target = e.target;
     if (!(target instanceof HTMLElement)) {
@@ -779,11 +933,12 @@ export default function Canvas() {
         return e;
       });
       setAppState((prev) => ({ ...prev, elements: newElems }));
-      document.documentElement.style.cursor = "move"
+      document.documentElement.style.cursor = "move";
       return;
     }
     if (
-      elements.find((el) => hitTest(x, y, el, canvasRef.current!.getContext("2d")!))
+      hitTestButton(x, y, buttonEndpoints) ||
+      elements.find((el) => hitTest(x, y, el))
     ) {
       document.documentElement.style.cursor = "pointer";
     } else if (!isDragging) {
@@ -793,8 +948,12 @@ export default function Canvas() {
       setAppState((prev) => ({
         ...prev,
         cameraOffset: {
-          x: getMousePos(canvasRef.current!, e)!.x / prev.cameraZoom - prev.dragStart.x,
-          y: getMousePos(canvasRef.current!, e)!.y / prev.cameraZoom - prev.dragStart.y,
+          x:
+            getMousePos(canvasRef.current!, e)!.x / prev.cameraZoom -
+            prev.dragStart.x,
+          y:
+            getMousePos(canvasRef.current!, e)!.y / prev.cameraZoom -
+            prev.dragStart.y,
         },
       }));
     }
@@ -818,9 +977,11 @@ export default function Canvas() {
   return (
     <>
       <div className="container">
-        <div className="sidePanel" style={{ display: appState.mode === "view" ? "none" : "" }}>
-          <div className="panelColumn"
-          >
+        <div
+          className="sidePanel"
+          style={{ display: appState.mode === "view" ? "none" : "" }}
+        >
+          <div className="panelColumn">
             <button
               onClick={() => {
                 const el = addText(canvasRef.current!.getContext("2d")!);
@@ -856,157 +1017,217 @@ export default function Canvas() {
             >
               Add circle
             </button>
-            <button
-              onClick={() => {
+            {selectedElement && (
+              <>
+                {selectedElement.type !== "category" && (
+                  <>
+                    width
+                    <input
+                      onChange={(e) => {
+                        setAppState((prev) => ({
+                          ...prev,
+                          elements: prev.elements.map((el) => {
+                            if (el.id === selectedElement.id) {
+                              return {
+                                ...el,
+                                width: +e.target.value,
+                              };
+                            }
+                            return el;
+                          }),
+                        }));
+                      }}
+                      type="range"
+                      min={0}
+                      max={360}
+                      value={
+                        elements.find((el) => el.id === selectedElement.id)
+                          ?.width
+                      }
+                    ></input>
+                    {selectedElement.type === "leaf" && (
+                      <>
+                        height
+                        <input
+                          onChange={(e) => {
+                            setAppState((prev) => ({
+                              ...prev,
+                              elements: prev.elements.map((el) => {
+                                if (el.id === selectedElement.id) {
+                                  return {
+                                    ...el,
+                                    height: +e.target.value,
+                                  };
+                                }
+                                return el;
+                              }),
+                            }));
+                          }}
+                          type="range"
+                          min={50}
+                          max={300}
+                          value={
+                            elements.find((el) => el.id === selectedElement.id)
+                              ?.height!
+                          }
+                        ></input>
+                      </>
+                    )}
+                  </>
+                )}
+                {selectedElement.type === "category" && (
+                  <>
+                    font
+                    <input
+                      value={
+                        elements.find((el) => el.id === selectedElement.id)
+                          ?.font!
+                      }
+                      onChange={(e) => {
+                        setAppState((prev) => ({
+                          ...prev,
+                          elements: prev.elements.map((el) => {
+                            if (el.id === selectedElement.id) {
+                              return updateText(
+                                canvasRef.current!.getContext("2d")!,
+                                el.text,
+                                el,
+                                e.target.value
+                              );
+                            }
+                            return el;
+                          }),
+                        }));
+                      }}
+                    ></input>
+                  </>
+                )}
+                angle
+                <input
+                  onChange={(e) => {
+                    setAppState((prev) => ({
+                      ...prev,
+                      elements: prev.elements.map((el) => {
+                        if (el.id === selectedElement.id) {
+                          return {
+                            ...el,
+                            angle: +e.target.value,
+                          };
+                        }
+                        return el;
+                      }),
+                    }));
+                  }}
+                  type="range"
+                  min={0}
+                  max={2 * Math.PI}
+                  step={0.001}
+                  value={
+                    elements.find((el) => el.id === selectedElement.id)
+                      ?.angle ?? 0
+                  }
+                ></input>
+                text
+                <textarea
+                  onChange={(e) => {
+                    setAppState((prev) => ({
+                      ...prev,
+                      elements: prev.elements.map((el) => {
+                        if (el.id === selectedElement.id) {
+                          if (el.type !== "category")
+                            return {
+                              ...el,
+                              text: e.target.value,
+                            };
+                          return {
+                            ...updateText(
+                              canvasRef.current!.getContext("2d")!,
+                              e.target.value ?? "",
+                              el
+                            ),
+                          };
+                        }
+                        return el;
+                      }),
+                    }));
+                  }}
+                  value={
+                    elements.find((el) => el.id === selectedElement.id)?.text!
+                  }
+                ></textarea>
+                <button
+                  style={{ backgroundColor: "red" }}
+                  onClick={() => {
+                    setAppState((prev) => ({
+                      ...prev,
+                      elements: prev.elements.filter(
+                        (e) => e.id !== selectedElement.id
+                      ),
+                      selectedElement: null,
+                      draggedElement: null,
+                    }));
+                  }}
+                >
+                  delete
+                </button>
+                <button
+                  style={{ backgroundColor: "gray" }}
+                  onClick={() => {
+                    setAppState((prev) => ({
+                      ...prev,
+                      elements: [
+                        ...prev.elements,
+                        {
+                          ...elements.find(
+                            (el) => el.id === selectedElement.id
+                          )!,
+                          id: guidGenerator(),
+                          x: 0,
+                          y: 0,
+                        },
+                      ],
+                      selectedElement: null,
+                      draggedElement: null,
+                    }));
+                  }}
+                >
+                  copy
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+        <canvas
+          onClick={(e) => {
+            e.preventDefault();
+
+            const ctx = canvasRef.current!.getContext("2d")!;
+            const { x, y } = mousePosToCanvasPos(ctx, e);
+            if (appState.mode === "edit") {
+              if (hitTestButton(x, y, buttonEndpoints)) {
                 setAppState((prev) => ({
                   ...prev,
                   elements: [
                     ...prev.elements,
                     {
                       id: guidGenerator(),
-                      x: 0,
-                      y: 0,
+                      x,
+                      y,
                       color: colors[0],
                       seed: getRandomArbitrary(1, 10000),
                       text: "hello world!",
                       icon: "🦍",
                       type: "leaf",
                       width: LEAF_WIDTH,
-                      height: LEAF_HEIGHT
+                      height: LEAF_HEIGHT,
                     },
                   ],
                 }));
-              }}
-            >
-              Add Leaf
-            </button>
-            {selectedElement && <>
-              {selectedElement.type !== "category" && <>
-                width
-                <input
-                  onChange={(e) => {
-                    setAppState(prev => ({
-                      ...prev,
-                      elements: prev.elements.map(el => {
-                        if (el.id === selectedElement.id) {
-                          return {
-                            ...el,
-                            width: +e.target.value,
-                          }
-                        }
-                        return el;
-                      })
-                    }))
-                  }}
-                  type="range" min={0} max={360} value={elements.find(el => el.id === selectedElement.id)?.width}></input>
-                {selectedElement.type === "leaf" && <>height<input
-                  onChange={(e) => {
-                    setAppState(prev => ({
-                      ...prev,
-                      elements: prev.elements.map(el => {
-                        if (el.id === selectedElement.id) {
-                          return {
-                            ...el,
-                            height: +e.target.value
-                          }
-                        }
-                        return el;
-                      })
-                    }))
-                  }}
-                  type="range" min={50} max={300} value={elements.find(el => el.id === selectedElement.id)?.height!}></input>
-                </>}
-              </>}
-              {selectedElement.type === "category" && <>
-                font
-                <input value={elements.find(el => el.id === selectedElement.id)?.font!} onChange={(e) => {
-                  setAppState(prev => ({
-                    ...prev,
-                    elements: prev.elements.map(el => {
-                      if (el.id === selectedElement.id) {
-                        return updateText(canvasRef.current!.getContext("2d")!, el.text, el, e.target.value)
-                      }
-                      return el;
-                    })
-                  }))
-                }
-                }></input>
-              </>}
-              angle
-              <input
-                onChange={(e) => {
-                  setAppState(prev => ({
-                    ...prev,
-                    elements: prev.elements.map(el => {
-                      if (el.id === selectedElement.id) {
-                        return {
-                          ...el,
-                          angle: +e.target.value,
-                        }
-                      }
-                      return el;
-                    })
-                  }))
-                }}
-                type="range" min={0} max={2 * Math.PI} step={0.001} value={elements.find(el => el.id === selectedElement.id)?.angle ?? 0}></input>
-              text
-              <textarea
-                onChange={(e) => {
-                  setAppState(prev => ({
-                    ...prev,
-                    elements: prev.elements.map(el => {
-                      if (el.id === selectedElement.id) {
-                        if (el.type !== "category")
-                          return {
-                            ...el,
-                            text: e.target.value,
-                          }
-                        return {
-                          ...updateText(canvasRef.current!.getContext("2d")!, e.target.value ?? "", el),
-                        }
-                      }
-                      return el;
-                    })
-                  }))
-                }}
-                value={elements.find(el => el.id === selectedElement.id)?.text!}></textarea>
-              <button
-                style={{ backgroundColor: 'red' }}
-                onClick={() => {
-                  setAppState(prev => ({
-                    ...prev,
-                    elements: prev.elements.filter(e => e.id !== selectedElement.id),
-                    selectedElement: null,
-                    draggedElement: null
-                  }))
-                }}>delete</button>
-              <button
-                style={{ backgroundColor: 'gray' }}
-                onClick={() => {
-                  setAppState(prev => ({
-                    ...prev,
-                    elements: [...prev.elements, {
-                      ...elements.find(el => el.id === selectedElement.id)!,
-                      id: guidGenerator(),
-                      x: 0,
-                      y: 0,
-                    }],
-                    selectedElement: null,
-                    draggedElement: null
-                  }))
-                }}>copy</button>
-            </>}
-          </div>
-        </div>
-        <canvas
-          onClick={(e) => {
-            e.preventDefault();
-            if (appState.mode === "edit") return;
-            const ctx = canvasRef.current!.getContext("2d")!;
-            const { x, y } = mousePosToCanvasPos(ctx, e);
-            //ctx.fillText(`${Math.floor(x)}-${Math.floor(y)}`, x, y);
+              }
+              return;
+            }
             for (const element of elements) {
-              if (hitTest(x, y, element, canvasRef.current!.getContext("2d")!)) {
+              if (hitTest(x, y, element)) {
                 setAppState((prev) => ({
                   ...prev,
                   elements: prev.elements.map((e) => {
@@ -1056,15 +1277,17 @@ export default function Canvas() {
         }}
       >
         <button
-          onClick={() => setAppState(prev => ({
-            ...prev,
-            mode: prev.mode === "edit" ? "view" : "edit",
-            selectedElement: null
-          }))}
-        >Switch to {appState.mode === "edit" ? "view" : "edit"} mode</button>
+          onClick={() =>
+            setAppState((prev) => ({
+              ...prev,
+              mode: prev.mode === "edit" ? "view" : "edit",
+              selectedElement: null,
+            }))
+          }
+        >
+          Switch to {appState.mode === "edit" ? "view" : "edit"} mode
+        </button>
       </div>
     </>
   );
 }
-
-
