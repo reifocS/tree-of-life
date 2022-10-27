@@ -29,9 +29,10 @@ export type AppState = {
   downPoint?: Point;
   selectedElement: Element | null;
   sectors: Sector[];
-  radius: number;
   mode: "edit" | "view";
 };
+
+const savedState = `{"selectedElement":null,"radius":1000,"sectors":[{"color":"#f15275","text":"Mes reins fatiguent","id":"1bfaeac0-366e-8185-2cbe-719ff714a34e"},{"color":"#f15275","text":"Ma vie sociale","id":"b737843d-1688-8842-98b1-646dfe781bf5"},{"color":"#f15275","text":"Parcours de soins","id":"087d83c9-3a4f-bd27-97e3-e5ea254fb2de"},{"color":"#f15275","text":"Mes ressources","id":"d6442ca0-6afe-08af-24e3-4fb8de46cd8b"},{"color":"#f15275","text":"Mon quotidien","id":"35b8f264-6571-5987-d3df-fb4318904257"},{"color":"#f15275","text":"Mes racines","id":"2cb7b703-6b28-42b7-804e-1b38df98dd17"}],"mode":"view","cameraZoom":0.3125,"scaleMultiplier":0.8,"cameraOffset":{"x":-105.74545454545455,"y":-421.1070707070707},"isDragging":false,"dragStart":{"x":3139.3454545454542,"y":1041.9070707070707},"initialPinchDistance":null,"draggedElement":null,"elements":[{"x":-671.229011608305,"y":-573.9443452380951,"type":"category","id":"bd61106d-78f9-5981-09cd-645b1c4bd40f","text":"L'arbre de vie\\n   des reins","font":"200px Virgil","actualBoundingBoxAscent":157,"width":1370.400146484375,"height":371,"color":"orange","angle":0,"seed":2,"icon":""},{"id":"b72ece49-3009-c842-8620-7ffbc3ba393d","x":80.76923076923072,"y":-27.69230769230768,"color":"green","seed":2558.276717397499,"text":"","icon":"🦍","type":"leaf","width":60,"height":80},{"id":"47cc3bbe-01ab-5d30-458f-b9e131c1aaea","x":-93,"y":138.60000000000002,"color":"gray","seed":3934.491707227224,"text":"","icon":"🦍","type":"leaf","width":60,"height":80},{"id":"c9de5ef0-6143-5a3f-ba20-883b79fb9744","x":1.7897435897434661,"y":15.945299145299103,"color":"orange","seed":295.5389757004682,"text":"","icon":"🦍","type":"leaf","width":60,"height":80},{"id":"70ed4e77-d4a1-8678-baae-26d3b3e7a63f","x":-175.8461538461538,"y":87.23076923076925,"color":"green","seed":1827.226735750161,"text":"","icon":"🦍","type":"leaf","width":60,"height":80},{"id":"0da2315b-2c15-77c8-2726-1f3d53a60992","x":-262.1538461538462,"y":39.384615384615415,"color":"gray","seed":3934.491707227224,"text":"","icon":"🦍","type":"leaf","width":60,"height":80},{"id":"9f18e2f0-5e7f-c60d-5039-96704345e338","x":166.1538461538462,"y":-77.53846153846155,"color":"gray","seed":2558.276717397499,"text":"","icon":"🦍","type":"leaf","width":60,"height":80},{"id":"bba8d173-0125-3e7b-e0df-f1eb260709b6","x":121.8461538461537,"y":178.4615384615385,"color":"green","seed":2558.276717397499,"text":"","icon":"🦍","type":"leaf","width":60,"height":80},{"id":"f2125668-82ef-ba0c-8baa-5fa0dcd312e6","x":92.30769230769204,"y":109.5384615384616,"color":"green","seed":2558.276717397499,"text":"","icon":"🦍","type":"leaf","width":60,"height":80,"angle":2.659},{"id":"835655e0-328c-b916-ec09-3e25402388bb","x":188.30769230769238,"y":142.76923076923077,"color":"green","seed":2558.276717397499,"text":"","icon":"🦍","type":"leaf","width":60,"height":80},{"id":"db06f183-8ea8-47a6-7eba-1740e7b5eae6","x":172.30769230769238,"y":59.076923076923094,"color":"green","seed":2558.276717397499,"text":"","icon":"🦍","type":"leaf","width":60,"height":80,"angle":2.659},{"id":"e894520c-724e-016d-951c-8d95aa901e05","x":212.9230769230769,"y":279.38461538461536,"color":"green","seed":2558.276717397499,"text":"","icon":"🦍","type":"leaf","width":60,"height":80,"angle":2.659},{"id":"4242d985-702b-8790-1579-22c72439bb04","x":140.44444444444434,"y":316.44444444444446,"color":"green","seed":2558.276717397499,"text":"","icon":"🦍","type":"leaf","width":60,"height":80,"angle":2.659},{"id":"e31a6a80-8d58-7d84-4b64-5ed095398c12","x":76.44444444444457,"y":357.33333333333326,"color":"gray","seed":2558.276717397499,"text":"","icon":"🦍","type":"leaf","width":60,"height":80,"angle":2.659},{"id":"97c03574-46e6-2d50-378c-fbf731c66006","x":51.55555555555543,"y":220.62222222222232,"color":"green","seed":2558.276717397499,"text":"","icon":"🦍","type":"leaf","width":60,"height":80,"angle":0},{"id":"564fca7e-3dba-d3e7-7ae4-0fc6d523ae12","x":-17.77777777777783,"y":252.44444444444446,"color":"green","seed":2558.276717397499,"text":"","icon":"🦍","type":"leaf","width":60,"height":80,"angle":0},{"id":"2367b10a-90ff-16a2-6e85-304972e5e7a8","x":-76.44444444444434,"y":-85.33333333333331,"color":"green","seed":2558.276717397499,"text":"","icon":"🦍","type":"leaf","width":60,"height":80},{"id":"16aef718-54c0-b912-c029-a61c3358e404","x":-138.66666666666674,"y":-122.66666666666663,"color":"green","seed":2558.276717397499,"text":"","icon":"🦍","type":"leaf","width":60,"height":80},{"id":"c3e4a5e4-79ea-2922-f867-14053efde748","x":-200.8888888888887,"y":-161.77777777777777,"color":"green","seed":2558.276717397499,"text":"","icon":"🦍","type":"leaf","width":60,"height":80},{"id":"252e4f27-1560-947e-ebc8-e91e1cb3d360","x":-268.44444444444457,"y":-193.77777777777777,"color":"green","seed":2558.276717397499,"text":"","icon":"🦍","type":"leaf","width":60,"height":80},{"id":"fcbcd4de-0227-98fc-2434-0b46c1f3ad25","x":-78.2222222222224,"y":21.33333333333337,"color":"green","seed":2558.276717397499,"text":"","icon":"🦍","type":"leaf","width":60,"height":80,"angle":3.12},{"id":"229009db-73e3-e582-cb73-529cd54974a3","x":-142.22222222222217,"y":-16,"color":"green","seed":2558.276717397499,"text":"","icon":"🦍","type":"leaf","width":60,"height":80,"angle":3.12},{"id":"36b9a36e-0b63-cac5-274f-dd90f2b37bd1","x":-206.22222222222217,"y":-51.55555555555554,"color":"green","seed":2558.276717397499,"text":"","icon":"🦍","type":"leaf","width":60,"height":80,"angle":3.12},{"id":"cfa54c74-6f67-067c-1c02-2831f358ea52","x":-113.60000000000014,"y":241.59999999999997,"color":"gray","seed":3934.491707227224,"text":"","icon":"🦍","type":"leaf","width":60,"height":80,"angle":3.655},{"id":"9476386c-1538-b74a-1ff5-7ee3fc67c150","x":-200,"y":192,"color":"gray","seed":3934.491707227224,"text":"","icon":"🦍","type":"leaf","width":60,"height":80,"angle":3.655},{"id":"43e8e291-05b7-1b3e-144f-3841e62d8eff","x":-99.20000000000005,"y":356.80000000000007,"color":"green","seed":2558.276717397499,"text":"","icon":"🦍","type":"leaf","width":60,"height":80,"angle":0},{"id":"021a756d-1ee1-9802-820f-fd0796469701","x":-216,"y":292.80000000000007,"color":"green","seed":2558.276717397499,"text":"","icon":"🦍","type":"leaf","width":60,"height":80,"angle":0},{"id":"b80b81ed-1504-f96a-dd84-050f35a44732","x":-148.80000000000018,"y":454.40000000000003,"color":"green","seed":2558.276717397499,"text":"","icon":"🦍","type":"leaf","width":60,"height":80,"angle":3.63},{"id":"17f919dc-9d45-ac89-2b17-edeb8f1eaebc","x":-270.4,"y":393.6000000000001,"color":"green","seed":2558.276717397499,"text":"","icon":"🦍","type":"leaf","width":60,"height":80,"angle":3.63},{"id":"edbc719c-0641-9baf-e4a5-fe68b0e8294b","x":2.101025390625182,"y":488.4848266601562,"color":"green","seed":897.2516418408096,"text":"","icon":"🦍","type":"leaf","width":60,"height":80},{"id":"a0fdb8a0-cc3b-0df5-e1b6-f91f390beb23","x":85.301025390625,"y":437.2848266601563,"color":"orange","seed":7827.729397041622,"text":"","icon":"🦍","type":"leaf","width":60,"height":80},{"id":"41f86d85-0eaa-e825-6645-f3e81af71d2b","x":166.9010253906249,"y":386.08482666015624,"color":"green","seed":7808.416620130417,"text":"","icon":"🦍","type":"leaf","width":60,"height":80},{"id":"286299f5-ce91-3476-b736-3b48ed662677","x":62.90102539062491,"y":586.0848266601563,"color":"green","seed":8030.656865213912,"text":"","icon":"🦍","type":"leaf","width":60,"height":80,"angle":3.29},{"id":"e715b251-4cbe-b2b4-5d48-a0d263ba1617","x":165.301025390625,"y":534.8848266601564,"color":"orange","seed":1313.4742742109609,"text":"","icon":"🦍","type":"leaf","width":60,"height":80,"angle":2.95}],"downPoint":{"x":18.634372287326414,"y":72.66261121961807}}`;
 
 const useDeviceSize = () => {
   const [width, setWidth] = useState(0);
@@ -111,8 +112,12 @@ export function rotate(
   ];
 }
 
-function hitTestButton(x: number, y: number, buttons: Point[]) {
-  for (let { x: x1, y: y1 } of buttons) {
+function hitTestButton(
+  x: number,
+  y: number,
+  buttons: { endX: number; endY: number }[]
+) {
+  for (let { endX: x1, endY: y1 } of buttons) {
     x1 -= BUTTON_SIZE / 2;
     y1 -= BUTTON_SIZE / 2;
     let x2 = x1 + BUTTON_SIZE;
@@ -153,8 +158,8 @@ function hitTest(x: number, y: number, element: Element) {
 
 const RC_WIDTH = 100;
 const LEAF_WIDTH = 60;
-const LEAF_HEIGHT = 80;
-const colors = ["gray", "orange", "green"];
+const LEAF_HEIGHT = 60;
+const colors = ["#676767", "#ff7f00", "#9ed36a"];
 
 function drawGrid(ctx: CanvasRenderingContext2D) {
   try {
@@ -276,16 +281,11 @@ function drawTronc(
   });
 }
 
-function getMid(startX: number, startY: number, endX: number, endY: number) {
-  let midX = startX + (endX - startX) * 0.5;
-  let midY = startY + (endY - startY) * 0.5;
-  return [midX, midY];
-}
-
 const branchColors = Array(10)
   .fill(0)
   .map((_) => "rgb(" + ((Math.random() * 64 + 64) >> 0) + ",50,25)");
 
+const BRANCH_WIDTH = 25;
 function drawBranch(
   rc: RoughCanvas,
   startX: number,
@@ -297,7 +297,7 @@ function drawBranch(
   const stroke = branchColors[i];
 
   rc.line(startX, startY, endX, endY, {
-    strokeWidth: 25,
+    strokeWidth: BRANCH_WIDTH,
     roughness: 5,
     seed: 2,
     stroke,
@@ -458,6 +458,8 @@ function updateText(
 }
 
 const SPACE_BETWEEN_LINES = 3;
+const NUMBER_OF_BRANCHES = Math.round(getRandomArbitrary(4, 8));
+
 function drawCategory(
   category: Element,
   ctx: CanvasRenderingContext2D,
@@ -502,8 +504,7 @@ function scale(x: number, y: number, ctx: CanvasRenderingContext2D) {
 }
 
 function getBranchEndpoint(height: number) {
-  const numberOfBranches = 6;
-  const endTreeY = 100 - 30 * numberOfBranches;
+  const endTreeY = 100 - 30 * NUMBER_OF_BRANCHES;
   const baseTreeX = 0;
   const baseTreeY = height;
   const branchLength = 300;
@@ -512,18 +513,50 @@ function getBranchEndpoint(height: number) {
   let startX = baseTreeX;
   let startY = baseTreeY - 100;
   let spaceBetweenBranches =
-    (height + Math.abs(endTreeY) - 100) / numberOfBranches;
-  for (let i = 0; i < numberOfBranches; ++i) {
+    (height + Math.abs(endTreeY) - 100) / NUMBER_OF_BRANCHES;
+  for (let i = 0; i < NUMBER_OF_BRANCHES; ++i) {
     let { endX, endY } = getLineFromAngle(
       startX,
       startY,
       branchLength,
       getAngle(i)
     );
+    xys.push({ startX, startY, endX, endY });
     startY -= spaceBetweenBranches;
-    xys.push({ x: endX, y: endY - 40 });
   }
   return xys;
+}
+
+const getLeafNumbers = (nbOfBranches: number) =>
+  new Array(nbOfBranches).fill(0).map((_) => getRandomArbitrary(4, 8));
+
+const leafNumbers = getLeafNumbers(NUMBER_OF_BRANCHES);
+const BRANCH_LENGTH = 300;
+
+function computeBranchCoords(
+  nbOfLeaf: number,
+  startX: number,
+  startY: number,
+  angle: number,
+  isRight: boolean
+) {
+  const endPoints = [];
+  let dLeaf = Math.ceil(BRANCH_LENGTH / nbOfLeaf);
+  for (let j = 1; j <= nbOfLeaf; ++j) {
+    let length = dLeaf * j;
+    let { endX, endY } = getLineFromAngle(startX, startY, length, angle);
+    let x = endX;
+    let y = endY;
+    if (!isRight) {
+      x -= LEAF_WIDTH;
+    }
+    if (j % 2 !== 0) {
+      // bas
+      y -=  BRANCH_WIDTH / 2 + LEAF_HEIGHT * 1.5;
+    }
+    endPoints.push({ x, y, isRight });
+  }
+  return endPoints;
 }
 
 function draw(
@@ -549,13 +582,12 @@ function draw(
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   // Drawing
-  const numberOfBranches = 6;
+  const numberOfBranches = NUMBER_OF_BRANCHES;
   const endTreeY = 100 - 30 * numberOfBranches;
   const endTreeX = 0;
   const baseTreeX = 0;
   const baseTreeY = canvas.height;
   ctx.lineCap = "round";
-  const branchLength = 300;
   ctx.translate(canvas.width / 2, canvas.height / 2);
 
   if (mode === "edit") drawGrid(ctx);
@@ -566,22 +598,36 @@ function draw(
   let startY = baseTreeY - 100;
   let spaceBetweenBranches =
     (canvas.height + Math.abs(endTreeY) - 100) / numberOfBranches;
-  let branchesEndpoint = [];
-  for (let i = 0; i < numberOfBranches; ++i) {
-    let { endX, endY } = getLineFromAngle(
-      startX,
-      startY,
-      branchLength,
-      getAngle(i)
-    );
-    drawBranch(rc, startX, startY, endX, endY, i);
-    branchesEndpoint.push({ x: endX, y: endY - 40 });
-    startY -= spaceBetweenBranches;
+  let branchesEndpoint = getBranchEndpoint(canvas.height);
+  let k = 0;
+  for (const { startX, endX, startY, endY } of branchesEndpoint) {
+    drawBranch(rc, startX, startY, endX, endY, k);
+    ++k;
   }
+
   if (mode === "edit") {
-    for (const { x, y } of branchesEndpoint) {
-      drawAddButton(canvas, x, y);
+    for (const { endX, endY } of branchesEndpoint) {
+      drawAddButton(canvas, endX, endY);
     }
+    /*
+    //TODO DELETE
+    const be = getBranchEndpoint(canvas.height);
+    for (let i = 0; i < NUMBER_OF_BRANCHES; ++i) {
+      const c = computeBranchCoords(
+        leafNumbers[i],
+        be[i].startX,
+        be[i].startY,
+        getAngle(i),
+        i % 2 === 0
+      );
+      for (const { x, y } of c) {
+        rc.circle(x, y, 20, {
+          fill: "green",
+          fillStyle: "solid",
+          seed: 2,
+        });
+      }
+    }*/
   }
   ctx.fillStyle = "black";
   let i = 0;
@@ -634,7 +680,7 @@ function printAtWordWrap(
   const fillStyle = context.fillStyle;
   context.textAlign = "center";
   context.fillStyle = "black";
-  context.font = "15px comic sans ms";
+  context.font = "bold 12px comic sans ms";
   fitWidth = fitWidth || 0;
 
   if (fitWidth <= 0) {
@@ -676,135 +722,85 @@ function getMousePos(canvas: HTMLCanvasElement, evt: any) {
     y: evt.clientY - rect.top,
   };
 }
+
+function adjust(color: string, amount: number) {
+  return (
+    "#" +
+    color
+      .replace(/^#/, "")
+      .replace(/../g, (color) =>
+        (
+          "0" +
+          Math.min(255, Math.max(0, parseInt(color, 16) + amount)).toString(16)
+        ).substr(-2)
+      )
+  );
+}
 let MAX_ZOOM = 5;
 let MIN_ZOOM = 0.1;
 let SCROLL_SENSITIVITY = 0.0005;
-let INITIAL_ZOOM = 1;
+let INITIAL_ZOOM = 0.5;
 export default function Canvas() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [width, height, devicePixelRatio] = useDeviceSize();
   const [roughCanvas, setRoughCanvas] = useState<RoughCanvas | null>(null);
-  const [appState, setAppState] = useState<AppState>({
-    selectedElement: null,
-    radius: 1000,
-    sectors: [
-      {
-        color: "#f15275",
-        text: "Mes reins fatiguent",
-        id: guidGenerator(),
-      },
-      {
-        color: "#f15275",
-        text: "Ma vie sociale",
-        id: guidGenerator(),
-      },
-      {
-        color: "#f15275",
-        text: "Parcours de soins",
-        id: guidGenerator(),
-      },
-      {
-        color: "#f15275",
-        text: "Mes ressources",
-        id: guidGenerator(),
-      },
-      {
-        color: "#f15275",
-        text: "Mon quotidien",
-        id: guidGenerator(),
-      },
-      {
-        color: "#f15275",
-        text: "Mes racines",
-        id: guidGenerator(),
-      },
-    ],
-    mode: "edit",
-    cameraZoom: INITIAL_ZOOM,
-    scaleMultiplier: 0.8,
-    cameraOffset: { x: 0, y: 0 },
-    isDragging: false,
-    dragStart: { x: 0, y: 0 },
-    initialPinchDistance: null,
-    draggedElement: null,
-    elements: [
-      {
-        x: -163.0099639892578,
-        y: -134.90625,
-        type: "category",
-        id: "bd61106d-78f9-5981-09cd-645b1c4bd40f",
-        text: "category",
-        font: "20px Virgil",
-        actualBoundingBoxAscent: 16.90625,
-        width: 84.01992797851562,
-        height: 20,
-        color: "green",
-        angle: 0.86,
-        seed: 2,
-        icon: "",
-      },
-      {
-        id: "b72ece49-3009-c842-8620-7ffbc3ba393d",
-        x: 146,
-        y: -152,
-        color: "orange",
-        seed: 2558.276717397499,
-        text: "hello world!",
-        icon: "🦍",
-        type: "leaf",
-        width: LEAF_WIDTH,
-        height: LEAF_HEIGHT,
-      },
-      {
-        id: "47cc3bbe-01ab-5d30-458f-b9e131c1aaea",
-        x: 195,
-        y: -51,
-        color: "green",
-        seed: 3934.491707227224,
-        text: "hello world!",
-        icon: "🦍",
-        type: "leaf",
-        width: LEAF_WIDTH,
-        height: LEAF_HEIGHT,
-      },
-      {
-        id: "c9de5ef0-6143-5a3f-ba20-883b79fb9744",
-        x: 87,
-        y: -104,
-        color: "orange",
-        seed: 295.5389757004682,
-        text: "hello world!",
-        icon: "🦍",
-        type: "leaf",
-        width: LEAF_WIDTH,
-        height: LEAF_HEIGHT,
-      },
-      {
-        id: "70ed4e77-d4a1-8678-baae-26d3b3e7a63f",
-        x: 146,
-        y: -2,
-        color: "orange",
-        seed: 1827.226735750161,
-        text: "hello world!",
-        icon: "🦍",
-        type: "leaf",
-        width: LEAF_WIDTH,
-        height: LEAF_HEIGHT,
-      },
-    ],
-    downPoint: { x: 1157.446811446349, y: 444.6808521917038 },
+  const [appState, setAppState] = useState<AppState>(() => {
+    return {
+      selectedElement: null,
+      sectors: [
+        {
+          color: "#f15275",
+          text: "Mes reins fatiguent",
+          id: guidGenerator(),
+        },
+        {
+          color: "#f15275",
+          text: "Ma vie sociale",
+          id: guidGenerator(),
+        },
+        {
+          color: "#f15275",
+          text: "Parcours de soins",
+          id: guidGenerator(),
+        },
+        {
+          color: "#f15275",
+          text: "Mes ressources",
+          id: guidGenerator(),
+        },
+        {
+          color: "#f15275",
+          text: "Mon quotidien",
+          id: guidGenerator(),
+        },
+        {
+          color: "#f15275",
+          text: "Mes racines",
+          id: guidGenerator(),
+        },
+      ],
+      mode: "view",
+      cameraZoom: INITIAL_ZOOM,
+      scaleMultiplier: 0.8,
+      cameraOffset: { x: 0, y: 0 },
+      isDragging: false,
+      dragStart: { x: 0, y: 0 },
+      initialPinchDistance: null,
+      draggedElement: null,
+      elements: [],
+      downPoint: { x: 0, y: 0 },
+    };
   });
 
   const images = useMemo(() => {
     return colors.map((c) => {
       const image = new Image();
-      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="660" height="900" version="1.0">
-    <g>
-     <title>Layer 1</title>
-     <path stroke="null" fill="${c}" d="m0,0.45786c0,0.2 2,3.9 4.6,8.1c16.8,28.5 35.2,72.7 43.5,104.4c6.2,24.2 7.4,33.4 7.3,59.6c0,21 -0.4,28 -3.7,56c-5,44 -5.7,52.3 -6.4,81c-1.8,76.9 13.3,156.7 46.9,247c33.1,89 78.8,155.3 137.3,199.5c34.4,25.9 68.5,41.5 108,49.2c9.5,1.9 14.7,2.2 39,2.3c15.4,0.1 26.9,-0.2 25.5,-0.5c-1.9,-0.5 -1.2,-0.8 3.2,-1.4c3.2,-0.4 6.3,-0.4 6.9,0c0.8,0.4 0.9,0.3 0.5,-0.4c-0.5,-0.8 0,-1.2 1.3,-1.2c1.1,0 7.7,-1.2 14.6,-2.6c7,-1.4 14.1,-2.3 15.8,-2c2.3,0.4 2.6,0.4 1.2,-0.3c-1.7,-0.7 -1.3,-0.9 2.2,-1.5c2.3,-0.4 4.8,-0.4 5.4,0c0.7,0.4 0.9,0.3 0.5,-0.4c-0.8,-1.3 4.6,-2.6 7.6,-1.7c1.6,0.4 1.9,0.3 1,-0.3c-1,-0.7 -0.4,-1.1 2.2,-1.6c2,-0.4 4.1,-0.4 4.8,0c0.7,0.5 0.8,0.3 0.3,-0.6c-0.6,-1 -0.1,-1.2 2.6,-0.7c1.9,0.4 2.8,0.3 2.2,-0.1c-0.8,-0.5 3.3,-2.3 10.5,-4.6c6.4,-2.1 12.4,-4 13.2,-4.3c1.3,-0.4 1.3,-0.3 0,0.6c-0.8,0.6 -1,1.1 -0.5,1.1c1.3,0 4.3,-2 3,-2c-0.5,0 1.7,-1.5 5,-3.3l6,-3.2l1.3,4c2.7,8.4 5.2,23.4 5.8,34.5c1.1,18.9 -2.6,29.2 -15.2,43.1l-7.5,8.3l9.8,2.7c6.4,1.7 10.2,2.3 11,1.7c0.7,-0.5 1.7,-0.7 2.2,-0.4c1.1,0.7 5.6,-4.7 5.6,-6.7c0,-0.7 1.4,-4.1 3.2,-7.7c1.7,-3.6 3.7,-8.7 4.4,-11.3c0.6,-2.7 1.5,-4.4 1.8,-3.8c0.4,0.6 0.7,-5.6 0.6,-13.7c0,-13.3 -0.3,-15.9 -3.2,-26.7c-1.8,-6.6 -4.8,-16.7 -6.7,-22.4c-2,-5.8 -3.4,-10.5 -3.3,-10.6c0.1,-0.1 1.9,-1.2 3.9,-2.4c2.1,-1.2 4.1,-2 4.6,-1.7c0.9,0.6 16.6,-11.8 19.7,-15.5c1.1,-1.3 0.2,-0.8 -2,1.2c-4,3.5 -12.3,10.2 -16,12.9c-3.8,2.7 0,-0.8 9,-8.2c5,-4.1 9.6,-8.2 10.4,-9.1c1.8,-2.3 3.7,-2.2 2,0.1c-0.7,0.9 3.1,-2.6 8.4,-7.8c8.8,-8.6 12.2,-12.3 8.2,-9c-2.6,2.2 -1.6,-0.5 1.1,-3.1c4.7,-4.3 18.6,-22.1 25.7,-32.9c3.8,-5.8 7.4,-10.4 7.9,-10.2c0.5,0.1 0.7,-0.2 0.3,-0.7c-0.9,-1.5 2.4,-7.3 3.7,-6.5c0.7,0.4 0.8,0.3 0.4,-0.4c-0.4,-0.6 1,-4.4 3,-8.4c7.8,-15.5 16.6,-40.5 18.9,-53.8c0.8,-4.1 0.9,-4.3 1.6,-2c0.6,1.8 0.7,1.3 0.3,-1.5c-0.3,-2.3 -0.1,-6.1 0.5,-8.5c0.5,-2.5 1.5,-11.2 2.2,-19.3c2.3,-29.1 -2,-60.1 -14.5,-105.9c-9.8,-35.4 -22,-67.7 -38.1,-100.3c-25.1,-51.1 -52,-89 -90,-127.1c-42.5,-42.6 -81.4,-69.6 -149.5,-103.8c-51.6,-25.8 -85.4,-40.1 -147.5,-62.1c-56.7,-20.2 -75.5,-27.9 -116,-47.5c-49.2,-23.9 -79.5,-36.7 -79.5,-33.6zm54.9,52.1c95.8,104.1 263.6,310.1 304.5,374c47.2,73.7 92.3,159.3 123.5,234.7c17.7,42.7 36.6,99.4 34.8,104.2c-0.9,2.3 -5.6,5.1 -6.8,3.9c-0.5,-0.5 -2.8,-7.2 -5,-14.9c-25.2,-86.3 -70.5,-185.3 -128.2,-279.9c-24,-39.3 -60.2,-92 -89.5,-130.4c-30.5,-40 -134.5,-168 -207.1,-255c-22.2,-26.7 -42.6,-51.4 -45.4,-55c-4.8,-6.2 -4.8,-6.4 -1.3,-3.1c2.1,1.9 11.3,11.6 20.5,21.5z" id="svg_1"/>
-    </g>
-   
-   </svg>`;
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 511.845 511.845" 
+      style="enable-background:new 0 0 511.845 511.845" xml:space="preserve">
+      <path style="fill:${c}" d="M503.141 9.356c-.016 0-215.215-56.483-390.225 118.511C-31.579 272.371 96.155 416.35 96.155 416.35s143.979 127.742 288.476-16.775C559.64 224.588 503.156 9.388 503.141 9.356Z"/><g style="opacity:.2"><path style="fill:#fff" d="m503.141 8.696-21.337-4.108c.016.031 56.499 219.339-118.495 394.326-48.172 48.203-96.299 66.104-139.052 68.572 47.705 2.75 104-12.184 160.374-68.572C559.64 223.928 503.156 8.728 503.141 8.696z"/></g><path style="fill:${adjust(
+        c,
+        -20
+      )}" d="M300.125 211.728c-4.154-4.17-10.918-4.17-15.074 0L3.122 493.635c-4.163 4.186-4.163 10.934 0 15.09 4.163 4.154 10.911 4.154 15.081 0l281.922-281.923c4.17-4.171 4.17-10.919 0-15.074z"/></svg>`;
       image.src = `data:image/svg+xml;base64,${window.btoa(svg)}`;
       return { color: c, image };
     });
@@ -830,6 +826,37 @@ export default function Canvas() {
   }, []);
 
   const buttonEndpoints = useMemo(() => getBranchEndpoint(height), [height]);
+
+  useEffect(() => {
+    const branchesStartPoints = buttonEndpoints;
+    const coords = [];
+    for (let i = 0; i < branchesStartPoints.length; ++i) {
+      const { startX, startY } = branchesStartPoints[i];
+      const nbOfLeaf = leafNumbers[i];
+      coords.push(
+        computeBranchCoords(nbOfLeaf, startX, startY, getAngle(i), i % 2 === 0)
+      );
+    }
+    //R 0 1 2 - L 3 4 5 - R 6 7 8
+    const elements: Element[] = coords.flat().map(({ x, y, isRight }, i) => ({
+      x,
+      y,
+      type: "leaf",
+      text: "",
+      id: guidGenerator(),
+      seed: getRandomArbitrary(1, 100),
+      color: colors[Math.floor(getRandomArbitrary(0, colors.length))],
+      icon: "",
+      height: LEAF_HEIGHT,
+      width: LEAF_WIDTH,
+      angle: !isRight ? (3 * Math.PI) / 2 : 0,
+    }));
+
+    setAppState((prev) => ({
+      ...prev,
+      elements,
+    }));
+  }, [buttonEndpoints]);
 
   useLayoutEffect(() => {
     if (!roughCanvas) return;
@@ -992,7 +1019,7 @@ export default function Canvas() {
                 }));
               }}
             >
-              Add category
+              Add text
             </button>
             <button
               onClick={() => {
@@ -1006,7 +1033,7 @@ export default function Canvas() {
                       y: 0,
                       color: colors[0],
                       seed: getRandomArbitrary(1, 10000),
-                      text: "hello world!",
+                      text: "",
                       icon: "🦍",
                       type: "circle",
                       width: RC_WIDTH,
@@ -1121,7 +1148,7 @@ export default function Canvas() {
                   type="range"
                   min={0}
                   max={2 * Math.PI}
-                  step={0.001}
+                  step={0.0001}
                   value={
                     elements.find((el) => el.id === selectedElement.id)
                       ?.angle ?? 0
@@ -1182,8 +1209,8 @@ export default function Canvas() {
                             (el) => el.id === selectedElement.id
                           )!,
                           id: guidGenerator(),
-                          x: 0,
-                          y: 0,
+                          x: selectedElement.x + 20,
+                          y: selectedElement.y + 20,
                         },
                       ],
                       selectedElement: null,
@@ -1215,7 +1242,7 @@ export default function Canvas() {
                       y,
                       color: colors[0],
                       seed: getRandomArbitrary(1, 10000),
-                      text: "hello world!",
+                      text: "",
                       icon: "🦍",
                       type: "leaf",
                       width: LEAF_WIDTH,
@@ -1286,7 +1313,16 @@ export default function Canvas() {
           }
         >
           Switch to {appState.mode === "edit" ? "view" : "edit"} mode
-        </button>
+        </button>{" "}
+        {mode === "edit" && (
+          <button
+            onClick={() =>
+              navigator.clipboard.writeText(JSON.stringify(appState))
+            }
+          >
+            save to clipboard
+          </button>
+        )}
       </div>
     </>
   );
