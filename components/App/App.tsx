@@ -164,6 +164,7 @@ const colors = ["#676767", "#ff7f00", "#9ed36a"];
 function drawGrid(ctx: CanvasRenderingContext2D) {
   try {
     const textBaseline = ctx.textBaseline;
+    const font = ctx.font;
     /* vertical lines */
     for (var x = 0.5; x < ctx.canvas.width; x += 10) {
       ctx.moveTo(x, 0);
@@ -222,6 +223,7 @@ function drawGrid(ctx: CanvasRenderingContext2D) {
     } catch (err) {}
 
     ctx.textBaseline = textBaseline;
+    ctx.font = font;
   } catch (err) {}
 }
 
@@ -552,7 +554,7 @@ function computeBranchCoords(
     }
     if (j % 2 !== 0) {
       // bas
-      y -=  BRANCH_WIDTH / 2 + LEAF_HEIGHT * 1.5;
+      y -= BRANCH_WIDTH / 2 + LEAF_HEIGHT * 1.5;
     }
     endPoints.push({ x, y, isRight });
   }
