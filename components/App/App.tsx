@@ -389,6 +389,7 @@ function addText(context: CanvasRenderingContext2D) {
     y: 0,
     type: "category",
     id: guidGenerator(),
+    color: "black"
   };
   let text = prompt("What text do you want?");
   if (text === null) {
@@ -396,7 +397,7 @@ function addText(context: CanvasRenderingContext2D) {
   }
 
   element.text = text;
-  element.font = element.font || "20px Virgil";
+  element.font = "20px Virgil";
   const font = context.font;
   context.font = element.font;
   const { actualBoundingBoxAscent, actualBoundingBoxDescent, width } =
@@ -475,6 +476,8 @@ function drawCategory(
   ctx.textAlign = "left";
   const baseLine = ctx.textBaseline;
   ctx.textBaseline = "top";
+  const fillStyle = ctx.fillStyle;
+  ctx.fillStyle = category.color;
   const { x, y, text, width = 0, height = 0 } = category;
   ctx.save();
   ctx.translate(x + width / 2, y + height! / 2); // sets scale and origin
@@ -495,6 +498,7 @@ function drawCategory(
   ctx.font = font;
   ctx.textAlign = align;
   ctx.textBaseline = baseLine;
+  ctx.fillStyle = fillStyle;
 }
 
 function scale(x: number, y: number, ctx: CanvasRenderingContext2D) {
@@ -1123,6 +1127,24 @@ export default function Canvas() {
                                 el,
                                 e.target.value
                               );
+                            }
+                            return el;
+                          }),
+                        }));
+                      }}
+                    ></input>
+                    color
+                    <input
+                      value={
+                        elements.find((el) => el.id === selectedElement.id)
+                          ?.color!
+                      }
+                      onChange={(e) => {
+                        setAppState((prev) => ({
+                          ...prev,
+                          elements: prev.elements.map((el) => {
+                            if (el.id === selectedElement.id) {
+                              return { ...el, color: e.target.value };
                             }
                             return el;
                           }),
