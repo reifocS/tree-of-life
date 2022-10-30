@@ -157,8 +157,8 @@ function hitTest(x: number, y: number, element: Element) {
 }
 
 const RC_WIDTH = 100;
-const LEAF_WIDTH = 60;
-const LEAF_HEIGHT = 60;
+const LEAF_WIDTH = 80;
+const LEAF_HEIGHT = 80;
 const colors = ["#676767", "#ff7f00", "#9ed36a"];
 
 function drawGrid(ctx: CanvasRenderingContext2D) {
@@ -389,7 +389,7 @@ function addText(context: CanvasRenderingContext2D) {
     y: 0,
     type: "category",
     id: guidGenerator(),
-    color: "black"
+    color: "black",
   };
   let text = prompt("What text do you want?");
   if (text === null) {
@@ -510,7 +510,7 @@ function scale(x: number, y: number, ctx: CanvasRenderingContext2D) {
 }
 
 function getBranchEndpoint(height: number) {
-  const endTreeY = 100 - 30 * NUMBER_OF_BRANCHES;
+  const endTreeY = 100 - 30 + LEAF_HEIGHT * NUMBER_OF_BRANCHES;
   const baseTreeX = 0;
   const baseTreeY = height;
   const branchLength = 300;
@@ -589,7 +589,7 @@ function draw(
 
   // Drawing
   const numberOfBranches = NUMBER_OF_BRANCHES;
-  const endTreeY = 100 - 30 * numberOfBranches;
+  const endTreeY = 100 - 30 - LEAF_HEIGHT * numberOfBranches;
   const endTreeX = 0;
   const baseTreeX = 0;
   const baseTreeY = canvas.height;
@@ -600,10 +600,6 @@ function draw(
   drawTronc(rc, baseTreeX, baseTreeY, endTreeX, endTreeY);
 
   //Draw Branch
-  let startX = baseTreeX;
-  let startY = baseTreeY - 100;
-  let spaceBetweenBranches =
-    (canvas.height + Math.abs(endTreeY) - 100) / numberOfBranches;
   let branchesEndpoint = getBranchEndpoint(canvas.height);
   let k = 0;
   for (const { startX, endX, startY, endY } of branchesEndpoint) {
@@ -615,25 +611,6 @@ function draw(
     for (const { endX, endY } of branchesEndpoint) {
       drawAddButton(canvas, endX, endY);
     }
-    /*
-    //TODO DELETE
-    const be = getBranchEndpoint(canvas.height);
-    for (let i = 0; i < NUMBER_OF_BRANCHES; ++i) {
-      const c = computeBranchCoords(
-        leafNumbers[i],
-        be[i].startX,
-        be[i].startY,
-        getAngle(i),
-        i % 2 === 0
-      );
-      for (const { x, y } of c) {
-        rc.circle(x, y, 20, {
-          fill: "green",
-          fillStyle: "solid",
-          seed: 2,
-        });
-      }
-    }*/
   }
   ctx.fillStyle = "black";
   let i = 0;
@@ -742,6 +719,21 @@ function adjust(color: string, amount: number) {
       )
   );
 }
+function makeid(length: number) {
+  let result = "";
+  let characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let charactersLength = characters.length;
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+}
+function getMid(startX: number, startY: number, endX: number, endY: number) {
+  let midX = startX + (endX - startX) * 0.5;
+  let midY = startY + (endY - startY) * 0.5;
+  return [midX, midY];
+}
 let MAX_ZOOM = 5;
 let MIN_ZOOM = 0.1;
 let SCROLL_SENSITIVITY = 0.0005;
@@ -836,15 +828,43 @@ export default function Canvas() {
   useEffect(() => {
     const branchesStartPoints = buttonEndpoints;
     const coords = [];
+    const textElements: Element[] = [];
+    const sectors = new Array(branchesStartPoints.length)
+      .fill(0)
+      .map(() => makeid(getRandomArbitrary(4, 15)));
     for (let i = 0; i < branchesStartPoints.length; ++i) {
-      const { startX, startY } = branchesStartPoints[i];
+      const { startX, startY, endX, endY } = branchesStartPoints[i];
       const nbOfLeaf = leafNumbers[i];
       coords.push(
         computeBranchCoords(nbOfLeaf, startX, startY, getAngle(i), i % 2 === 0)
       );
+      const [x, y] = getMid(startX, startY, endX, endY);
+      const isRight = i % 2 === 0;
+      const newTextElem = updateText(
+        canvasRef.current!.getContext("2d")!,
+        sectors[i],
+        {
+          x: isRight ? endX + 20 : endX,
+          y: endY - 10,
+          type: "category",
+          text: sectors[i],
+          id: guidGenerator(),
+          seed: getRandomArbitrary(1, 100),
+          color: "black",
+          icon: "",
+          height: 0,
+          width: 0,
+          font: "20px virgil",
+          angle: 0,
+        }
+      );
+      if (!isRight) {
+        newTextElem.x -= newTextElem.width! + 20;
+      }
+      textElements.push(newTextElem);
     }
     //R 0 1 2 - L 3 4 5 - R 6 7 8
-    const elements: Element[] = coords.flat().map(({ x, y, isRight }, i) => ({
+    let elements: Element[] = coords.flat().map(({ x, y, isRight }, i) => ({
       x,
       y,
       type: "leaf",
@@ -858,6 +878,7 @@ export default function Canvas() {
       angle: !isRight ? (3 * Math.PI) / 2 : 0,
     }));
 
+    elements = elements.concat(textElements);
     setAppState((prev) => ({
       ...prev,
       elements,
@@ -1336,7 +1357,7 @@ export default function Canvas() {
             }))
           }
         >
-          Switch to {appState.mode === "edit" ? "view" : "edit"} mode
+          Switch to {appState.mode === "edit" ? "view" : "developer"} mode
         </button>{" "}
         {mode === "edit" && (
           <button

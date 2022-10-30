@@ -11,6 +11,9 @@ body {
   overflow: hidden;
 }
 
+canvas {
+  background-color: #D4D4D4;
+}
 .container {
   display: flex;
 }
