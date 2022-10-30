@@ -268,6 +268,9 @@ function drawLeaf(
   printAtWordWrap(ctx, text, x + width / 2, y + height / 2, 15, width - 15);
 }
 
+const getLeafNumbers = (nbOfBranches: number) =>
+  new Array(nbOfBranches).fill(0).map((_) => getRandomArbitrary(4, 8));
+
 function drawTronc(
   rc: RoughCanvas,
   startX: number,
@@ -283,11 +286,23 @@ function drawTronc(
   });
 }
 
+// Constants
 const branchColors = Array(10)
   .fill(0)
   .map((_) => "rgb(" + ((Math.random() * 64 + 64) >> 0) + ",50,25)");
-
 const BRANCH_WIDTH = 25;
+const BUTTON_SIZE = 30;
+const SPACE_BETWEEN_LINES = 3;
+const NUMBER_OF_BRANCHES = Math.round(getRandomArbitrary(4, 8));
+const leafNumbers = getLeafNumbers(NUMBER_OF_BRANCHES);
+const BRANCH_LENGTH = 400;
+const END_TREE_Y = 100 - 30 - LEAF_HEIGHT * NUMBER_OF_BRANCHES;
+
+let MAX_ZOOM = 5;
+let MIN_ZOOM = 0.1;
+let SCROLL_SENSITIVITY = 0.0005;
+let INITIAL_ZOOM = 0.5;
+
 function drawBranch(
   rc: RoughCanvas,
   startX: number,
@@ -316,8 +331,6 @@ const getLineFromAngle = (
   endX: x + length * Math.cos(-angle),
   endY: y + length * Math.sin(-angle),
 });
-
-const BUTTON_SIZE = 30;
 
 function drawAddButton(canvas: HTMLCanvasElement, x: number, y: number) {
   const ctx = canvas.getContext("2d")!;
@@ -460,9 +473,6 @@ function updateText(
   }
 }
 
-const SPACE_BETWEEN_LINES = 3;
-const NUMBER_OF_BRANCHES = Math.round(getRandomArbitrary(4, 8));
-
 function drawCategory(
   category: Element,
   ctx: CanvasRenderingContext2D,
@@ -510,21 +520,19 @@ function scale(x: number, y: number, ctx: CanvasRenderingContext2D) {
 }
 
 function getBranchEndpoint(height: number) {
-  const endTreeY = 100 - 30 + LEAF_HEIGHT * NUMBER_OF_BRANCHES;
   const baseTreeX = 0;
   const baseTreeY = height;
-  const branchLength = 300;
   const xys = [];
   //Draw Branch
   let startX = baseTreeX;
   let startY = baseTreeY - 100;
   let spaceBetweenBranches =
-    (height + Math.abs(endTreeY) - 100) / NUMBER_OF_BRANCHES;
+    (height + Math.abs(END_TREE_Y) - 100) / NUMBER_OF_BRANCHES;
   for (let i = 0; i < NUMBER_OF_BRANCHES; ++i) {
     let { endX, endY } = getLineFromAngle(
       startX,
       startY,
-      branchLength,
+      BRANCH_LENGTH,
       getAngle(i)
     );
     xys.push({ startX, startY, endX, endY });
@@ -532,12 +540,6 @@ function getBranchEndpoint(height: number) {
   }
   return xys;
 }
-
-const getLeafNumbers = (nbOfBranches: number) =>
-  new Array(nbOfBranches).fill(0).map((_) => getRandomArbitrary(4, 8));
-
-const leafNumbers = getLeafNumbers(NUMBER_OF_BRANCHES);
-const BRANCH_LENGTH = 300;
 
 function computeBranchCoords(
   nbOfLeaf: number,
@@ -588,8 +590,6 @@ function draw(
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   // Drawing
-  const numberOfBranches = NUMBER_OF_BRANCHES;
-  const endTreeY = 100 - 30 - LEAF_HEIGHT * numberOfBranches;
   const endTreeX = 0;
   const baseTreeX = 0;
   const baseTreeY = canvas.height;
@@ -597,7 +597,7 @@ function draw(
   ctx.translate(canvas.width / 2, canvas.height / 2);
 
   if (mode === "edit") drawGrid(ctx);
-  drawTronc(rc, baseTreeX, baseTreeY, endTreeX, endTreeY);
+  drawTronc(rc, baseTreeX, baseTreeY, endTreeX, END_TREE_Y);
 
   //Draw Branch
   let branchesEndpoint = getBranchEndpoint(canvas.height);
@@ -734,10 +734,7 @@ function getMid(startX: number, startY: number, endX: number, endY: number) {
   let midY = startY + (endY - startY) * 0.5;
   return [midX, midY];
 }
-let MAX_ZOOM = 5;
-let MIN_ZOOM = 0.1;
-let SCROLL_SENSITIVITY = 0.0005;
-let INITIAL_ZOOM = 0.5;
+
 export default function Canvas() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [width, height, devicePixelRatio] = useDeviceSize();
@@ -854,7 +851,7 @@ export default function Canvas() {
           icon: "",
           height: 0,
           width: 0,
-          font: "20px virgil",
+          font: "40px comic sans ms",
           angle: 0,
         }
       );
@@ -863,7 +860,6 @@ export default function Canvas() {
       }
       textElements.push(newTextElem);
     }
-    //R 0 1 2 - L 3 4 5 - R 6 7 8
     let elements: Element[] = coords.flat().map(({ x, y, isRight }, i) => ({
       x,
       y,
