@@ -32,7 +32,390 @@ export type AppState = {
   mode: "edit" | "view";
 };
 
-const savedState = `{"selectedElement":null,"radius":1000,"sectors":[{"color":"#f15275","text":"Mes reins fatiguent","id":"1bfaeac0-366e-8185-2cbe-719ff714a34e"},{"color":"#f15275","text":"Ma vie sociale","id":"b737843d-1688-8842-98b1-646dfe781bf5"},{"color":"#f15275","text":"Parcours de soins","id":"087d83c9-3a4f-bd27-97e3-e5ea254fb2de"},{"color":"#f15275","text":"Mes ressources","id":"d6442ca0-6afe-08af-24e3-4fb8de46cd8b"},{"color":"#f15275","text":"Mon quotidien","id":"35b8f264-6571-5987-d3df-fb4318904257"},{"color":"#f15275","text":"Mes racines","id":"2cb7b703-6b28-42b7-804e-1b38df98dd17"}],"mode":"view","cameraZoom":0.3125,"scaleMultiplier":0.8,"cameraOffset":{"x":-105.74545454545455,"y":-421.1070707070707},"isDragging":false,"dragStart":{"x":3139.3454545454542,"y":1041.9070707070707},"initialPinchDistance":null,"draggedElement":null,"elements":[{"x":-671.229011608305,"y":-573.9443452380951,"type":"category","id":"bd61106d-78f9-5981-09cd-645b1c4bd40f","text":"L'arbre de vie\\n   des reins","font":"200px Virgil","actualBoundingBoxAscent":157,"width":1370.400146484375,"height":371,"color":"orange","angle":0,"seed":2,"icon":""},{"id":"b72ece49-3009-c842-8620-7ffbc3ba393d","x":80.76923076923072,"y":-27.69230769230768,"color":"green","seed":2558.276717397499,"text":"","icon":"🦍","type":"leaf","width":60,"height":80},{"id":"47cc3bbe-01ab-5d30-458f-b9e131c1aaea","x":-93,"y":138.60000000000002,"color":"gray","seed":3934.491707227224,"text":"","icon":"🦍","type":"leaf","width":60,"height":80},{"id":"c9de5ef0-6143-5a3f-ba20-883b79fb9744","x":1.7897435897434661,"y":15.945299145299103,"color":"orange","seed":295.5389757004682,"text":"","icon":"🦍","type":"leaf","width":60,"height":80},{"id":"70ed4e77-d4a1-8678-baae-26d3b3e7a63f","x":-175.8461538461538,"y":87.23076923076925,"color":"green","seed":1827.226735750161,"text":"","icon":"🦍","type":"leaf","width":60,"height":80},{"id":"0da2315b-2c15-77c8-2726-1f3d53a60992","x":-262.1538461538462,"y":39.384615384615415,"color":"gray","seed":3934.491707227224,"text":"","icon":"🦍","type":"leaf","width":60,"height":80},{"id":"9f18e2f0-5e7f-c60d-5039-96704345e338","x":166.1538461538462,"y":-77.53846153846155,"color":"gray","seed":2558.276717397499,"text":"","icon":"🦍","type":"leaf","width":60,"height":80},{"id":"bba8d173-0125-3e7b-e0df-f1eb260709b6","x":121.8461538461537,"y":178.4615384615385,"color":"green","seed":2558.276717397499,"text":"","icon":"🦍","type":"leaf","width":60,"height":80},{"id":"f2125668-82ef-ba0c-8baa-5fa0dcd312e6","x":92.30769230769204,"y":109.5384615384616,"color":"green","seed":2558.276717397499,"text":"","icon":"🦍","type":"leaf","width":60,"height":80,"angle":2.659},{"id":"835655e0-328c-b916-ec09-3e25402388bb","x":188.30769230769238,"y":142.76923076923077,"color":"green","seed":2558.276717397499,"text":"","icon":"🦍","type":"leaf","width":60,"height":80},{"id":"db06f183-8ea8-47a6-7eba-1740e7b5eae6","x":172.30769230769238,"y":59.076923076923094,"color":"green","seed":2558.276717397499,"text":"","icon":"🦍","type":"leaf","width":60,"height":80,"angle":2.659},{"id":"e894520c-724e-016d-951c-8d95aa901e05","x":212.9230769230769,"y":279.38461538461536,"color":"green","seed":2558.276717397499,"text":"","icon":"🦍","type":"leaf","width":60,"height":80,"angle":2.659},{"id":"4242d985-702b-8790-1579-22c72439bb04","x":140.44444444444434,"y":316.44444444444446,"color":"green","seed":2558.276717397499,"text":"","icon":"🦍","type":"leaf","width":60,"height":80,"angle":2.659},{"id":"e31a6a80-8d58-7d84-4b64-5ed095398c12","x":76.44444444444457,"y":357.33333333333326,"color":"gray","seed":2558.276717397499,"text":"","icon":"🦍","type":"leaf","width":60,"height":80,"angle":2.659},{"id":"97c03574-46e6-2d50-378c-fbf731c66006","x":51.55555555555543,"y":220.62222222222232,"color":"green","seed":2558.276717397499,"text":"","icon":"🦍","type":"leaf","width":60,"height":80,"angle":0},{"id":"564fca7e-3dba-d3e7-7ae4-0fc6d523ae12","x":-17.77777777777783,"y":252.44444444444446,"color":"green","seed":2558.276717397499,"text":"","icon":"🦍","type":"leaf","width":60,"height":80,"angle":0},{"id":"2367b10a-90ff-16a2-6e85-304972e5e7a8","x":-76.44444444444434,"y":-85.33333333333331,"color":"green","seed":2558.276717397499,"text":"","icon":"🦍","type":"leaf","width":60,"height":80},{"id":"16aef718-54c0-b912-c029-a61c3358e404","x":-138.66666666666674,"y":-122.66666666666663,"color":"green","seed":2558.276717397499,"text":"","icon":"🦍","type":"leaf","width":60,"height":80},{"id":"c3e4a5e4-79ea-2922-f867-14053efde748","x":-200.8888888888887,"y":-161.77777777777777,"color":"green","seed":2558.276717397499,"text":"","icon":"🦍","type":"leaf","width":60,"height":80},{"id":"252e4f27-1560-947e-ebc8-e91e1cb3d360","x":-268.44444444444457,"y":-193.77777777777777,"color":"green","seed":2558.276717397499,"text":"","icon":"🦍","type":"leaf","width":60,"height":80},{"id":"fcbcd4de-0227-98fc-2434-0b46c1f3ad25","x":-78.2222222222224,"y":21.33333333333337,"color":"green","seed":2558.276717397499,"text":"","icon":"🦍","type":"leaf","width":60,"height":80,"angle":3.12},{"id":"229009db-73e3-e582-cb73-529cd54974a3","x":-142.22222222222217,"y":-16,"color":"green","seed":2558.276717397499,"text":"","icon":"🦍","type":"leaf","width":60,"height":80,"angle":3.12},{"id":"36b9a36e-0b63-cac5-274f-dd90f2b37bd1","x":-206.22222222222217,"y":-51.55555555555554,"color":"green","seed":2558.276717397499,"text":"","icon":"🦍","type":"leaf","width":60,"height":80,"angle":3.12},{"id":"cfa54c74-6f67-067c-1c02-2831f358ea52","x":-113.60000000000014,"y":241.59999999999997,"color":"gray","seed":3934.491707227224,"text":"","icon":"🦍","type":"leaf","width":60,"height":80,"angle":3.655},{"id":"9476386c-1538-b74a-1ff5-7ee3fc67c150","x":-200,"y":192,"color":"gray","seed":3934.491707227224,"text":"","icon":"🦍","type":"leaf","width":60,"height":80,"angle":3.655},{"id":"43e8e291-05b7-1b3e-144f-3841e62d8eff","x":-99.20000000000005,"y":356.80000000000007,"color":"green","seed":2558.276717397499,"text":"","icon":"🦍","type":"leaf","width":60,"height":80,"angle":0},{"id":"021a756d-1ee1-9802-820f-fd0796469701","x":-216,"y":292.80000000000007,"color":"green","seed":2558.276717397499,"text":"","icon":"🦍","type":"leaf","width":60,"height":80,"angle":0},{"id":"b80b81ed-1504-f96a-dd84-050f35a44732","x":-148.80000000000018,"y":454.40000000000003,"color":"green","seed":2558.276717397499,"text":"","icon":"🦍","type":"leaf","width":60,"height":80,"angle":3.63},{"id":"17f919dc-9d45-ac89-2b17-edeb8f1eaebc","x":-270.4,"y":393.6000000000001,"color":"green","seed":2558.276717397499,"text":"","icon":"🦍","type":"leaf","width":60,"height":80,"angle":3.63},{"id":"edbc719c-0641-9baf-e4a5-fe68b0e8294b","x":2.101025390625182,"y":488.4848266601562,"color":"green","seed":897.2516418408096,"text":"","icon":"🦍","type":"leaf","width":60,"height":80},{"id":"a0fdb8a0-cc3b-0df5-e1b6-f91f390beb23","x":85.301025390625,"y":437.2848266601563,"color":"orange","seed":7827.729397041622,"text":"","icon":"🦍","type":"leaf","width":60,"height":80},{"id":"41f86d85-0eaa-e825-6645-f3e81af71d2b","x":166.9010253906249,"y":386.08482666015624,"color":"green","seed":7808.416620130417,"text":"","icon":"🦍","type":"leaf","width":60,"height":80},{"id":"286299f5-ce91-3476-b736-3b48ed662677","x":62.90102539062491,"y":586.0848266601563,"color":"green","seed":8030.656865213912,"text":"","icon":"🦍","type":"leaf","width":60,"height":80,"angle":3.29},{"id":"e715b251-4cbe-b2b4-5d48-a0d263ba1617","x":165.301025390625,"y":534.8848266601564,"color":"orange","seed":1313.4742742109609,"text":"","icon":"🦍","type":"leaf","width":60,"height":80,"angle":2.95}],"downPoint":{"x":18.634372287326414,"y":72.66261121961807}}`;
+const savedState = {
+  selectedElement: null,
+  sectors: [],
+  mode: "view",
+  cameraZoom: 0.7,
+  scaleMultiplier: 0.8,
+  cameraOffset: { x: -27.04579707825178, y: -219.93362466496217 },
+  isDragging: false,
+  dragStart: { x: 0, y: 0},
+  initialPinchDistance: null,
+  draggedElement: null,
+  elements: [
+    {
+      x: 86.60254037844388,
+      y: 646.5,
+      type: "leaf",
+      text: "Projets",
+      id: "37fa0c95-df62-f946-f63e-567ef478e8e8",
+      seed: 22.413950913261708,
+      color: "#676767",
+      icon: "",
+      height: 80,
+      width: 80,
+      angle: 0,
+    },
+    {
+      x: 107.14447374173159,
+      y: 761.121212585351,
+      type: "leaf",
+      text: "Activités physiques",
+      id: "c99a2f60-2cc9-c653-cb09-b69275f839eb",
+      seed: 58.35104497367157,
+      color: "#676767",
+      icon: "",
+      height: 100,
+      width: 94,
+      angle: 0,
+    },
+    {
+      x: 255.48329686673696,
+      y: 532.4459461270675,
+      type: "leaf",
+      text: "Alimentation",
+      id: "8ae885d7-5798-7f02-582a-6db0b1e49943",
+      seed: 75.98722877807045,
+      color: "#676767",
+      icon: "",
+      height: 98,
+      width: 106,
+      angle: 0,
+    },
+    {
+      x: 217.92531117237104,
+      y: 713.8484860745125,
+      type: "leaf",
+      text: "Médicaments",
+      id: "4009a677-3174-76ca-2e49-72dcae08c281",
+      seed: 85.6412101405559,
+      color: "#676767",
+      icon: "",
+      height: 96,
+      width: 103,
+      angle: 0,
+    },
+    {
+      x: -149.2820323027551,
+      y: 424.70000000000005,
+      type: "leaf",
+      text: "Assistante sociale",
+      id: "ac6bdd7b-de1e-ce16-b0d8-654d2d846dcb",
+      seed: 3.0408627624543962,
+      color: "#676767",
+      icon: "",
+      height: 80,
+      width: 80,
+      angle: 4.71238898038469,
+    },
+    {
+      x: -138.68527458993134,
+      y: 564.2303042300587,
+      type: "leaf",
+      text: "Psychologue",
+      id: "b8eebe40-7d9c-e666-7606-56f823f316ed",
+      seed: 88.93156647065636,
+      color: "#676767",
+      icon: "",
+      height: 106,
+      width: 103,
+      angle: 4.71238898038469,
+    },
+    {
+      x: -262.7109617104343,
+      y: 338.9162165227296,
+      type: "leaf",
+      text: "Néphrologue",
+      id: "77f1b125-1a02-7900-f281-0a8a9b303bd6",
+      seed: 62.925700223585075,
+      color: "#676767",
+      icon: "",
+      height: 107,
+      width: 96,
+      angle: 4.71238898038469,
+    },
+    {
+      x: -357.1281292110204,
+      y: 437.20000000000005,
+      type: "leaf",
+      text: "Infirmière",
+      id: "2ae11396-f2be-091b-2c3a-b1c7b981deab",
+      seed: 1.1923845959709112,
+      color: "#676767",
+      icon: "",
+      height: 80,
+      width: 80,
+      angle: 4.71238898038469,
+    },
+    {
+      x: -384.4101615137755,
+      y: 284.70000000000005,
+      type: "leaf",
+      text: "Diététicien",
+      id: "0e830b48-5db0-821d-78a9-f2cc308835e7",
+      seed: 56.58209344029932,
+      color: "#676767",
+      icon: "",
+      height: 80,
+      width: 80,
+      angle: 4.71238898038469,
+    },
+    {
+      x: 86.60254037844388,
+      y: 182.90000000000003,
+      type: "leaf",
+      text: "Travail",
+      id: "9352f6d0-44ec-aa63-f866-3faac9d662fe",
+      seed: 91.42134486445663,
+      color: "#676767",
+      icon: "",
+      height: 80,
+      width: 80,
+      angle: 0,
+    },
+    {
+      x: 123.20508075688775,
+      y: 291.40000000000003,
+      type: "leaf",
+      text: "Amis",
+      id: "24f3fcc9-15cd-3624-ce7e-a795cf97db60",
+      seed: 62.7689561691808,
+      color: "#676767",
+      icon: "",
+      height: 80,
+      width: 80,
+      angle: 0,
+    },
+    {
+      x: 184.8076222529187,
+      y: 126.02499935738753,
+      type: "leaf",
+      text: "Couple",
+      id: "ba8009f0-bd4e-2945-c154-716c49b0d2d1",
+      seed: 58.50128342126369,
+      color: "#676767",
+      icon: "",
+      height: 80,
+      width: 80,
+      angle: 0,
+    },
+    {
+      x: 230.4101615137755,
+      y: 243.40000000000006,
+      type: "leaf",
+      text: "Famille",
+      id: "68d52a22-d4e8-599f-1c78-3f70d19baaaa",
+      seed: 95.44683233661469,
+      color: "#676767",
+      icon: "",
+      height: 80,
+      width: 80,
+      angle: 0,
+    },
+    {
+      x: -179.78539168033046,
+      y: -77.97142986894467,
+      type: "leaf",
+      text: "Dialyse péritonéale",
+      id: "ac439209-d398-3739-307f-d802c45816af",
+      seed: 43.677399154151516,
+      color: "#676767",
+      icon: "",
+      height: 100,
+      width: 101,
+      angle: 4.71238898038469,
+    },
+    {
+      x: -202.85671546304036,
+      y: 63.98095067255619,
+      type: "leaf",
+      text: "Mémodialyse",
+      id: "7ba87e8f-d9c8-2df7-b22d-95940057e47e",
+      seed: 12.586314395170776,
+      color: "#676767",
+      icon: "",
+      height: 103,
+      width: 106,
+      angle: 4.553,
+    },
+    {
+      x: -313.73755777870826,
+      y: -154.11428688205018,
+      type: "leaf",
+      text: "Traitement conservateur",
+      id: "f1355609-73bd-205c-23fe-ebe074a9c269",
+      seed: 92.89395276737373,
+      color: "#676767",
+      icon: "",
+      height: 106,
+      width: 106,
+      angle: 4.71238898038469,
+    },
+    {
+      x: -316.14221232134435,
+      y: 12.600000000000051,
+      type: "leaf",
+      text: "Greffe",
+      id: "42088386-da7f-73b4-6983-173113079408",
+      seed: 99.3347190502882,
+      color: "#676767",
+      icon: "",
+      height: 80,
+      width: 80,
+      angle: 4.71238898038469,
+    },
+    {
+      x: 74.04740410711479,
+      y: -265.7,
+      type: "leaf",
+      text: "",
+      id: "5892cd92-14dd-7d74-626b-d1ddfb9169ef",
+      seed: 19.288485611998922,
+      color: "#9ed36a",
+      icon: "",
+      height: 80,
+      width: 80,
+      angle: 0,
+    },
+    {
+      x: 174.09480821422957,
+      y: -192.19999999999996,
+      type: "leaf",
+      text: "",
+      id: "6901a6af-e09c-54c3-6dd7-e61edd0a1533",
+      seed: 57.49772761528651,
+      color: "#9ed36a",
+      icon: "",
+      height: 80,
+      width: 80,
+      angle: 0,
+    },
+    {
+      x: 190.14221232134435,
+      y: -341.69999999999993,
+      type: "leaf",
+      text: "",
+      id: "92018fc1-c199-de82-13f9-76ea5b4d241f",
+      seed: 79.85095594967143,
+      color: "#9ed36a",
+      icon: "",
+      height: 80,
+      width: 80,
+      angle: 0,
+    },
+    {
+      x: 374.4101615137755,
+      y: 553,
+      type: "category",
+      text: "Mon quotidien",
+      id: "e18f58a1-fef3-9421-fba7-e84cda3ab8e2",
+      seed: 33.815403924994456,
+      color: "#DE3163",
+      icon: "",
+      height: 43,
+      width: 259.4921875,
+      font: "40px comic sans ms",
+      angle: 0,
+      actualBoundingBoxAscent: 32,
+    },
+    {
+      x: -639.9335990137755,
+      y: 385.20000000000005,
+      type: "category",
+      text: "Mon parcours\n   de soins",
+      id: "fcd4edaa-2a54-6c95-b740-1db6048e77c3",
+      seed: 40.69743364776008,
+      color: "#DE3163",
+      icon: "",
+      height: 77,
+      width: 251.38671875,
+      font: "40px comic sans ms",
+      angle: 0,
+      actualBoundingBoxAscent: 30,
+    },
+    {
+      x: 366.4101615137755,
+      y: 85.40000000000006,
+      type: "category",
+      text: "Ma vie\nsociale",
+      id: "bd0d9b46-ce24-9c71-2801-7fa3bc84d4e6",
+      seed: 20.993982017938457,
+      color: "#DE3163",
+      icon: "",
+      height: 67,
+      width: 125.60546875,
+      font: "40px comic sans ms",
+      angle: 0,
+      actualBoundingBoxAscent: 30,
+    },
+    {
+      x: -567.0703177637755,
+      y: -118.39999999999995,
+      type: "category",
+      text: "Mes reins \nfatiguent",
+      id: "3a745b4b-6535-3b51-d13d-3f7fb94970f1",
+      seed: 25.563496973941554,
+      color: "#DE3163",
+      icon: "",
+      height: 77,
+      width: 193.359375,
+      font: "40px comic sans ms",
+      angle: 0,
+      actualBoundingBoxAscent: 32,
+    },
+    {
+      id: "273b2378-20bd-3729-d585-04bf3e9ae5f9",
+      x: 322,
+      y: 187,
+      color: "#676767",
+      seed: 5473.239555189746,
+      text: "Loisirs",
+      icon: "",
+      type: "leaf",
+      width: 80,
+      height: 80,
+    },
+    {
+      id: "226adbbe-9228-413a-b5fc-5c61160bbeef",
+      x: -261.4399172349026,
+      y: 501.5475443516858,
+      color: "#676767",
+      seed: 1771.5225767814243,
+      text: "Mes bilans biologiques",
+      icon: "",
+      type: "leaf",
+      width: 108,
+      height: 114,
+      angle: 4.8869,
+    },
+    {
+      id: "1508652b-5d35-0ee9-6be5-610ff9ca9d48",
+      x: 328.60600394256846,
+      y: 655.858605749132,
+      color: "#676767",
+      seed: 4036.0311971166807,
+      text: "Poids",
+      icon: "",
+      type: "leaf",
+      width: 80,
+      height: 80,
+    },
+    {
+      id: "c3fd8557-f2e3-2c8a-6ef7-169fef53a202",
+      x: 174.06054716399228,
+      y: 597.0707261117911,
+      color: "#676767",
+      seed: 8905.356546399338,
+      text: "Tension artérielle",
+      icon: "",
+      type: "leaf",
+      width: 80,
+      height: 80,
+    },
+  ],
+  downPoint: { x: -72.36597099766175, y: 624.5975172362939 },
+};
 
 const useDeviceSize = () => {
   const [width, setWidth] = useState(0);
@@ -265,7 +648,14 @@ function drawLeaf(
   angle = 0
 ) {
   drawImage(rc, ctx, image, x, y, isSelected, angle, width, height);
-  printAtWordWrap(ctx, text, x + width / 2, y + height / 2, 15, width - 15);
+  printAtWordWrap(
+    ctx,
+    text,
+    x + width / 2,
+    y + height / 2 - 10,
+    15,
+    width - 15
+  );
 }
 
 const getLeafNumbers = (nbOfBranches: number) =>
@@ -293,8 +683,10 @@ const branchColors = Array(10)
 const BRANCH_WIDTH = 25;
 const BUTTON_SIZE = 30;
 const SPACE_BETWEEN_LINES = 3;
-const NUMBER_OF_BRANCHES = Math.round(getRandomArbitrary(4, 8));
-const leafNumbers = getLeafNumbers(NUMBER_OF_BRANCHES);
+//const NUMBER_OF_BRANCHES = Math.round(getRandomArbitrary(4, 8));
+const NUMBER_OF_BRANCHES = 5;
+//const leafNumbers = getLeafNumbers(NUMBER_OF_BRANCHES);
+const leafNumbers = [4, 5, 4, 6, 3];
 const BRANCH_LENGTH = 400;
 const END_TREE_Y = 100 - 30 - LEAF_HEIGHT * NUMBER_OF_BRANCHES;
 
@@ -661,6 +1053,8 @@ function printAtWordWrap(
   fitWidth: number
 ) {
   const fillStyle = context.fillStyle;
+  const textAlign = context.textAlign;
+  const font = context.font;
   context.textAlign = "center";
   context.fillStyle = "black";
   context.font = "bold 12px comic sans ms";
@@ -696,6 +1090,8 @@ function printAtWordWrap(
   if (idx > 0)
     context.fillText(words.join(" "), x, y + lineHeight * currentLine);
   context.fillStyle = fillStyle;
+  context.textAlign = textAlign;
+  context.font = font;
 }
 
 function getMousePos(canvas: HTMLCanvasElement, evt: any) {
@@ -737,10 +1133,11 @@ function getMid(startX: number, startY: number, endX: number, endY: number) {
 
 export default function Canvas() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [width, height, devicePixelRatio] = useDeviceSize();
+  const [width, height /*devicePixelRatio*/] = useDeviceSize();
   const [roughCanvas, setRoughCanvas] = useState<RoughCanvas | null>(null);
   const [appState, setAppState] = useState<AppState>(() => {
-    return {
+    return savedState as AppState;
+    /*return {
       selectedElement: null,
       sectors: [
         {
@@ -784,7 +1181,7 @@ export default function Canvas() {
       draggedElement: null,
       elements: [],
       downPoint: { x: 0, y: 0 },
-    };
+    };*/
   });
 
   const images = useMemo(() => {
@@ -823,6 +1220,7 @@ export default function Canvas() {
   const buttonEndpoints = useMemo(() => getBranchEndpoint(height), [height]);
 
   useEffect(() => {
+    /*
     const branchesStartPoints = buttonEndpoints;
     const coords = [];
     const textElements: Element[] = [];
@@ -879,7 +1277,13 @@ export default function Canvas() {
       ...prev,
       elements,
     }));
+    */
   }, [buttonEndpoints]);
+
+  const focusRef = useCallback((node: HTMLTextAreaElement) => {
+    node?.focus();
+    node?.select();
+  }, []);
 
   useLayoutEffect(() => {
     if (!roughCanvas) return;
@@ -1057,7 +1461,7 @@ export default function Canvas() {
                       color: colors[0],
                       seed: getRandomArbitrary(1, 10000),
                       text: "",
-                      icon: "🦍",
+                      icon: "",
                       type: "circle",
                       width: RC_WIDTH,
                     },
@@ -1197,6 +1601,8 @@ export default function Canvas() {
                 ></input>
                 text
                 <textarea
+                  key={selectedElement.id}
+                  ref={focusRef}
                   onChange={(e) => {
                     setAppState((prev) => ({
                       ...prev,
@@ -1284,7 +1690,7 @@ export default function Canvas() {
                       color: colors[0],
                       seed: getRandomArbitrary(1, 10000),
                       text: "",
-                      icon: "🦍",
+                      icon: "",
                       type: "leaf",
                       width: LEAF_WIDTH,
                       height: LEAF_HEIGHT,

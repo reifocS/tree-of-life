@@ -12,8 +12,9 @@ body {
 }
 
 canvas {
-  background-color: #D4D4D4;
+  background-color: #eee;
 }
+
 .container {
   display: flex;
 }
