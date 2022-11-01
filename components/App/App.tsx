@@ -31,22 +31,21 @@ export type AppState = {
   sectors: Sector[];
   mode: "edit" | "view";
 };
-
 const savedState = {
   selectedElement: null,
   sectors: [],
   mode: "view",
-  cameraZoom: 0.7,
+  cameraZoom: 0.8874999999999997,
   scaleMultiplier: 0.8,
-  cameraOffset: { x: -27.04579707825178, y: -219.93362466496217 },
+  cameraOffset: { x: 0, y: 0 },
   isDragging: false,
-  dragStart: { x: 0, y: 0},
+  dragStart: { x: 0, y: 0 },
   initialPinchDistance: null,
   draggedElement: null,
   elements: [
     {
-      x: 86.60254037844388,
-      y: 646.5,
+      x: 37.00254037844397,
+      y: 558.5,
       type: "leaf",
       text: "Projets",
       id: "37fa0c95-df62-f946-f63e-567ef478e8e8",
@@ -58,8 +57,8 @@ const savedState = {
       angle: 0,
     },
     {
-      x: 107.14447374173159,
-      y: 761.121212585351,
+      x: 55.54447374173145,
+      y: 659.5212125853509,
       type: "leaf",
       text: "Activités physiques",
       id: "c99a2f60-2cc9-c653-cb09-b69275f839eb",
@@ -71,8 +70,8 @@ const savedState = {
       angle: 0,
     },
     {
-      x: 255.48329686673696,
-      y: 532.4459461270675,
+      x: 212.28329686673692,
+      y: 412.4459461270676,
       type: "leaf",
       text: "Alimentation",
       id: "8ae885d7-5798-7f02-582a-6db0b1e49943",
@@ -84,8 +83,8 @@ const savedState = {
       angle: 0,
     },
     {
-      x: 217.92531117237104,
-      y: 713.8484860745125,
+      x: 149.92531117237104,
+      y: 619.8484860745125,
       type: "leaf",
       text: "Médicaments",
       id: "4009a677-3174-76ca-2e49-72dcae08c281",
@@ -97,8 +96,8 @@ const savedState = {
       angle: 0,
     },
     {
-      x: -149.2820323027551,
-      y: 424.70000000000005,
+      x: -117.28203230275511,
+      y: 298.29999999999995,
       type: "leaf",
       text: "Assistante sociale",
       id: "ac6bdd7b-de1e-ce16-b0d8-654d2d846dcb",
@@ -110,8 +109,8 @@ const savedState = {
       angle: 4.71238898038469,
     },
     {
-      x: -138.68527458993134,
-      y: 564.2303042300587,
+      x: -141.88527458993138,
+      y: 447.43030423005865,
       type: "leaf",
       text: "Psychologue",
       id: "b8eebe40-7d9c-e666-7606-56f823f316ed",
@@ -123,8 +122,8 @@ const savedState = {
       angle: 4.71238898038469,
     },
     {
-      x: -262.7109617104343,
-      y: 338.9162165227296,
+      x: -232.4141879138367,
+      y: 226.50331417021488,
       type: "leaf",
       text: "Néphrologue",
       id: "77f1b125-1a02-7900-f281-0a8a9b303bd6",
@@ -136,8 +135,8 @@ const savedState = {
       angle: 4.71238898038469,
     },
     {
-      x: -357.1281292110204,
-      y: 437.20000000000005,
+      x: -341.1281292110204,
+      y: 338,
       type: "leaf",
       text: "Infirmière",
       id: "2ae11396-f2be-091b-2c3a-b1c7b981deab",
@@ -149,8 +148,8 @@ const savedState = {
       angle: 4.71238898038469,
     },
     {
-      x: -384.4101615137755,
-      y: 284.70000000000005,
+      x: -336.4101615137755,
+      y: 158.30000000000007,
       type: "leaf",
       text: "Diététicien",
       id: "0e830b48-5db0-821d-78a9-f2cc308835e7",
@@ -162,8 +161,8 @@ const savedState = {
       angle: 4.71238898038469,
     },
     {
-      x: 86.60254037844388,
-      y: 182.90000000000003,
+      x: 79.26595551183672,
+      y: 40.30487823032473,
       type: "leaf",
       text: "Travail",
       id: "9352f6d0-44ec-aa63-f866-3faac9d662fe",
@@ -175,8 +174,8 @@ const savedState = {
       angle: 0,
     },
     {
-      x: 123.20508075688775,
-      y: 291.40000000000003,
+      x: 86.4050807568878,
+      y: 179.40000000000003,
       type: "leaf",
       text: "Amis",
       id: "24f3fcc9-15cd-3624-ce7e-a795cf97db60",
@@ -188,8 +187,8 @@ const savedState = {
       angle: 0,
     },
     {
-      x: 184.8076222529187,
-      y: 126.02499935738753,
+      x: 207.20762225291878,
+      y: -25.975000642612585,
       type: "leaf",
       text: "Couple",
       id: "ba8009f0-bd4e-2945-c154-716c49b0d2d1",
@@ -201,8 +200,8 @@ const savedState = {
       angle: 0,
     },
     {
-      x: 230.4101615137755,
-      y: 243.40000000000006,
+      x: 192.01016151377542,
+      y: 124.99999999999997,
       type: "leaf",
       text: "Famille",
       id: "68d52a22-d4e8-599f-1c78-3f70d19baaaa",
@@ -214,8 +213,8 @@ const savedState = {
       angle: 0,
     },
     {
-      x: -179.78539168033046,
-      y: -77.97142986894467,
+      x: -133.3853916803306,
+      y: -199.57142986894468,
       type: "leaf",
       text: "Dialyse péritonéale",
       id: "ac439209-d398-3739-307f-d802c45816af",
@@ -227,8 +226,8 @@ const savedState = {
       angle: 4.71238898038469,
     },
     {
-      x: -202.85671546304036,
-      y: 63.98095067255619,
+      x: -156.45671546304027,
+      y: -78.41904932744379,
       type: "leaf",
       text: "Mémodialyse",
       id: "7ba87e8f-d9c8-2df7-b22d-95940057e47e",
@@ -240,8 +239,8 @@ const savedState = {
       angle: 4.553,
     },
     {
-      x: -313.73755777870826,
-      y: -154.11428688205018,
+      x: -273.73755777870826,
+      y: -261.31428688205017,
       type: "leaf",
       text: "Traitement conservateur",
       id: "f1355609-73bd-205c-23fe-ebe074a9c269",
@@ -253,8 +252,8 @@ const savedState = {
       angle: 4.71238898038469,
     },
     {
-      x: -316.14221232134435,
-      y: 12.600000000000051,
+      x: -287.3422123213444,
+      y: -120.19999999999996,
       type: "leaf",
       text: "Greffe",
       id: "42088386-da7f-73b4-6983-173113079408",
@@ -266,8 +265,8 @@ const savedState = {
       angle: 4.71238898038469,
     },
     {
-      x: 74.04740410711479,
-      y: -265.7,
+      x: 42.047404107115014,
+      y: -411.2999999999999,
       type: "leaf",
       text: "",
       id: "5892cd92-14dd-7d74-626b-d1ddfb9169ef",
@@ -279,8 +278,8 @@ const savedState = {
       angle: 0,
     },
     {
-      x: 174.09480821422957,
-      y: -192.19999999999996,
+      x: 188.68993184473274,
+      y: -355.8682933637176,
       type: "leaf",
       text: "",
       id: "6901a6af-e09c-54c3-6dd7-e61edd0a1533",
@@ -292,8 +291,8 @@ const savedState = {
       angle: 0,
     },
     {
-      x: 190.14221232134435,
-      y: -341.69999999999993,
+      x: 144.32757763037023,
+      y: -482.10975646064924,
       type: "leaf",
       text: "",
       id: "92018fc1-c199-de82-13f9-76ea5b4d241f",
@@ -305,8 +304,8 @@ const savedState = {
       angle: 0,
     },
     {
-      x: 374.4101615137755,
-      y: 553,
+      x: 324.8101615137756,
+      y: 413.8,
       type: "category",
       text: "Mon quotidien",
       id: "e18f58a1-fef3-9421-fba7-e84cda3ab8e2",
@@ -320,8 +319,8 @@ const savedState = {
       actualBoundingBoxAscent: 32,
     },
     {
-      x: -639.9335990137755,
-      y: 385.20000000000005,
+      x: -596.7335990137755,
+      y: 193.2,
       type: "category",
       text: "Mon parcours\n   de soins",
       id: "fcd4edaa-2a54-6c95-b740-1db6048e77c3",
@@ -335,8 +334,8 @@ const savedState = {
       actualBoundingBoxAscent: 30,
     },
     {
-      x: 366.4101615137755,
-      y: 85.40000000000006,
+      x: 340.8101615137756,
+      y: -87.39999999999989,
       type: "category",
       text: "Ma vie\nsociale",
       id: "bd0d9b46-ce24-9c71-2801-7fa3bc84d4e6",
@@ -350,8 +349,8 @@ const savedState = {
       actualBoundingBoxAscent: 30,
     },
     {
-      x: -567.0703177637755,
-      y: -118.39999999999995,
+      x: -573.4703177637755,
+      y: -284.79999999999995,
       type: "category",
       text: "Mes reins \nfatiguent",
       id: "3a745b4b-6535-3b51-d13d-3f7fb94970f1",
@@ -366,8 +365,8 @@ const savedState = {
     },
     {
       id: "273b2378-20bd-3729-d585-04bf3e9ae5f9",
-      x: 322,
-      y: 187,
+      x: 309.20000000000005,
+      y: 46.19999999999993,
       color: "#676767",
       seed: 5473.239555189746,
       text: "Loisirs",
@@ -378,8 +377,8 @@ const savedState = {
     },
     {
       id: "226adbbe-9228-413a-b5fc-5c61160bbeef",
-      x: -261.4399172349026,
-      y: 501.5475443516858,
+      x: -253.43991723490262,
+      y: 368.7475443516858,
       color: "#676767",
       seed: 1771.5225767814243,
       text: "Mes bilans biologiques",
@@ -391,8 +390,8 @@ const savedState = {
     },
     {
       id: "1508652b-5d35-0ee9-6be5-610ff9ca9d48",
-      x: 328.60600394256846,
-      y: 655.858605749132,
+      x: 262.60600394256846,
+      y: 560.658605749132,
       color: "#676767",
       seed: 4036.0311971166807,
       text: "Poids",
@@ -403,8 +402,8 @@ const savedState = {
     },
     {
       id: "c3fd8557-f2e3-2c8a-6ef7-169fef53a202",
-      x: 174.06054716399228,
-      y: 597.0707261117911,
+      x: 127.66054716399242,
+      y: 493.0707261117914,
       color: "#676767",
       seed: 8905.356546399338,
       text: "Tension artérielle",
@@ -414,7 +413,7 @@ const savedState = {
       height: 80,
     },
   ],
-  downPoint: { x: -72.36597099766175, y: 624.5975172362939 },
+  downPoint: { x: 0, y: 0 },
 };
 
 const useDeviceSize = () => {
@@ -688,12 +687,16 @@ const NUMBER_OF_BRANCHES = 5;
 //const leafNumbers = getLeafNumbers(NUMBER_OF_BRANCHES);
 const leafNumbers = [4, 5, 4, 6, 3];
 const BRANCH_LENGTH = 400;
-const END_TREE_Y = 100 - 30 - LEAF_HEIGHT * NUMBER_OF_BRANCHES;
+const END_TREE_Y = -100 - LEAF_HEIGHT * NUMBER_OF_BRANCHES;
+const BASE_TREE_X = 0;
+const BASE_TREE_Y = 800;
 
 let MAX_ZOOM = 5;
 let MIN_ZOOM = 0.1;
 let SCROLL_SENSITIVITY = 0.0005;
-let INITIAL_ZOOM = 0.5;
+let INITIAL_ZOOM = 1;
+
+//TODO hauteur d'arbre fixe pour avoir les mêmes rendu peut importe l'écran?
 
 function drawBranch(
   rc: RoughCanvas,
@@ -912,11 +915,10 @@ function scale(x: number, y: number, ctx: CanvasRenderingContext2D) {
 }
 
 function getBranchEndpoint(height: number) {
-  const baseTreeX = 0;
-  const baseTreeY = height;
+  const baseTreeY = BASE_TREE_Y;
   const xys = [];
   //Draw Branch
-  let startX = baseTreeX;
+  let startX = BASE_TREE_X;
   let startY = baseTreeY - 100;
   let spaceBetweenBranches =
     (height + Math.abs(END_TREE_Y) - 100) / NUMBER_OF_BRANCHES;
@@ -983,8 +985,8 @@ function draw(
 
   // Drawing
   const endTreeX = 0;
-  const baseTreeX = 0;
-  const baseTreeY = canvas.height;
+  const baseTreeX = BASE_TREE_X;
+  const baseTreeY = BASE_TREE_Y;
   ctx.lineCap = "round";
   ctx.translate(canvas.width / 2, canvas.height / 2);
 
@@ -992,7 +994,7 @@ function draw(
   drawTronc(rc, baseTreeX, baseTreeY, endTreeX, END_TREE_Y);
 
   //Draw Branch
-  let branchesEndpoint = getBranchEndpoint(canvas.height);
+  let branchesEndpoint = getBranchEndpoint(baseTreeY);
   let k = 0;
   for (const { startX, endX, startY, endY } of branchesEndpoint) {
     drawBranch(rc, startX, startY, endX, endY, k);
@@ -1025,7 +1027,7 @@ function draw(
         element.angle
       );
     }
-  } //buildTree(ctx, roughCanvas);
+  }
 }
 
 function mousePosToCanvasPos(context: CanvasRenderingContext2D, e: any) {
