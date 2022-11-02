@@ -1219,7 +1219,7 @@ export default function Canvas() {
     }
   }, []);
 
-  const buttonEndpoints = useMemo(() => getBranchEndpoint(height), [height]);
+  const buttonEndpoints = useMemo(() => getBranchEndpoint(BASE_TREE_Y), []);
 
   useEffect(() => {
     /*
