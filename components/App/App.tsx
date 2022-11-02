@@ -710,7 +710,7 @@ function drawLeaf(
 ) {
   drawImage(rc, ctx, image, x, y, isSelected, angle, width, height);
   //TODO find a more generic way
-  const isRight = angle < (3 * Math.PI) / 2;
+  const isRight = angle < (Math.PI) / 2;
   printAtWordWrap(
     ctx,
     text,
