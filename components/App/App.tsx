@@ -732,7 +732,8 @@ function drawTronc(
   endX: number,
   endY: number
 ) {
-  rc.line(startX, startY, endX, endY, {
+  // +300 pour faire descendre le tronc plus bas.
+  rc.line(startX, startY + 300, endX, endY, {
     strokeWidth: 50,
     roughness: 5,
     seed: 2,
