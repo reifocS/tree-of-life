@@ -27,3 +27,18 @@ model Leaf {
   branchId Int @unique
   branch  Branch   @relation(fields: [branchId], references: [id])
 }
+
+model User {
+  id      Int    @id @default(autoincrement())
+  nom     String
+  roleID Int @unique
+  role  Role   @relation(fields: [roleID], references: [id])
+}
+
+model Role {
+  id     Int    @id
+  label  String @unique
+  user User?
+}
+
+// npx prisma migrate dev --name init
