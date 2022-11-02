@@ -709,10 +709,12 @@ function drawLeaf(
   fontColor = "black"
 ) {
   drawImage(rc, ctx, image, x, y, isSelected, angle, width, height);
+  //TODO find a more generic way
+  const isRight = angle < (3 * Math.PI) / 2;
   printAtWordWrap(
     ctx,
     text,
-    x + width / 2,
+    x + width / 2 + (isRight ? 5 : 0),
     y + height / 2 - 10,
     15,
     width - 15,
@@ -1121,15 +1123,20 @@ function printAtWordWrap(
 ) {
   const fillStyle = context.fillStyle;
   const textAlign = context.textAlign;
+  const baseLine = context.textBaseline;
   const font = context.font;
   context.textAlign = "center";
   context.fillStyle = fontColor;
+  context.textBaseline = "middle";
   context.font = "bold 12px comic sans ms";
   fitWidth = fitWidth || 0;
 
   if (fitWidth <= 0) {
     context.fillText(text, x, y);
     context.fillStyle = fillStyle;
+    context.textAlign = textAlign;
+    context.textBaseline = baseLine;
+    context.font = font;
     return;
   }
   let words = text.split(" ");
@@ -1158,6 +1165,7 @@ function printAtWordWrap(
     context.fillText(words.join(" "), x, y + lineHeight * currentLine);
   context.fillStyle = fillStyle;
   context.textAlign = textAlign;
+  context.textBaseline = baseLine;
   context.font = font;
 }
 
@@ -1761,7 +1769,7 @@ export default function Canvas() {
                       type: "leaf",
                       width: LEAF_WIDTH,
                       height: LEAF_HEIGHT,
-                      fontColor: "#fff"
+                      fontColor: "#fff",
                     },
                   ],
                 }));
