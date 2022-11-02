@@ -243,7 +243,7 @@ const savedState = {
       x: -187.54789606407883,
       y: -64.06927366542598,
       type: "leaf",
-      text: "Mémodialyse",
+      text: "Hémodialyse",
       id: "7ba87e8f-d9c8-2df7-b22d-95940057e47e",
       seed: 12.586314395170776,
       color: "#676767",
