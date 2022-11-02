@@ -870,7 +870,7 @@ function addText(context: CanvasRenderingContext2D) {
   }
 
   element.text = text;
-  element.font = "20px Virgil";
+  element.font = "20px comic sans ms";
   const font = context.font;
   context.font = element.font;
   const { actualBoundingBoxAscent, actualBoundingBoxDescent, width } =
@@ -899,7 +899,7 @@ function updateText(
     font: font || elem.font,
   };
   const ctxFont = context.font;
-  context.font = element.font || "20px virgil";
+  context.font = element.font || "20px comic sans ms";
   const lines = text.split("\n");
   if (lines.length === 1) {
     const { actualBoundingBoxAscent, actualBoundingBoxDescent, width } =
