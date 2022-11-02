@@ -34,7 +34,7 @@ export type AppState = {
 const savedState = {
   selectedElement: null,
   sectors: [],
-  mode: "edit",
+  mode: "view",
   cameraZoom: 1,
   scaleMultiplier: 0.8,
   cameraOffset: { x: 0, y: 0 },
@@ -55,6 +55,7 @@ const savedState = {
       height: 80,
       width: 80,
       angle: 0,
+      fontColor: "#fff",
     },
     {
       x: 55.54447374173145,
@@ -68,6 +69,7 @@ const savedState = {
       height: 100,
       width: 94,
       angle: 0,
+      fontColor: "#fff",
     },
     {
       x: 212.28329686673692,
@@ -81,6 +83,7 @@ const savedState = {
       height: 98,
       width: 106,
       angle: 0,
+      fontColor: "#fff",
     },
     {
       x: 149.92531117237104,
@@ -94,6 +97,7 @@ const savedState = {
       height: 96,
       width: 103,
       angle: 0,
+      fontColor: "#fff",
     },
     {
       x: -137.3597341956284,
@@ -107,6 +111,7 @@ const savedState = {
       height: 101,
       width: 102,
       angle: 5.1115,
+      fontColor: "#fff",
     },
     {
       x: -141.88527458993138,
@@ -120,6 +125,7 @@ const savedState = {
       height: 106,
       width: 103,
       angle: 4.9901,
+      fontColor: "#fff",
     },
     {
       x: -240.73466099101688,
@@ -133,6 +139,7 @@ const savedState = {
       height: 107,
       width: 96,
       angle: 5.0873,
+      fontColor: "#fff",
     },
     {
       x: -341.1281292110204,
@@ -146,6 +153,7 @@ const savedState = {
       height: 98,
       width: 93,
       angle: 5.0144,
+      fontColor: "#fff",
     },
     {
       x: -339.94737603694955,
@@ -159,6 +167,7 @@ const savedState = {
       height: 104,
       width: 91,
       angle: 5.1358,
+      fontColor: "#fff",
     },
     {
       x: 47.603686063863194,
@@ -172,6 +181,7 @@ const savedState = {
       height: 80,
       width: 80,
       angle: 0,
+      fontColor: "#fff",
     },
     {
       x: 86.4050807568878,
@@ -185,6 +195,7 @@ const savedState = {
       height: 80,
       width: 80,
       angle: 0,
+      fontColor: "#fff",
     },
     {
       x: 238.86989170089237,
@@ -198,6 +209,7 @@ const savedState = {
       height: 80,
       width: 80,
       angle: 0,
+      fontColor: "#fff",
     },
     {
       x: 192.01016151377542,
@@ -211,6 +223,7 @@ const savedState = {
       height: 80,
       width: 80,
       angle: 0,
+      fontColor: "#fff",
     },
     {
       x: -133.3853916803306,
@@ -224,6 +237,7 @@ const savedState = {
       height: 100,
       width: 101,
       angle: 4.71238898038469,
+      fontColor: "#fff",
     },
     {
       x: -187.54789606407883,
@@ -237,6 +251,7 @@ const savedState = {
       height: 103,
       width: 106,
       angle: 4.553,
+      fontColor: "#fff",
     },
     {
       x: -259.38778211669046,
@@ -250,6 +265,7 @@ const savedState = {
       height: 106,
       width: 106,
       angle: 4.71238898038469,
+      fontColor: "#fff",
     },
     {
       x: -287.3422123213444,
@@ -263,6 +279,7 @@ const savedState = {
       height: 80,
       width: 80,
       angle: 4.71238898038469,
+      fontColor: "#fff",
     },
     {
       x: 42.047404107115014,
@@ -374,6 +391,7 @@ const savedState = {
       type: "leaf",
       width: 80,
       height: 80,
+      fontColor: "#fff",
     },
     {
       id: "226adbbe-9228-413a-b5fc-5c61160bbeef",
@@ -387,6 +405,7 @@ const savedState = {
       width: 108,
       height: 114,
       angle: 4.8869,
+      fontColor: "#fff",
     },
     {
       id: "1508652b-5d35-0ee9-6be5-610ff9ca9d48",
@@ -399,6 +418,7 @@ const savedState = {
       type: "leaf",
       width: 80,
       height: 80,
+      fontColor: "#fff",
     },
     {
       id: "c3fd8557-f2e3-2c8a-6ef7-169fef53a202",
@@ -411,6 +431,7 @@ const savedState = {
       type: "leaf",
       width: 80,
       height: 80,
+      fontColor: "#fff",
     },
     {
       id: "afc369eb-5dc3-d39d-9a59-f91e971a02cc",
@@ -424,6 +445,7 @@ const savedState = {
       width: 113,
       height: 126,
       angle: 4.9416,
+      fontColor: "#fff",
     },
     {
       id: "720fd322-4980-11b0-e669-92ae0bb5f9aa",
@@ -436,6 +458,7 @@ const savedState = {
       type: "leaf",
       width: 80,
       height: 80,
+      fontColor: "#fff",
     },
     {
       id: "aab0fe8f-a940-3029-465d-c20fb859a34c",
@@ -448,6 +471,7 @@ const savedState = {
       type: "leaf",
       width: 80,
       height: 80,
+      fontColor: "#fff",
     },
   ],
   downPoint: { x: 0, y: 0 },
@@ -508,6 +532,7 @@ type Element = {
   height?: number;
   actualBoundingBoxAscent?: number;
   font?: string;
+  fontColor?: string;
   categoryId?: string;
   angle?: number;
 };
@@ -680,7 +705,8 @@ function drawLeaf(
   height: number,
   image: HTMLImageElement,
   isSelected: boolean,
-  angle = 0
+  angle = 0,
+  fontColor = "black"
 ) {
   drawImage(rc, ctx, image, x, y, isSelected, angle, width, height);
   printAtWordWrap(
@@ -689,7 +715,8 @@ function drawLeaf(
     x + width / 2,
     y + height / 2 - 10,
     15,
-    width - 15
+    width - 15,
+    fontColor
   );
 }
 
@@ -1060,7 +1087,8 @@ function draw(
         element.height!,
         images.find((c) => c.color === element.color)!.image,
         element.id === selectedId,
-        element.angle
+        element.angle,
+        element.fontColor
       );
     }
   }
@@ -1088,13 +1116,14 @@ function printAtWordWrap(
   x: number,
   y: number,
   lineHeight: number,
-  fitWidth: number
+  fitWidth: number,
+  fontColor: string
 ) {
   const fillStyle = context.fillStyle;
   const textAlign = context.textAlign;
   const font = context.font;
   context.textAlign = "center";
-  context.fillStyle = "black";
+  context.fillStyle = fontColor;
   context.font = "bold 12px comic sans ms";
   fitWidth = fitWidth || 0;
 
@@ -1732,6 +1761,7 @@ export default function Canvas() {
                       type: "leaf",
                       width: LEAF_WIDTH,
                       height: LEAF_HEIGHT,
+                      fontColor: "#fff"
                     },
                   ],
                 }));
@@ -1747,7 +1777,11 @@ export default function Canvas() {
                       let nextIndex =
                         (colors.findIndex((color) => color === e.color) + 1) %
                         colors.length;
-                      return { ...e, color: colors[nextIndex] };
+                      return {
+                        ...e,
+                        color: colors[nextIndex],
+                        fontColor: nextIndex === 0 ? "#fff" : "black",
+                      };
                     }
                     return e;
                   }),
