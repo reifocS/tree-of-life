@@ -840,7 +840,7 @@ function drawSector(
       }
     );
   }
-  printAtWordWrap(ctx, el.text, el.x, el.y, 15, el.width! - 15);
+  printAtWordWrap(ctx, el.text, el.x, el.y, 15, el.width! - 15, "black");
 }
 
 function getRandomArbitrary(min: number, max: number) {
