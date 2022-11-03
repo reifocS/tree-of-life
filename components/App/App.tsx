@@ -1210,7 +1210,7 @@ export default function Canvas() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [width, height /*devicePixelRatio*/] = useDeviceSize();
   const [roughCanvas, setRoughCanvas] = useState<RoughCanvas | null>(null);
-  const [selectedColor, setSelectedColor] = useState(colors[1]);
+  const [selectedColor, setSelectedColor] = useState(colors[0]);
   const [appState, setAppState] = useState<AppState>(() => {
     return savedState as AppState;
     /*return {
@@ -1756,7 +1756,7 @@ export default function Canvas() {
           >
             <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
               {/*<div style={{fontSize:"25px"}}>🎨</div>*/}
-              {colors.slice(1).map((c) => (
+              {colors.map((c) => (
                 <div
                   onClick={() => setSelectedColor(c)}
                   key={c}
