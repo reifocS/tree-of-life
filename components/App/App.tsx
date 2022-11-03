@@ -1210,7 +1210,7 @@ export default function Canvas() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [width, height /*devicePixelRatio*/] = useDeviceSize();
   const [roughCanvas, setRoughCanvas] = useState<RoughCanvas | null>(null);
-  const [selectedColor, setSelectedColor] = useState(colors[0]);
+  const [selectedColor, setSelectedColor] = useState(colors[1]);
   const [appState, setAppState] = useState<AppState>(() => {
     return savedState as AppState;
     /*return {
@@ -1750,9 +1750,13 @@ export default function Canvas() {
           </div>
         </div>
         {mode === "view" && (
-          <div className="sidePanel" style={{ width: 200 }}>
+          <div
+            className="sidePanel"
+            style={{ width: 200, pointerEvents: "none" }}
+          >
             <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
-              {colors.map((c) => (
+              {/*<div style={{fontSize:"25px"}}>🎨</div>*/}
+              {colors.slice(1).map((c) => (
                 <div
                   onClick={() => setSelectedColor(c)}
                   key={c}
@@ -1762,7 +1766,9 @@ export default function Canvas() {
                     width: 40,
                     cursor: "pointer",
                     borderRadius: 40,
-                    border: c === selectedColor ? "4px solid red" : "4px solid white",
+                    pointerEvents: "all",
+                    border:
+                      c === selectedColor ? "4px solid red" : "4px solid white",
                   }}
                 ></div>
               ))}
