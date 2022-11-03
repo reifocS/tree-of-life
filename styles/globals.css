@@ -78,12 +78,7 @@ input {
 }
 
 button {
-  background-color: #ddd;
-  border: 1px solid #ccc;
-  border-radius: 4px;
   user-select: none;
-
-  padding: 5px;
 }
 
 .sidePanel li {
@@ -92,13 +87,5 @@ button {
 .sidePanel li button {
   margin-right: 5px;
 }
-button {
-  border: none;
-  padding: 6px 10px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  background-color: #0c355c73;
-  cursor: pointer;
-  color: #fff;
-}
+
+

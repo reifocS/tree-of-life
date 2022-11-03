@@ -10,6 +10,7 @@ import {
 import rough from "roughjs/bin/rough";
 import { RoughCanvas } from "roughjs/bin/canvas";
 import useKeyboard from "../../hooks/useKeyboard";
+import { useRouter } from "next/router";
 
 type Point = {
   x: number;
@@ -710,7 +711,7 @@ function drawLeaf(
 ) {
   drawImage(rc, ctx, image, x, y, isSelected, angle, width, height);
   //TODO find a more generic way
-  const isRight = angle < (Math.PI) / 2;
+  const isRight = angle < Math.PI / 2;
   printAtWordWrap(
     ctx,
     text,
@@ -761,8 +762,6 @@ let MAX_ZOOM = 5;
 let MIN_ZOOM = 0.1;
 let SCROLL_SENSITIVITY = 0.0005;
 let INITIAL_ZOOM = 1;
-
-//TODO hauteur d'arbre fixe pour avoir les mêmes rendu peut importe l'écran?
 
 function drawBranch(
   rc: RoughCanvas,
@@ -1259,7 +1258,8 @@ export default function Canvas() {
       downPoint: { x: 0, y: 0 },
     };*/
   });
-
+  const router = useRouter();
+  const isDevMode = router.query.debug;
   const images = useMemo(() => {
     return colors.map((c) => {
       const image = new Image();
@@ -1467,7 +1467,7 @@ export default function Canvas() {
       return;
     }
     if (
-      hitTestButton(x, y, buttonEndpoints) ||
+      (mode === "edit" && hitTestButton(x, y, buttonEndpoints)) ||
       elements.find((el) => hitTest(x, y, el))
     ) {
       document.documentElement.style.cursor = "pointer";
@@ -1811,14 +1811,33 @@ export default function Canvas() {
         style={{
           position: "absolute",
           display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
           gap: 5,
           bottom: 10,
-          left: 10,
+          boxShadow: "0 0 0 1px rgba(0, 0, 0, 0.01)",
+          backgroundColor: "#fff",
+          borderRadius: 6,
+          padding: "10px",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          pointerEvents: "none",
+          fontSize: "18px",
         }}
       >
-        <button onClick={() => adjustZoom(-0.25, null)}>-</button>
-        <div>{Math.floor(cameraZoom * 100)}%</div>
-        <button onClick={() => adjustZoom(0.25, null)}>+</button>
+        <button
+          onClick={() => adjustZoom(-0.25, null)}
+          style={{ pointerEvents: "all" }}
+        >
+          -
+        </button>
+        <div>{Math.floor(cameraZoom * 100)}% 🔍</div>
+        <button
+          onClick={() => adjustZoom(0.25, null)}
+          style={{ pointerEvents: "all" }}
+        >
+          +
+        </button>
       </div>
       <div
         style={{
@@ -1831,17 +1850,19 @@ export default function Canvas() {
           userSelect: "none",
         }}
       >
-        <button
-          onClick={() =>
-            setAppState((prev) => ({
-              ...prev,
-              mode: prev.mode === "edit" ? "view" : "edit",
-              selectedElement: null,
-            }))
-          }
-        >
-          Switch to {appState.mode === "edit" ? "view" : "developer"} mode
-        </button>{" "}
+        {isDevMode && (
+          <button
+            onClick={() =>
+              setAppState((prev) => ({
+                ...prev,
+                mode: prev.mode === "edit" ? "view" : "edit",
+                selectedElement: null,
+              }))
+            }
+          >
+            Switch to {appState.mode === "edit" ? "view" : "developer"} mode
+          </button>
+        )}{" "}
         {mode === "edit" && (
           <button
             onClick={() =>
