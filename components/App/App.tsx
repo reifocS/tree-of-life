@@ -881,7 +881,6 @@ export default function Canvas() {
             e.preventDefault();
             const ctx = canvasRef.current!.getContext("2d")!;
             const { x, y } = mousePosToCanvasPos(ctx, e);
-            ctx.fillText(`${Math.floor(x)}-${Math.floor(y)}`, x, y);
             for (const element of elements) {
               if (hitTest(x, y, element)) {
                 setAppState((prev) => ({
