@@ -1210,7 +1210,6 @@ export default function Canvas() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [width, height /*devicePixelRatio*/] = useDeviceSize();
   const [roughCanvas, setRoughCanvas] = useState<RoughCanvas | null>(null);
-  const [selectedColor, setSelectedColor] = useState(colors[0]);
   const [appState, setAppState] = useState<AppState>(() => {
     return savedState as AppState;
     /*return {
@@ -1749,32 +1748,7 @@ export default function Canvas() {
             )}
           </div>
         </div>
-        {mode === "view" && (
-          <div
-            className="sidePanel"
-            style={{ width: 200, pointerEvents: "none" }}
-          >
-            <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
-              {/*<div style={{fontSize:"25px"}}>🎨</div>*/}
-              {colors.map((c) => (
-                <div
-                  onClick={() => setSelectedColor(c)}
-                  key={c}
-                  style={{
-                    backgroundColor: c,
-                    height: 40,
-                    width: 40,
-                    cursor: "pointer",
-                    borderRadius: 40,
-                    pointerEvents: "all",
-                    border:
-                      c === selectedColor ? "4px solid red" : "4px solid white",
-                  }}
-                ></div>
-              ))}
-            </div>
-          </div>
-        )}
+
         <canvas
           onClick={(e) => {
             e.preventDefault();
@@ -1811,21 +1785,13 @@ export default function Canvas() {
                   ...prev,
                   elements: prev.elements.map((e) => {
                     if (e.id === element.id) {
-                      /*let nextIndex =
+                      let nextIndex =
                         (colors.findIndex((color) => color === e.color) + 1) %
                         colors.length;
                       return {
                         ...e,
                         color: colors[nextIndex],
                         fontColor: nextIndex === 0 ? "#fff" : "black",
-                      };*/
-                      let currIndex = colors.findIndex(
-                        (color) => color === selectedColor
-                      );
-                      return {
-                        ...e,
-                        color: selectedColor,
-                        fontColor: currIndex === 0 ? "#fff" : "black",
                       };
                     }
                     return e;
