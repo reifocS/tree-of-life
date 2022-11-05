@@ -11,6 +11,8 @@ import rough from "roughjs/bin/rough";
 import { RoughCanvas } from "roughjs/bin/canvas";
 import useKeyboard from "../../hooks/useKeyboard";
 import { useRouter } from "next/router";
+import { createPopup, PopupPickerController } from "@picmo/popup-picker";
+import { createPicker, EmojiPicker } from "picmo";
 
 type Point = {
   x: number;
@@ -707,7 +709,8 @@ function drawLeaf(
   image: HTMLImageElement,
   isSelected: boolean,
   angle = 0,
-  fontColor = "black"
+  fontColor = "black",
+  icon = ""
 ) {
   drawImage(rc, ctx, image, x, y, isSelected, angle, width, height);
   //TODO find a more generic way
@@ -719,7 +722,8 @@ function drawLeaf(
     y + height / 2 - 10,
     15,
     width - 15,
-    fontColor
+    fontColor,
+    icon
   );
 }
 
@@ -842,7 +846,7 @@ function drawSector(
       }
     );
   }
-  printAtWordWrap(ctx, el.text, el.x, el.y, 15, el.width! - 15, "black");
+  printAtWordWrap(ctx, el.text, el.x, el.y, 15, el.width! - 15, "black", "");
 }
 
 function getRandomArbitrary(min: number, max: number) {
@@ -901,6 +905,7 @@ function updateText(
   const ctxFont = context.font;
   context.font = element.font || "20px comic sans ms";
   const lines = text.split("\n");
+  //TODO fix for words with low baseline
   if (lines.length === 1) {
     const { actualBoundingBoxAscent, actualBoundingBoxDescent, width } =
       context.measureText(text);
@@ -1090,7 +1095,8 @@ function draw(
         images.find((c) => c.color === element.color)!.image,
         element.id === selectedId,
         element.angle,
-        element.fontColor
+        element.fontColor,
+        element.icon
       );
     }
   }
@@ -1119,7 +1125,8 @@ function printAtWordWrap(
   y: number,
   lineHeight: number,
   fitWidth: number,
-  fontColor: string
+  fontColor: string,
+  icon: string
 ) {
   const fillStyle = context.fillStyle;
   const textAlign = context.textAlign;
@@ -1163,6 +1170,10 @@ function printAtWordWrap(
   }
   if (idx > 0)
     context.fillText(words.join(" "), x, y + lineHeight * currentLine);
+  if (icon) {
+    context.font = "bold 20px comic sans ms";
+    context.fillText(icon, x, y + lineHeight * (currentLine + 1) + 4);
+  }
   context.fillStyle = fillStyle;
   context.textAlign = textAlign;
   context.textBaseline = baseLine;
@@ -1361,6 +1372,11 @@ export default function Canvas() {
     node?.select();
   }, []);
 
+  //emoji picker
+
+  const emojiRef = useRef<HTMLButtonElement>(null);
+  const emojiPickerRef = useRef<PopupPickerController | null>(null);
+
   useLayoutEffect(() => {
     if (!roughCanvas) return;
     const canvas = canvasRef.current!;
@@ -1504,6 +1520,38 @@ export default function Canvas() {
     }
   }
 
+  //TODO move all left panel for selected element logic in a separate component
+  //We are creating and destroying an instance each time selectedelement changes which is not optimal
+  useEffect(() => {
+    const container = emojiRef.current!;
+    if (!container || !selectedElement) return;
+    const picker = createPopup(
+      {},
+      {
+        referenceElement: container,
+        triggerElement: container,
+      }
+    );
+    emojiPickerRef.current = picker;
+
+    function onSelect(event: any) {
+      console.log("Emoji selected:", event.emoji, selectedElement?.text);
+      setAppState((prev) => ({
+        ...prev,
+        elements: prev.elements.map((el) =>
+          el.id === selectedElement?.id ? { ...el, icon: event.emoji } : el
+        ),
+      }));
+    }
+    picker.addEventListener("emoji:select", onSelect);
+
+    () => {
+      picker.toggle();
+      picker.removeEventListener("emoji:select", onSelect);
+      picker.destroy();
+    };
+  }, [selectedElement]);
+
   return (
     <>
       <div className="container">
@@ -1547,7 +1595,6 @@ export default function Canvas() {
             >
               Add circle
             </button>
-
             {selectedElement && (
               <>
                 {selectedElement.type !== "category" && (
@@ -1706,6 +1753,14 @@ export default function Canvas() {
                     elements.find((el) => el.id === selectedElement.id)?.text!
                   }
                 ></textarea>
+                emoji
+                <button
+                  className="emojiSelector"
+                  onClick={() => emojiPickerRef.current?.toggle()}
+                  ref={emojiRef}
+                >
+                  {elements.find((el) => el.id === selectedElement.id)?.icon}
+                </button>
                 <button
                   style={{ backgroundColor: "red" }}
                   onClick={() => {
