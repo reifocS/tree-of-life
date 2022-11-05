@@ -881,11 +881,7 @@ function addText(context: CanvasRenderingContext2D) {
     context.measureText(text);
   element.actualBoundingBoxAscent = actualBoundingBoxAscent;
   context.font = font;
-  const height = actualBoundingBoxAscent + actualBoundingBoxDescent;
-
-  // Center the text
-  element.x -= width / 2;
-  element.y -= actualBoundingBoxAscent;
+  const height = (actualBoundingBoxAscent + actualBoundingBoxDescent) * 1.286;;
   element.width = width;
   element.height = height;
   return element;
@@ -910,7 +906,7 @@ function updateText(
     const { actualBoundingBoxAscent, actualBoundingBoxDescent, width } =
       context.measureText(text);
     element.actualBoundingBoxAscent = actualBoundingBoxAscent;
-    const height = actualBoundingBoxAscent + actualBoundingBoxDescent;
+    const height = (actualBoundingBoxAscent + actualBoundingBoxDescent) * 1.286;
     element.width = width;
     element.height = height;
     context.font = ctxFont;
@@ -1171,8 +1167,8 @@ function printAtWordWrap(
   if (idx > 0)
     context.fillText(words.join(" "), x, y + lineHeight * currentLine);
   if (icon) {
-    context.font = "bold 20px comic sans ms";
-    context.fillText(icon, x, y + lineHeight * (currentLine + 1) + 4);
+    context.font = "bold 26px comic sans ms";
+    context.fillText(icon, x, y + lineHeight * (currentLine + 1) + 8);
   }
   context.fillStyle = fillStyle;
   context.textAlign = textAlign;
