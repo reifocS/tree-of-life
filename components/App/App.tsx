@@ -1449,8 +1449,6 @@ export default function Canvas() {
     const { x, y } = mousePosToCanvasPos(ctx, e);
 
     const el = elements.find((el) => hitTest(x, y, el));
-    //don't drag when clicking button
-    if (hitTestButton(x, y, buttonEndpoints)) return;
     if (el && appState.mode === "edit") {
       setAppState((prev) => ({
         ...prev,
@@ -1459,7 +1457,7 @@ export default function Canvas() {
         selectedElement: el,
       }));
       return;
-    } else if (!el) {
+    } else {
       setAppState((prev) => ({
         ...prev,
         isDragging: true,
@@ -1903,8 +1901,6 @@ export default function Canvas() {
           onTouchStart={(e) => handleTouch(e, handlePointerDown)}
           onTouchEnd={(e) => handleTouch(e, handlePointerUp)}
           onClick={(e) => {
-            e.preventDefault();
-
             const ctx = canvasRef.current!.getContext("2d")!;
             const { x, y } = mousePosToCanvasPos(ctx, e);
             if (appState.mode === "edit") {
