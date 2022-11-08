@@ -881,7 +881,7 @@ function addText(context: CanvasRenderingContext2D) {
     context.measureText(text);
   element.actualBoundingBoxAscent = actualBoundingBoxAscent;
   context.font = font;
-  const height = (actualBoundingBoxAscent + actualBoundingBoxDescent) * 1.286;;
+  const height = (actualBoundingBoxAscent + actualBoundingBoxDescent) * 1.286;
   element.width = width;
   element.height = height;
   return element;
@@ -1531,7 +1531,6 @@ export default function Canvas() {
     emojiPickerRef.current = picker;
 
     function onSelect(event: any) {
-      console.log("Emoji selected:", event.emoji, selectedElement?.text);
       setAppState((prev) => ({
         ...prev,
         elements: prev.elements.map((el) =>
@@ -1751,7 +1750,10 @@ export default function Canvas() {
                 ></textarea>
                 emoji
                 <button
-                  className="emojiSelector"
+                  className={`emojiSelector ${
+                    elements.find((el) => el.id === selectedElement.id)
+                      ?.icon !== "" && "withEmoji"
+                  }`}
                   onClick={() => emojiPickerRef.current?.toggle()}
                   ref={emojiRef}
                 >
