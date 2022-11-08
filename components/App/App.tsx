@@ -1471,8 +1471,7 @@ export default function Canvas() {
             prev.cameraOffset.y,
         },
       }));
-
-      document.documentElement.style.cursor = "grabbing";
+      if (!el) document.documentElement.style.cursor = "grabbing";
     }
   };
 
