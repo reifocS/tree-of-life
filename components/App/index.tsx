@@ -11,6 +11,7 @@ export default function CanvasComponentWrapper(props: any) {
     <>
       <Head>
         <title>L&apos;arbre de vie des reins</title>
+        <meta name="viewport" content="user-scalable=no"/>
       </Head>
       <Suspense fallback={`Loading...`}>
         <DynamicComponentWithNoSSR {...props} />
