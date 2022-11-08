@@ -12,7 +12,7 @@ import { RoughCanvas } from "roughjs/bin/canvas";
 import useKeyboard from "../../hooks/useKeyboard";
 import { useRouter } from "next/router";
 import { createPopup, PopupPickerController } from "@picmo/popup-picker";
-import { createPicker, EmojiPicker } from "picmo";
+import { TwemojiRenderer } from "@picmo/renderer-twemoji";
 
 type Point = {
   x: number;
@@ -538,6 +538,8 @@ type Element = {
   fontColor?: string;
   categoryId?: string;
   angle?: number;
+  weTalkedAboutIt?: boolean;
+  iconSize?: number;
 };
 
 const matrix = [1, 0, 0, 1, 0, 0];
@@ -605,7 +607,7 @@ function hitTest(x: number, y: number, element: Element) {
 const RC_WIDTH = 100;
 const LEAF_WIDTH = 80;
 const LEAF_HEIGHT = 80;
-const colors = ["#676767", "#ff7f00", "#9ed36a"];
+const colors = ["#fff", "#676767", "#ff7f00", "#9ed36a"];
 
 function drawGrid(ctx: CanvasRenderingContext2D) {
   try {
@@ -701,18 +703,23 @@ function drawImage(
 function drawLeaf(
   rc: RoughCanvas,
   ctx: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  text: string,
-  width: number,
-  height: number,
+  element: Element,
   image: HTMLImageElement,
-  isSelected: boolean,
-  angle = 0,
-  fontColor = "black",
-  icon = ""
+  isSelected: boolean
 ) {
-  drawImage(rc, ctx, image, x, y, isSelected, angle, width, height);
+  const {
+    x,
+    y,
+    text,
+    angle = 0,
+    width = 0,
+    height = 0,
+    fontColor = "black",
+    icon = "",
+    iconSize = 22,
+    weTalkedAboutIt,
+  } = element;
+  drawImage(rc, ctx, image, x, y, isSelected, angle, width!, height!);
   //TODO find a more generic way
   const isRight = angle < Math.PI / 2;
   printAtWordWrap(
@@ -723,7 +730,8 @@ function drawLeaf(
     15,
     width - 15,
     fontColor,
-    icon
+    icon,
+    iconSize
   );
 }
 
@@ -1083,16 +1091,9 @@ function draw(
       drawLeaf(
         rc,
         ctx,
-        element.x,
-        element.y,
-        element.text,
-        element.width!,
-        element.height!,
+        element,
         images.find((c) => c.color === element.color)!.image,
-        element.id === selectedId,
-        element.angle,
-        element.fontColor,
-        element.icon
+        element.id === selectedId
       );
     }
   }
@@ -1122,7 +1123,8 @@ function printAtWordWrap(
   lineHeight: number,
   fitWidth: number,
   fontColor: string,
-  icon: string
+  icon: string,
+  iconSize = 22
 ) {
   const fillStyle = context.fillStyle;
   const textAlign = context.textAlign;
@@ -1167,7 +1169,7 @@ function printAtWordWrap(
   if (idx > 0)
     context.fillText(words.join(" "), x, y + lineHeight * currentLine);
   if (icon) {
-    context.font = "bold 26px comic sans ms";
+    context.font = `bold ${iconSize}px comic sans ms`;
     context.fillText(icon, x, y + lineHeight * (currentLine + 1) + 8);
   }
   context.fillStyle = fillStyle;
@@ -1522,7 +1524,9 @@ export default function Canvas() {
     const container = emojiRef.current!;
     if (!container || !selectedElement) return;
     const picker = createPopup(
-      {},
+      {
+        renderer: new TwemojiRenderer(),
+      },
       {
         referenceElement: container,
         triggerElement: container,
@@ -1646,6 +1650,39 @@ export default function Canvas() {
                         ></input>
                       </>
                     )}
+                    emoji
+                    <button
+                      className={`emojiSelector ${
+                        elements.find((el) => el.id === selectedElement.id)
+                          ?.icon !== "" && "withEmoji"
+                      }`}
+                      onClick={() => emojiPickerRef.current?.toggle()}
+                      ref={emojiRef}
+                    >
+                      {
+                        elements.find((el) => el.id === selectedElement.id)
+                          ?.icon
+                      }
+                    </button>
+                    emoji fontSize
+                    <input
+                      type="number"
+                      value={
+                        elements.find((el) => el.id === selectedElement.id)
+                          ?.iconSize
+                      }
+                      onChange={(e) => {
+                        setAppState((prev) => ({
+                          ...prev,
+                          elements: prev.elements.map((el) => {
+                            if (el.id === selectedElement.id) {
+                              return { ...el, iconSize: +e.target.value };
+                            }
+                            return el;
+                          }),
+                        }));
+                      }}
+                    ></input>
                   </>
                 )}
                 {selectedElement.type === "category" && (
@@ -1748,17 +1785,6 @@ export default function Canvas() {
                     elements.find((el) => el.id === selectedElement.id)?.text!
                   }
                 ></textarea>
-                emoji
-                <button
-                  className={`emojiSelector ${
-                    elements.find((el) => el.id === selectedElement.id)
-                      ?.icon !== "" && "withEmoji"
-                  }`}
-                  onClick={() => emojiPickerRef.current?.toggle()}
-                  ref={emojiRef}
-                >
-                  {elements.find((el) => el.id === selectedElement.id)?.icon}
-                </button>
                 <button
                   style={{ backgroundColor: "red" }}
                   onClick={() => {
@@ -1803,6 +1829,27 @@ export default function Canvas() {
         </div>
 
         <canvas
+          onContextMenu={(e) => {
+            e.preventDefault();
+            const ctx = canvasRef.current!.getContext("2d")!;
+            const { x, y } = mousePosToCanvasPos(ctx, e);
+            for (const element of elements) {
+              if (hitTest(x, y, element)) {
+                setAppState((prev) => ({
+                  ...prev,
+                  elements: prev.elements.map((e) => {
+                    if (e.id === element.id) {
+                      return {
+                        ...e,
+                        weTalkedAboutIt: true,
+                      };
+                    }
+                    return e;
+                  }),
+                }));
+              }
+            }
+          }}
           onClick={(e) => {
             e.preventDefault();
 
@@ -1844,7 +1891,7 @@ export default function Canvas() {
                       return {
                         ...e,
                         color: colors[nextIndex],
-                        fontColor: nextIndex === 0 ? "#fff" : "black",
+                        fontColor: nextIndex === 1 ? "#fff" : "black",
                       };
                     }
                     return e;
