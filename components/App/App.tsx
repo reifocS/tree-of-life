@@ -12,7 +12,6 @@ import { RoughCanvas } from "roughjs/bin/canvas";
 import useKeyboard from "../../hooks/useKeyboard";
 import { useRouter } from "next/router";
 import { createPopup, PopupPickerController } from "@picmo/popup-picker";
-import { TwemojiRenderer } from "@picmo/renderer-twemoji";
 
 type Point = {
   x: number;
@@ -733,6 +732,16 @@ function drawLeaf(
     icon,
     iconSize
   );
+  const font = ctx.font;
+  const weTalkedAboutItSize = 18
+  ctx.font = `${weTalkedAboutItSize}px arial`;
+  if (weTalkedAboutIt) {
+    if(isRight) ctx.fillText("💭", x + element.width! / 2, y + element.height!/ 2 - weTalkedAboutItSize - 4);
+    else {
+      ctx.fillText("💭", x + element.width! / 2 - weTalkedAboutItSize, y + element.height!/ 2 - weTalkedAboutItSize - 4);
+    }
+  }
+  ctx.font = font;
 }
 
 const getLeafNumbers = (nbOfBranches: number) =>
@@ -1524,9 +1533,7 @@ export default function Canvas() {
     const container = emojiRef.current!;
     if (!container || !selectedElement) return;
     const picker = createPopup(
-      {
-        renderer: new TwemojiRenderer(),
-      },
+      {},
       {
         referenceElement: container,
         triggerElement: container,
@@ -1831,20 +1838,21 @@ export default function Canvas() {
         <canvas
           onContextMenu={(e) => {
             e.preventDefault();
+            if (mode !== "view") return;
             const ctx = canvasRef.current!.getContext("2d")!;
             const { x, y } = mousePosToCanvasPos(ctx, e);
             for (const element of elements) {
               if (hitTest(x, y, element)) {
                 setAppState((prev) => ({
                   ...prev,
-                  elements: prev.elements.map((e) => {
-                    if (e.id === element.id) {
+                  elements: prev.elements.map((el) => {
+                    if (el.id === element.id) {
                       return {
-                        ...e,
-                        weTalkedAboutIt: true,
+                        ...el,
+                        weTalkedAboutIt: !el.weTalkedAboutIt,
                       };
                     }
-                    return e;
+                    return el;
                   }),
                 }));
               }
