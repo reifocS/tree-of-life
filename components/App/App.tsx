@@ -733,12 +733,21 @@ function drawLeaf(
     iconSize
   );
   const font = ctx.font;
-  const weTalkedAboutItSize = 18
+  const weTalkedAboutItSize = 18;
   ctx.font = `${weTalkedAboutItSize}px arial`;
   if (weTalkedAboutIt) {
-    if(isRight) ctx.fillText("💭", x + element.width! / 2, y + element.height!/ 2 - weTalkedAboutItSize - 4);
+    if (isRight)
+      ctx.fillText(
+        "💭",
+        x + element.width! / 2,
+        y + element.height! / 2 - weTalkedAboutItSize - 4
+      );
     else {
-      ctx.fillText("💭", x + element.width! / 2 - weTalkedAboutItSize, y + element.height!/ 2 - weTalkedAboutItSize - 4);
+      ctx.fillText(
+        "💭",
+        x + element.width! / 2 - weTalkedAboutItSize,
+        y + element.height! / 2 - weTalkedAboutItSize - 4
+      );
     }
   }
   ctx.font = font;
@@ -1188,7 +1197,13 @@ function printAtWordWrap(
 }
 
 function getMousePos(canvas: HTMLCanvasElement, evt: any) {
-  var rect = canvas.getBoundingClientRect();
+  const rect = canvas.getBoundingClientRect();
+  if (evt.touches && evt.touches.length == 1) {
+    return {
+      x: evt.touches[0].clientX - rect.left,
+      y: evt.touches[0].clientY - rect.top,
+    };
+  }
   return {
     x: evt.clientX - rect.left,
     y: evt.clientY - rect.top,
@@ -1276,6 +1291,19 @@ export default function Canvas() {
       downPoint: { x: 0, y: 0 },
     };*/
   });
+
+  useEffect(() => {
+    // Block pinch-zooming on iOS outside of the content area
+    function disable(event: any) {
+      // @ts-ignore
+      if (event.scale !== 1) {
+        event.preventDefault();
+      }
+    }
+    document.addEventListener("touchmove", disable, { passive: false });
+
+    return () => document.removeEventListener("touchmove", disable);
+  }, []);
   const router = useRouter();
   const isDevMode = router.query.debug;
   const images = useMemo(() => {
@@ -1291,6 +1319,18 @@ export default function Canvas() {
       return { color: c, image };
     });
   }, []);
+
+  function handleTouch(e: any, singleTouchHandler: any) {
+    if (e.touches.length == 1) {
+      singleTouchHandler(e);
+    } else if (e.type == "touchmove" && e.touches.length == 2) {
+      setAppState((prev) => ({
+        ...prev,
+        isDragging: false,
+      }));
+      handlePinch(e);
+    }
+  }
 
   useKeyboard(setAppState);
   const {
@@ -1418,13 +1458,10 @@ export default function Canvas() {
   ]);
 
   const handlePointerDown = (e: PointerEvent<HTMLCanvasElement>) => {
-    e.preventDefault();
     const ctx = canvasRef.current!.getContext("2d")!;
     const { x, y } = mousePosToCanvasPos(ctx, e);
 
     const el = elements.find((el) => hitTest(x, y, el));
-    //don't drag when clicking button
-    if (hitTestButton(x, y, buttonEndpoints)) return;
     if (el && appState.mode === "edit") {
       setAppState((prev) => ({
         ...prev,
@@ -1433,7 +1470,7 @@ export default function Canvas() {
         selectedElement: el,
       }));
       return;
-    } else if (!el) {
+    } else {
       setAppState((prev) => ({
         ...prev,
         isDragging: true,
@@ -1447,14 +1484,12 @@ export default function Canvas() {
             prev.cameraOffset.y,
         },
       }));
-
-      document.documentElement.style.cursor = "grabbing";
+      if (!el) document.documentElement.style.cursor = "grabbing";
     }
   };
 
   const handlePointerUp = (e: PointerEvent<HTMLCanvasElement>) => {
-    //const { x, y } = getMousePos(canvasRef.current!, e);
-    e.preventDefault();
+    const { x, y } = getMousePos(canvasRef.current!, e);
     setAppState((prev) => ({
       ...prev,
       isDragging: false,
@@ -1462,9 +1497,25 @@ export default function Canvas() {
       draggedElement: null,
     }));
     lastZoom.current = cameraZoom;
-    if (isDragging) document.documentElement.style.cursor = "";
+    //if (isDragging && !el) document.documentElement.style.cursor = "";
   };
+  function handlePinch(e: any) {
+    let touch1 = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    let touch2 = { x: e.touches[1].clientX, y: e.touches[1].clientY };
 
+    // This is distance squared, but no need for an expensive sqrt as it's only used in ratio
+    let currentDistance =
+      (touch1.x - touch2.x) ** 2 + (touch1.y - touch2.y) ** 2;
+
+    if (appState.initialPinchDistance == null) {
+      setAppState((prev) => ({
+        ...prev,
+        initialPinchDistance: currentDistance,
+      }));
+    } else {
+      adjustZoom(null, currentDistance / appState.initialPinchDistance);
+    }
+  }
   const handlePointerMove = (e: PointerEvent<HTMLCanvasElement>) => {
     const ctx = canvasRef.current!.getContext("2d")!;
     const { x, y } = mousePosToCanvasPos(ctx, e);
@@ -1858,9 +1909,10 @@ export default function Canvas() {
               }
             }
           }}
+          onTouchMove={(e) => handleTouch(e, handlePointerMove)}
+          onTouchStart={(e) => handleTouch(e, handlePointerDown)}
+          onTouchEnd={(e) => handleTouch(e, handlePointerUp)}
           onClick={(e) => {
-            e.preventDefault();
-
             const ctx = canvasRef.current!.getContext("2d")!;
             const { x, y } = mousePosToCanvasPos(ctx, e);
             if (appState.mode === "edit") {
