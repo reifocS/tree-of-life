@@ -1291,6 +1291,19 @@ export default function Canvas() {
       downPoint: { x: 0, y: 0 },
     };*/
   });
+
+  useEffect(() => {
+    // Block pinch-zooming on iOS outside of the content area
+    function disable(event: any) {
+      // @ts-ignore
+      if (event.scale !== 1) {
+        event.preventDefault();
+      }
+    }
+    document.addEventListener("touchmove", disable, { passive: false });
+
+    return () => document.removeEventListener("touchmove", disable);
+  }, []);
   const router = useRouter();
   const isDevMode = router.query.debug;
   const images = useMemo(() => {
@@ -1476,7 +1489,8 @@ export default function Canvas() {
   };
 
   const handlePointerUp = (e: PointerEvent<HTMLCanvasElement>) => {
-    //const { x, y } = getMousePos(canvasRef.current!, e);
+    const { x, y } = getMousePos(canvasRef.current!, e);
+    const el = elements.find((el) => hitTest(x, y, el));
     setAppState((prev) => ({
       ...prev,
       isDragging: false,
@@ -1484,7 +1498,7 @@ export default function Canvas() {
       draggedElement: null,
     }));
     lastZoom.current = cameraZoom;
-    if (isDragging) document.documentElement.style.cursor = "";
+    //if (isDragging && !el) document.documentElement.style.cursor = "";
   };
   function handlePinch(e: any) {
     let touch1 = { x: e.touches[0].clientX, y: e.touches[0].clientY };
