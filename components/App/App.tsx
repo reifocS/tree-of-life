@@ -1490,7 +1490,6 @@ export default function Canvas() {
 
   const handlePointerUp = (e: PointerEvent<HTMLCanvasElement>) => {
     const { x, y } = getMousePos(canvasRef.current!, e);
-    const el = elements.find((el) => hitTest(x, y, el));
     setAppState((prev) => ({
       ...prev,
       isDragging: false,
