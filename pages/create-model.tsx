@@ -45,7 +45,9 @@ const CreateModel: NextPage = () => {
   let treeFromModel = null;
   if (model && ref.current) {
     const branches = Object.keys(model);
-    const leafs = branches.map((k) => model[k].map((v: any) => v["Texte"]));
+    const leafs = branches.map((k) =>
+      model[k].map((v: any) => ({ text: v["Texte"], icon: v["Icône"] }))
+    );
     treeFromModel = generateTreeFromModel(ref.current, branches, leafs);
   }
   return (

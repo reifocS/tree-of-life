@@ -149,9 +149,6 @@ export default function SidePanel({
             text
             <textarea
               key={selectedElement.id}
-              style={{
-                userSelect: "all",
-              }}
               onChange={(e) => {
                 setAppState((prev) => ({
                   ...prev,

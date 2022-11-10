@@ -747,7 +747,7 @@ const BUTTON_SIZE = 30;
 const SPACE_BETWEEN_LINES = 3;
 export const NUMBER_OF_BRANCHES = 5;
 //const leafNumbers = getLeafNumbers(NUMBER_OF_BRANCHES);
-const BRANCH_LENGTH = 400;
+const BRANCH_LENGTH = 500;
 const END_TREE_Y = -100 - LEAF_HEIGHT * NUMBER_OF_BRANCHES;
 export const BASE_TREE_X = 0;
 export const BASE_TREE_Y = 800;
@@ -1002,16 +1002,24 @@ function computeBranchCoords(
   isRight: boolean
 ) {
   const endPoints = [];
-  let dLeaf = Math.ceil(BRANCH_LENGTH / nbOfLeaf);
-  for (let j = 1; j <= nbOfLeaf; ++j) {
+  let divider = nbOfLeaf;
+  if (nbOfLeaf < 7) divider = 7;
+  let dLeaf = Math.ceil((BRANCH_LENGTH - 60) / divider);
+  let { endX: nStartX, endY: nStartY } = getLineFromAngle(
+    startX,
+    startY,
+    60,
+    angle
+  );
+  for (let j = 0; j < nbOfLeaf; ++j) {
     let length = dLeaf * j;
-    let { endX, endY } = getLineFromAngle(startX, startY, length, angle);
+    let { endX, endY } = getLineFromAngle(nStartX, nStartY, length, angle);
     let x = endX;
     let y = endY;
     if (!isRight) {
       x -= LEAF_WIDTH;
     }
-    if (j % 2 !== 0) {
+    if (j % 2 === 0) {
       // bas
       y -= BRANCH_WIDTH / 2 + LEAF_HEIGHT * 1.5;
     }
@@ -1195,7 +1203,7 @@ export function adjust(color: string, amount: number) {
 export function generateTreeFromModel(
   canvas: HTMLCanvasElement,
   branches: string[],
-  leafs: string[][]
+  leafs: {text: string, icon: string}[][]
 ) {
   const context = canvas.getContext("2d");
   const branchesStartPoints = getBranchEndpoint(BASE_TREE_Y, branches.length);
@@ -1204,7 +1212,6 @@ export function generateTreeFromModel(
   for (let i = 0; i < branchesStartPoints.length; ++i) {
     const { startX, startY, endX, endY } = branchesStartPoints[i];
     const nbOfLeaf = leafs[i].length;
-
     coords.push(
       computeBranchCoords(nbOfLeaf, startX, startY, getAngle(i), i % 2 === 0)
     );
@@ -1235,11 +1242,11 @@ export function generateTreeFromModel(
         x,
         y,
         type: "leaf" as any,
-        text: leafs[i][j],
+        text: leafs[i][j].text,
         id: guidGenerator(),
         seed: getRandomArbitrary(1, 100),
         color: colors[3],
-        icon: "",
+        icon: leafs[i][j].icon,
         height: LEAF_HEIGHT,
         width: LEAF_WIDTH,
         angle: !isRight ? (3 * Math.PI) / 2 : 0,
