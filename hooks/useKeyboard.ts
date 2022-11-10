@@ -1,5 +1,5 @@
 import { SetStateAction, useEffect } from "react";
-import { AppState } from "../components/App/App";
+import { AppState } from "../drawing";
 function isArrowKey(keyCode: string) {
   return (
     keyCode === KEYS.ARROW_LEFT ||
