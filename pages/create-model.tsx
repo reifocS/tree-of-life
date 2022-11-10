@@ -1,6 +1,8 @@
 import type { NextPage } from "next";
-import { Dispatch, useState } from "react";
+import { Dispatch, useRef, useState } from "react";
 import { read, utils } from "xlsx";
+import CanvasComponentWrapper from "../components/App";
+import { generateTreeFromModel } from "../drawing";
 const excelToJSON = function (setState: Dispatch<any>) {
   const parseExcel = function (file: any) {
     const reader = new FileReader();
@@ -13,7 +15,6 @@ const excelToJSON = function (setState: Dispatch<any>) {
       const jsons = workbook.SheetNames.map(function (sheetName) {
         // Here is your object
         const json_object = utils.sheet_to_json(workbook.Sheets[sheetName]);
-        console.log(json_object);
         return json_object;
       });
       const json = jsons[0] as any[];
@@ -35,25 +36,56 @@ function groupBy<T>(xs: Array<T>, key: keyof T) {
     return rv;
   }, {} as any);
 }
+
 const CreateModel: NextPage = () => {
   const [model, setModel] = useState<any>();
+  const [showModel, setShow] = useState(false);
+
+  const ref = useRef<HTMLCanvasElement>(null);
+  let treeFromModel = null;
+  if (model && ref.current) {
+    const branches = Object.keys(model);
+    const leafs = branches.map((k) => model[k].map((v: any) => v["Texte"]));
+    treeFromModel = generateTreeFromModel(ref.current, branches, leafs);
+  }
   return (
     <>
-      <h1>
-        <input
-          onChange={(evt) => {
-            const files = evt.target.files; // FileList object
-            if (files && files.length > 0) {
-              const parseExcel = excelToJSON(setModel);
-              parseExcel(files[0]);
-            }
-          }}
-          type="file"
-        />
-      </h1>
-      <h2>Branches</h2>
-      <p>{Object.keys(model).join(", ")}</p>
-      <pre>{JSON.stringify(model, null, 2)}</pre>
+      <canvas ref={ref} style={{ display: "none" }} />
+      {model && (
+        <>
+          <button
+            style={{ position: "absolute", top: 30, left: 30 }}
+            onClick={() => setShow((prev) => !prev)}
+          >
+            {showModel ? "hide model" : "show model"}
+          </button>
+        </>
+      )}
+      {!model && (
+        <>
+          <h1>
+            <input
+              onChange={(evt) => {
+                const files = evt.target.files; // FileList object
+                if (files && files.length > 0) {
+                  const parseExcel = excelToJSON(setModel);
+                  parseExcel(files[0]);
+                  setShow(true);
+                }
+              }}
+              type="file"
+            />
+          </h1>
+        </>
+      )}
+      {model && showModel && (
+        <>
+          <CanvasComponentWrapper
+            treeFromModel={treeFromModel}
+            nbOfBranches={Object.keys(model).length}
+          />
+        </>
+      )}
     </>
   );
 };

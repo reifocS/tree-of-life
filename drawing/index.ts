@@ -569,8 +569,8 @@ export function hitTest(x: number, y: number, element: Element) {
   }
 }
 
-export const LEAF_WIDTH = 80;
-export const LEAF_HEIGHT = 80;
+export const LEAF_WIDTH = 100;
+export const LEAF_HEIGHT = 100;
 export const colors = ["#fff", "#676767", "#ff7f00", "#9ed36a"];
 export const RC_WIDTH = 100;
 
@@ -745,10 +745,8 @@ const branchColors = Array(10)
 const BRANCH_WIDTH = 25;
 const BUTTON_SIZE = 30;
 const SPACE_BETWEEN_LINES = 3;
-//const NUMBER_OF_BRANCHES = Math.round(getRandomArbitrary(4, 8));
-const NUMBER_OF_BRANCHES = 5;
+export const NUMBER_OF_BRANCHES = 5;
 //const leafNumbers = getLeafNumbers(NUMBER_OF_BRANCHES);
-const leafNumbers = [4, 5, 4, 6, 3];
 const BRANCH_LENGTH = 400;
 const END_TREE_Y = -100 - LEAF_HEIGHT * NUMBER_OF_BRANCHES;
 export const BASE_TREE_X = 0;
@@ -972,15 +970,18 @@ function scale(x: number, y: number, ctx: CanvasRenderingContext2D) {
   ctx.scale(x, y);
 }
 
-export function getBranchEndpoint(height: number) {
+export function getBranchEndpoint(
+  height: number,
+  nbOfBranches = NUMBER_OF_BRANCHES
+) {
   const baseTreeY = BASE_TREE_Y;
   const xys = [];
   //Draw Branch
   let startX = BASE_TREE_X;
   let startY = baseTreeY - 100;
   let spaceBetweenBranches =
-    (height + Math.abs(END_TREE_Y) - 100) / NUMBER_OF_BRANCHES;
-  for (let i = 0; i < NUMBER_OF_BRANCHES; ++i) {
+    (height + Math.abs(END_TREE_Y) - 100) / nbOfBranches;
+  for (let i = 0; i < nbOfBranches; ++i) {
     let { endX, endY } = getLineFromAngle(
       startX,
       startY,
@@ -1025,10 +1026,10 @@ export function draw(
   cameraOffset: { x: number; y: number },
   rc: RoughCanvas,
   elements: Element[],
-  sectors: { color: string; text: string }[],
   images: { color: string; image: HTMLImageElement }[],
   selectedId?: string,
-  mode?: string
+  mode?: string,
+  nbOfBranches = NUMBER_OF_BRANCHES
 ) {
   const ctx = canvas.getContext("2d")!;
   // Zooming and padding
@@ -1048,11 +1049,11 @@ export function draw(
   ctx.lineCap = "round";
   ctx.translate(canvas.width / 2, canvas.height / 2);
 
-  if (mode === "edit") drawGrid(ctx);
+  //if (mode === "edit") drawGrid(ctx);
   drawTronc(rc, baseTreeX, baseTreeY, endTreeX, END_TREE_Y);
 
   //Draw Branch
-  let branchesEndpoint = getBranchEndpoint(baseTreeY);
+  let branchesEndpoint = getBranchEndpoint(baseTreeY, nbOfBranches);
   let k = 0;
   for (const { startX, endX, startY, endY } of branchesEndpoint) {
     drawBranch(rc, startX, startY, endX, endY, k);
@@ -1191,27 +1192,28 @@ export function adjust(color: string, amount: number) {
 }
 
 // Need to run on client
-export function generateTreeFromModel(canvas: HTMLCanvasElement) {
+export function generateTreeFromModel(
+  canvas: HTMLCanvasElement,
+  branches: string[],
+  leafs: string[][]
+) {
   const context = canvas.getContext("2d");
-  const branchesStartPoints = getBranchEndpoint(BASE_TREE_Y);
+  const branchesStartPoints = getBranchEndpoint(BASE_TREE_Y, branches.length);
   const coords = [];
   const textElements: Element[] = [];
-  const sectors = new Array(branchesStartPoints.length)
-    .fill(0)
-    .map(() => makeid(getRandomArbitrary(4, 15)));
   for (let i = 0; i < branchesStartPoints.length; ++i) {
     const { startX, startY, endX, endY } = branchesStartPoints[i];
-    const nbOfLeaf = leafNumbers[i];
+    const nbOfLeaf = leafs[i].length;
+
     coords.push(
       computeBranchCoords(nbOfLeaf, startX, startY, getAngle(i), i % 2 === 0)
     );
-    const [x, y] = getMid(startX, startY, endX, endY);
     const isRight = i % 2 === 0;
-    const newTextElem = updateText(context!, sectors[i], {
+    const newTextElem = updateText(context!, branches[i], {
       x: isRight ? endX + 20 : endX,
       y: endY - 10,
       type: "category",
-      text: sectors[i],
+      text: branches[i],
       id: guidGenerator(),
       seed: getRandomArbitrary(1, 100),
       color: "black",
@@ -1226,20 +1228,24 @@ export function generateTreeFromModel(canvas: HTMLCanvasElement) {
     }
     textElements.push(newTextElem);
   }
-  let elements: Element[] = coords.flat().map(({ x, y, isRight }, i) => ({
-    x,
-    y,
-    type: "leaf",
-    text: "",
-    id: guidGenerator(),
-    seed: getRandomArbitrary(1, 100),
-    color: colors[Math.floor(getRandomArbitrary(0, colors.length))],
-    icon: "",
-    height: LEAF_HEIGHT,
-    width: LEAF_WIDTH,
-    angle: !isRight ? (3 * Math.PI) / 2 : 0,
-  }));
 
+  let elements: Element[] = coords
+    .map((arr, i) => {
+      return arr.map(({ x, y, isRight }, j) => ({
+        x,
+        y,
+        type: "leaf" as any,
+        text: leafs[i][j],
+        id: guidGenerator(),
+        seed: getRandomArbitrary(1, 100),
+        color: colors[3],
+        icon: "",
+        height: LEAF_HEIGHT,
+        width: LEAF_WIDTH,
+        angle: !isRight ? (3 * Math.PI) / 2 : 0,
+      }));
+    })
+    .flat();
   elements = elements.concat(textElements);
 
   return elements;
