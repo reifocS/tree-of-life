@@ -65,19 +65,24 @@ const CreateModel: NextPage = () => {
       )}
       {!model && (
         <>
-          <h1>
-            <input
-              onChange={(evt) => {
-                const files = evt.target.files; // FileList object
-                if (files && files.length > 0) {
-                  const parseExcel = excelToJSON(setModel);
-                  parseExcel(files[0]);
-                  setShow(true);
-                }
-              }}
-              type="file"
-            />
-          </h1>
+          <p>
+            Generate from file{" "}
+            <a download href="template.xlsx">
+              example
+            </a>
+          </p>
+
+          <input
+            onChange={(evt) => {
+              const files = evt.target.files; // FileList object
+              if (files && files.length > 0) {
+                const parseExcel = excelToJSON(setModel);
+                parseExcel(files[0]);
+                setShow(true);
+              }
+            }}
+            type="file"
+          />
         </>
       )}
       {model && showModel && (

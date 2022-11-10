@@ -315,9 +315,6 @@ export default function Canvas({
     }
   }
 
-  //TODO move all left panel for selected element logic in a separate component
-  //We are creating and destroying an instance each time selectedelement changes which is not optimal
-
   return (
     <>
       <div className="container">
@@ -428,20 +425,20 @@ export default function Canvas({
           left: "50%",
           transform: "translate(-50%, -50%)",
           pointerEvents: "none",
-          fontSize: "18px",
+          fontSize: "2rem",
           userSelect: "none",
         }}
       >
         <button
           onClick={() => adjustZoom(-0.25, null)}
-          style={{ pointerEvents: "all" }}
+          style={{ pointerEvents: "all", fontSize: "2rem" }}
         >
           -
         </button>
         <div>{Math.floor(cameraZoom * 100)}% 🔍</div>
         <button
           onClick={() => adjustZoom(0.25, null)}
-          style={{ pointerEvents: "all" }}
+          style={{ pointerEvents: "all", fontSize: "2rem" }}
         >
           +
         </button>
