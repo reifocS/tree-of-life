@@ -5,7 +5,7 @@ body {
 }
 
 canvas {
-  background-color: #87ceeb ;
+  background-color: #87ceeb;
 }
 
 .container {
@@ -107,3 +107,20 @@ button {
   border: 2px solid;
 }
 
+.loadingModel {
+  position: relative;
+  height: 100vh;
+  width: 100vw;
+  opacity: 0.8;
+  text-align: center;
+  font-family: 'comic sans ms';
+  font-size: 2rem;
+  background-color: #87ceeb;
+}
+
+.loadingModel .loadingGif {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}

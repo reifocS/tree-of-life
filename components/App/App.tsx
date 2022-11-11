@@ -60,9 +60,11 @@ const useDeviceSize = () => {
 export default function Canvas({
   treeFromModel,
   nbOfBranches = NUMBER_OF_BRANCHES,
+  modelName = "",
 }: {
   treeFromModel?: Element[];
   nbOfBranches: number;
+  modelName: string;
 }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [width, height /*devicePixelRatio*/] = useDeviceSize();
@@ -99,6 +101,7 @@ export default function Canvas({
 
     return () => document.removeEventListener("touchmove", disable);
   }, []);
+
   const router = useRouter();
   const isDevMode = router.query.debug;
   const images = useMemo(() => {
