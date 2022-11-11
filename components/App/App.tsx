@@ -57,6 +57,10 @@ const useDeviceSize = () => {
   return [width, height, devicePixelRatio];
 };
 
+//TODO
+//Changer la taille de font des feuille
+//Ajuster la position de l'émoji selon la taille de la feuille
+//Modifier la position du texte sur la feuille
 export default function Canvas({
   treeFromModel,
   nbOfBranches = NUMBER_OF_BRANCHES,

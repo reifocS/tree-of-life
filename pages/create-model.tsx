@@ -139,7 +139,6 @@ const CreateModel: NextPage = () => {
                 voir exemple
               </a>
             </p>
-
             <input
               onChange={(evt) => {
                 const files = evt.target.files;
@@ -158,6 +157,7 @@ const CreateModel: NextPage = () => {
               }}
               type="file"
             />
+            <p>Générer à partir de l&apos;interface (todo)</p>
           </>
         )}
         {model && !loading && showModel && (
