@@ -97,7 +97,7 @@ const CreateModel: NextPage = () => {
         setModelName("");
       }}
     >
-      <>
+      <div className="wrapper">
         {error && <p>Could not read file</p>}
         <>
           <div
@@ -169,7 +169,7 @@ const CreateModel: NextPage = () => {
             />
           </>
         )}
-      </>
+      </div>
     </ErrorBoundary>
   );
 };

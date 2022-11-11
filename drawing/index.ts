@@ -23,7 +23,7 @@ export type AppState = {
 export const savedState: AppState = {
   selectedElement: null,
   sectors: [],
-  mode: "edit",
+  mode: "view",
   cameraZoom: 1,
   scaleMultiplier: 0.8,
   cameraOffset: { x: 0, y: 0 },
