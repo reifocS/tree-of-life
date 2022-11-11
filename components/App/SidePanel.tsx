@@ -70,7 +70,7 @@ export default function SidePanel({
         <>
           {selectedElement.type !== "category" && (
             <>
-              width
+              size
               <input
                 onChange={(e) => {
                   setAppState((prev) => ({
@@ -80,6 +80,7 @@ export default function SidePanel({
                         return {
                           ...el,
                           width: +e.target.value,
+                          height: +e.target.value
                         };
                       }
                       return el;
@@ -87,40 +88,12 @@ export default function SidePanel({
                   }));
                 }}
                 type="range"
-                min={0}
-                max={360}
+                min={50}
+                max={350}
                 value={
                   elements.find((el) => el.id === selectedElement.id)?.width
                 }
               ></input>
-              {selectedElement.type === "leaf" && (
-                <>
-                  height
-                  <input
-                    onChange={(e) => {
-                      setAppState((prev) => ({
-                        ...prev,
-                        elements: prev.elements.map((el) => {
-                          if (el.id === selectedElement.id) {
-                            return {
-                              ...el,
-                              height: +e.target.value,
-                            };
-                          }
-                          return el;
-                        }),
-                      }));
-                    }}
-                    type="range"
-                    min={50}
-                    max={300}
-                    value={
-                      elements.find((el) => el.id === selectedElement.id)
-                        ?.height!
-                    }
-                  ></input>
-                </>
-              )}
               emoji
               <button
                 className={`emojiSelector ${
