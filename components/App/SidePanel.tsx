@@ -55,18 +55,6 @@ export default function SidePanel({
   return (
     <div className="sidePanel">
       <div className="panelColumn">
-        <button
-          onClick={() => {
-            const el = addText(ctx);
-            if (!el) return;
-            setAppState((prev) => ({
-              ...prev,
-              elements: [...prev.elements, el],
-            }));
-          }}
-        >
-          Add text
-        </button>
         <>
           {selectedElement.type !== "category" && (
             <>
