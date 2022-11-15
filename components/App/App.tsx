@@ -30,11 +30,11 @@ import {
   adjust,
   LEAF_WIDTH,
   LEAF_HEIGHT,
-  Element,
-  NUMBER_OF_BRANCHES,
 } from "../../drawing";
 import SidePanel from "./SidePanel";
 import useDisableScrollBounce from "../../hooks/useDisableScrollBounce";
+import { Model } from "../Model/Model";
+import useLocalStorage from "../../hooks/useLocalStorage";
 
 const useDeviceSize = () => {
   const [width, setWidth] = useState(0);
@@ -64,20 +64,14 @@ const useDeviceSize = () => {
 //Changer la taille de font des feuille
 //Ajuster la position de l'émoji selon la taille de la feuille
 //Modifier la position du texte sur la feuille
-export default function Canvas({
-  treeFromModel,
-  nbOfBranches = NUMBER_OF_BRANCHES,
-  modelName = "",
-}: {
-  treeFromModel?: Element[];
-  nbOfBranches: number;
-  modelName: string;
-}) {
+export default function Canvas({ treeFromModel }: { treeFromModel?: Model }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [width, height /*devicePixelRatio*/] = useDeviceSize();
   const [roughCanvas, setRoughCanvas] = useState<RoughCanvas | null>(null);
   // Hack used to make sure we wait for image to load, needed for firefox
   const [dummyUpdate, forceUpdate] = useState({});
+  const [, setModels] = useLocalStorage<Model[]>("models", []);
+
   const [appState, setAppState] = useState<AppState>(() => {
     if (!treeFromModel) return savedState as AppState;
     return {
@@ -91,7 +85,7 @@ export default function Canvas({
       dragStart: { x: 0, y: 0 },
       initialPinchDistance: null,
       draggedElement: null,
-      elements: treeFromModel,
+      elements: treeFromModel.elements,
       downPoint: { x: 0, y: 0 },
     };
   });
@@ -159,6 +153,8 @@ export default function Canvas({
       canvasRef.current = node;
     }
   }, []);
+
+  const nbOfBranches = treeFromModel?.nbOfBranches;
 
   const buttonEndpoints = useMemo(
     () => getBranchEndpoint(BASE_TREE_Y, nbOfBranches),
@@ -474,13 +470,35 @@ export default function Canvas({
           </button>
         )}{" "}
         {mode === "edit" && (
-          <button
-            onClick={() =>
-              navigator.clipboard.writeText(JSON.stringify(appState))
-            }
-          >
-            save to clipboard
-          </button>
+          <>
+            <button
+              onClick={() =>
+                navigator.clipboard.writeText(JSON.stringify(appState))
+              }
+            >
+              save to clipboard
+            </button>
+            <button
+              disabled={!treeFromModel}
+              onClick={() => {
+                if (!treeFromModel) return;
+
+                setModels((prev) =>
+                  prev?.map((m) => {
+                    if (m.id === treeFromModel.id) {
+                      return {
+                        ...m,
+                        elements,
+                      };
+                    }
+                    return m;
+                  })
+                );
+              }}
+            >
+              save
+            </button>
+          </>
         )}
       </div>
     </>

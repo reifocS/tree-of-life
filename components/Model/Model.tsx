@@ -1,10 +1,17 @@
 import type { NextPage } from "next";
 import Image from "next/image";
-import { Dispatch, SetStateAction, useMemo, useRef, useState } from "react";
+import {
+  Dispatch,
+  SetStateAction,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { read, utils } from "xlsx";
-import CanvasComponentWrapper from "../components/App";
+import CanvasComponentWrapper from "../App";
 import { ErrorBoundary } from "react-error-boundary";
-import { generateTreeFromModel } from "../drawing";
+import { Element, generateTreeFromModel, guidGenerator } from "../../drawing";
+import useLocalStorage from "../../hooks/useLocalStorage";
 
 const LOADING_TIME = 2000;
 const excelToJSON = function (
@@ -67,34 +74,53 @@ function ErrorFallback({
   );
 }
 
+export type Model = {
+  name: string;
+  elements: Element[];
+  id: string;
+  nbOfBranches: number;
+};
+
 const CreateModel: NextPage = () => {
-  const [model, setModel] = useState<any>();
+  const [fileData, setFileData] = useState<any>();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
-  const [showModel, setShow] = useState(false);
   const [modelName, setModelName] = useState("");
-
+  const [models, setLocalStorage] = useLocalStorage<Model[]>("models", []);
+  const [model, setModel] = useState<Model | null>(null);
   const ref = useRef<HTMLCanvasElement>(null);
-  let treeFromModel = useMemo(() => {
-    if (model && ref.current) {
-      const branches = Object.keys(model);
+  useEffect(() => {
+    if (fileData && ref.current) {
+      const branches = Object.keys(fileData);
       const leafs = branches.map((k) =>
-        model[k].map((v: any) => ({ text: v["Texte"], icon: v["Icône"] }))
+        fileData[k].map((v: any) => ({ text: v["Texte"], icon: v["Icône"] }))
       );
-      return generateTreeFromModel(ref.current, branches, leafs);
+      const treeModel = generateTreeFromModel(ref.current, branches, leafs);
+      const id = guidGenerator();
+      const newModel = {
+        name: modelName,
+        elements: treeModel,
+        id,
+        nbOfBranches: branches.length,
+      };
+      setLocalStorage((prev) => [...prev, newModel]);
+      setModel(newModel);
     }
-    return null;
-  }, [model]);
+  }, [fileData, setLocalStorage, modelName]);
 
+
+  function reset() {
+    setFileData(undefined);
+    setError(false);
+    setLoading(false);
+    setModelName("");
+    setModel(null);
+  }
   return (
     <ErrorBoundary
       FallbackComponent={ErrorFallback}
       onReset={() => {
-        setModel(undefined);
-        setError(false);
-        setLoading(false);
-        setShow(false);
-        setModelName("");
+        reset();
       }}
     >
       <div className="wrapper">
@@ -124,50 +150,76 @@ const CreateModel: NextPage = () => {
           <>
             <button
               style={{ position: "absolute", top: 30, left: 30 }}
-              onClick={() => setShow((prev) => !prev)}
+              onClick={() => reset()}
             >
-              {showModel ? "hide model" : "show model"}
+              back
             </button>
           </>
         )}
-        {!treeFromModel && (
+        {!model && (
           <>
             <p>
               Générer à partir d&apos;un fichier (⚠️ les en tête ne doivent pas
-              être modifié !) 
+              être modifié !)
             </p>
-            <p>télécharger un{" "}
+            <p>
+              télécharger un{" "}
               <a download href="template.xlsx">
                 exemple
-              </a></p>
+              </a>
+            </p>
             <input
               onChange={(evt) => {
                 const files = evt.target.files;
                 if (files && files.length > 0) {
                   //Todo faire le parsing de fichier côté serveur
                   const parseExcel = excelToJSON(
-                    setModel,
+                    setFileData,
                     setLoading,
                     setError,
                     setModelName
                   );
                   parseExcel(files[0]);
-                  setShow(true);
                 }
               }}
               type="file"
               accept=".xlsx"
             />
             <p>Générer à partir de l&apos;interface (todo)</p>
+            <ul>
+              {models.map((m) => (
+                <li key={m.id}>
+                  <input
+                    value={m.name}
+                    onChange={(e) => {
+                      setLocalStorage((prev) =>
+                        prev?.map((mod) => {
+                          if (mod.id === m.id) {
+                            return {
+                              ...mod,
+                              name: e.target.value,
+                            };
+                          }
+                          return mod;
+                        })
+                      );
+                    }}
+                  ></input>
+                  <button
+                    onClick={() => {
+                      setModel(m);
+                    }}
+                  >
+                    view
+                  </button>
+                </li>
+              ))}
+            </ul>
           </>
         )}
-        {model && !loading && showModel && (
+        {model && !loading && (
           <>
-            <CanvasComponentWrapper
-              treeFromModel={treeFromModel}
-              nbOfBranches={Object.keys(model).length}
-              modelName={modelName}
-            />
+            <CanvasComponentWrapper treeFromModel={model} />
           </>
         )}
       </div>
