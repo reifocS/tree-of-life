@@ -34,11 +34,14 @@ import {
   NUMBER_OF_BRANCHES,
 } from "../../drawing";
 import SidePanel from "./SidePanel";
+import useDisableScrollBounce from "../../hooks/useDisableScrollBounce";
 
 const useDeviceSize = () => {
   const [width, setWidth] = useState(0);
   const [height, setHeight] = useState(0);
   const [devicePixelRatio, setDevicePixelRatio] = useState(0);
+
+  useDisableScrollBounce();
   const handleWindowResize = () => {
     setWidth(window.innerWidth);
     setHeight(window.innerHeight);
@@ -161,10 +164,6 @@ export default function Canvas({
     () => getBranchEndpoint(BASE_TREE_Y, nbOfBranches),
     [nbOfBranches]
   );
-
-  /*useEffect(() => {
-    //generateTreeFromModel(canvasRef.current!)
-  }, [buttonEndpoints]);*/
 
   useLayoutEffect(() => {
     if (!roughCanvas) return;

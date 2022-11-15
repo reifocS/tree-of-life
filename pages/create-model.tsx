@@ -134,11 +134,12 @@ const CreateModel: NextPage = () => {
           <>
             <p>
               Générer à partir d&apos;un fichier (⚠️ les en tête ne doivent pas
-              être modifié !){" "}
-              <a download href="template.xlsx">
-                voir exemple
-              </a>
+              être modifié !) 
             </p>
+            <p>télécharger un{" "}
+              <a download href="template.xlsx">
+                exemple
+              </a></p>
             <input
               onChange={(evt) => {
                 const files = evt.target.files;
