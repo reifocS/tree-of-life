@@ -143,7 +143,6 @@ const CreateModel: NextPage = () => {
             <input
               onChange={(evt) => {
                 const files = evt.target.files;
-                //Todo verifier que l'extension est xlsx
                 if (files && files.length > 0) {
                   //Todo faire le parsing de fichier côté serveur
                   const parseExcel = excelToJSON(
@@ -157,6 +156,7 @@ const CreateModel: NextPage = () => {
                 }
               }}
               type="file"
+              accept=".xlsx"
             />
             <p>Générer à partir de l&apos;interface (todo)</p>
           </>
