@@ -1,12 +1,6 @@
 import type { NextPage } from "next";
 import Image from "next/image";
-import {
-  Dispatch,
-  SetStateAction,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { read, utils } from "xlsx";
 import CanvasComponentWrapper from "../App";
 import { ErrorBoundary } from "react-error-boundary";
@@ -108,7 +102,6 @@ const CreateModel: NextPage = () => {
     }
   }, [fileData, setLocalStorage, modelName]);
 
-
   function reset() {
     setFileData(undefined);
     setError(false);
@@ -186,7 +179,8 @@ const CreateModel: NextPage = () => {
               accept=".xlsx"
             />
             <p>Générer à partir de l&apos;interface (todo)</p>
-            <ul>
+            <p>Modèles</p>
+            <ul className="modelList">
               {models.map((m) => (
                 <li key={m.id}>
                   <input
@@ -211,6 +205,15 @@ const CreateModel: NextPage = () => {
                     }}
                   >
                     view
+                  </button>
+                  <button
+                    onClick={() => {
+                      setLocalStorage((prev) =>
+                        prev?.filter((mod) => mod.id !== m.id)
+                      );
+                    }}
+                  >
+                    delete
                   </button>
                 </li>
               ))}
