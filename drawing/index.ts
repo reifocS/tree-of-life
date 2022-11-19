@@ -1133,7 +1133,7 @@ export function generateTreeFromModel(
         text: leafs[i][j].text,
         id: guidGenerator(),
         seed: getRandomArbitrary(1, 100),
-        color: colors[3],
+        color: white,
         icon: leafs[i][j].icon,
         height: LEAF_HEIGHT,
         width: LEAF_WIDTH,
