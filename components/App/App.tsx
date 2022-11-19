@@ -39,35 +39,14 @@ import useLocalStorage from "../../hooks/useLocalStorage";
 import useDisablePinchZoom from "../../hooks/useDisablePinchZoom";
 import Legend from "./Legend";
 import { normalizeWheelEvent } from "../../utils/normalizeWheelEvent";
-
-const useDeviceSize = () => {
-  const [width, setWidth] = useState(0);
-  const [height, setHeight] = useState(0);
-  const [devicePixelRatio, setDevicePixelRatio] = useState(0);
-
-  useDisableScrollBounce();
-  const handleWindowResize = () => {
-    setWidth(window.innerWidth);
-    setHeight(window.innerHeight);
-    // this tells the browser how many of the screen's actual pixels should be used to draw a single CSS pixel.
-    setDevicePixelRatio(window.devicePixelRatio);
-  };
-
-  useEffect(() => {
-    // component is mounted and window is available
-    handleWindowResize();
-    window.addEventListener("resize", handleWindowResize);
-    // unsubscribe from the event on component unmount
-    return () => window.removeEventListener("resize", handleWindowResize);
-  }, []);
-
-  return [width, height, devicePixelRatio];
-};
+import useDeviceSize from "../../hooks/useDeviceiSize";
 
 //TODO
 //Changer la taille de font des feuille
 //Ajuster la position de l'émoji selon la taille de la feuille
 //Modifier la position du texte sur la feuille
+//Changer la taille de la feuille selon le texte
+//Zoomer sur le pointer et non le centre
 export default function Canvas({ treeFromModel }: { treeFromModel?: Model }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [width, height /*devicePixelRatio*/] = useDeviceSize();
@@ -75,6 +54,7 @@ export default function Canvas({ treeFromModel }: { treeFromModel?: Model }) {
   // Hack used to make sure we wait for image to load, needed for firefox
   const [dummyUpdate, forceUpdate] = useState({});
   const [, setModels] = useLocalStorage<Model[]>("models", []);
+  useDisableScrollBounce();
 
   const [appState, setAppState] = useState<AppState>(() => {
     if (!treeFromModel) return savedState as AppState;
@@ -335,7 +315,10 @@ export default function Canvas({ treeFromModel }: { treeFromModel?: Model }) {
           ></SidePanel>
         )}
         <canvas
-          onMouseOut={resetMouseState}
+          onMouseOut={() => {
+            resetMouseState();
+            document.documentElement.style.cursor = "default"
+          }}
           onContextMenu={(e) => {
             e.preventDefault();
             if (mode !== "view") return;
