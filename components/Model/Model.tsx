@@ -6,6 +6,7 @@ import CanvasComponentWrapper from "../App";
 import { ErrorBoundary } from "react-error-boundary";
 import { Element, generateTreeFromModel, guidGenerator } from "../../drawing";
 import useLocalStorage from "../../hooks/useLocalStorage";
+import CanvasPreview from "../App/Preview";
 
 const LOADING_TIME = 2000;
 const excelToJSON = function (
@@ -116,7 +117,18 @@ const CreateModel: NextPage = () => {
         reset();
       }}
     >
-      <div className="wrapper">
+      <div
+        className="wrapper"
+        style={
+          model
+            ? {}
+            : {
+                overscrollBehavior: "auto",
+                height: "100vh",
+                overflow: "scroll",
+              }
+        }
+      >
         {error && <p>Could not read file</p>}
         <>
           <div
@@ -218,6 +230,24 @@ const CreateModel: NextPage = () => {
                 </li>
               ))}
             </ul>
+            <h2>Visualisation</h2>
+            <div
+              style={{
+                display: "flex",
+                gap: 10,
+                padding: 30,
+                justifyContent: "center",
+                alignItems: "center",
+                flexWrap: "wrap",
+              }}
+            >
+              {models.map((m) => (
+                <div key={m.id}>
+                  <p>{m.name}</p>
+                  <CanvasPreview treeFromModel={m} />
+                </div>
+              ))}
+            </div>
           </>
         )}
         {model && !loading && (

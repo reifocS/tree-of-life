@@ -39,7 +39,7 @@ import useLocalStorage from "../../hooks/useLocalStorage";
 import useDisablePinchZoom from "../../hooks/useDisablePinchZoom";
 import Legend from "./Legend";
 import { normalizeWheelEvent } from "../../utils/normalizeWheelEvent";
-import useDeviceSize from "../../hooks/useDeviceiSize";
+import useDeviceSize from "../../hooks/useDeviceSize";
 
 //TODO
 //Changer la taille de font des feuille
@@ -317,10 +317,9 @@ export default function Canvas({ treeFromModel }: { treeFromModel?: Model }) {
         <canvas
           onMouseOut={() => {
             resetMouseState();
-            document.documentElement.style.cursor = "default"
+            document.documentElement.style.cursor = "default";
           }}
           onContextMenu={(e) => {
-            e.preventDefault();
             if (mode !== "view") return;
             const ctx = canvasRef.current!.getContext("2d")!;
             const { x, y } = mousePosToCanvasPos(ctx, e);

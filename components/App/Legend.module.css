@@ -1,29 +1,40 @@
 .legend {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    padding: 10px;
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.01), 1px 1px 5px rgb(0 0 0/12%);
-    border-radius: 6px;
-    background-color: hsla(0, 0%, 100%, 0.578);
-    user-select: none;
-    pointer-events: none;
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  padding: 10px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.01), 1px 1px 5px rgb(0 0 0/12%);
+  border-radius: 6px;
+  background-color: hsla(0, 0%, 100%, 0.578);
+  user-select: none;
+  pointer-events: none;
 }
 
 .legendContainer {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .legendSquare {
-    width: 20px;
-    height: 20px;
+  width: 20px;
+  height: 20px;
 }
 
 .legendContent {
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+@media screen and (min-width: 801px) {
+  .legendContainer {
     font-size: large;
-    gap: 6px;
+  }
+}
+
+@media screen and (max-width: 800px) {
+  .legendContainer {
+    font-size: xxx-large;
+  }
 }
