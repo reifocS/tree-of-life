@@ -27,16 +27,4 @@
     font-size: large;
     gap: 6px;
 }
-
-@media screen and (min-width: 801px) {
-    .legendContainer {
-      font-size: large;
-    }
-  }
-  
-  @media screen and (max-width: 800px) {
-    .legendContainer {
-      font-size: xxx-large;
-    }
-  }
   
