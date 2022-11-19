@@ -36,6 +36,7 @@ import useDisableScrollBounce from "../../hooks/useDisableScrollBounce";
 import { Model } from "../Model/Model";
 import useLocalStorage from "../../hooks/useLocalStorage";
 import useDisablePinchZoom from "../../hooks/useDisablePinchZoom";
+import Legend from "./Legend";
 
 const useDeviceSize = () => {
   const [width, setWidth] = useState(0);
@@ -321,6 +322,7 @@ export default function Canvas({ treeFromModel }: { treeFromModel?: Model }) {
   return (
     <>
       <div className="container">
+        <Legend/>
         {selectedElement && (
           <SidePanel
             setAppState={setAppState}

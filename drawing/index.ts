@@ -537,7 +537,24 @@ export function hitTest(x: number, y: number, element: Element) {
 
 export const LEAF_WIDTH = 110;
 export const LEAF_HEIGHT = 110;
-export const colors = ["#fff", "#9ed36a", "#ff7f00", "#676767"];
+type Green = "#9ed36a";
+type White = "#fff";
+type Orange = "#ff7f00";
+type Gray = "#676767";
+type Color = Green | White | Orange | Gray;
+const green: Color = "#9ed36a";
+const white: Color = "#fff";
+const orange: Color = "#ff7f00";
+const gray: Color = "#676767";
+type Colors = Color[];
+export const colors: Colors = ["#fff", "#9ed36a", "#ff7f00", "#676767"];
+
+export const colorsMeaning: Record<Color, string> = {
+  [white]: "Je n'ai pas abordé le sujet",
+  [green]: "Je souhaite en parler",
+  [orange]: "Je ne suis pas à l'aise pour en parler",
+  [gray]: "Je préfère éviter le sujet",
+};
 
 export const RC_WIDTH = 100;
 
