@@ -30,6 +30,7 @@ import {
   adjust,
   LEAF_WIDTH,
   LEAF_HEIGHT,
+  SCROLL_SENSITIVITY_TOUCHPAD,
 } from "../../drawing";
 import SidePanel from "./SidePanel";
 import useDisableScrollBounce from "../../hooks/useDisableScrollBounce";
@@ -37,6 +38,7 @@ import { Model } from "../Model/Model";
 import useLocalStorage from "../../hooks/useLocalStorage";
 import useDisablePinchZoom from "../../hooks/useDisablePinchZoom";
 import Legend from "./Legend";
+import { normalizeWheelEvent } from "../../utils/normalizeWheelEvent";
 
 const useDeviceSize = () => {
   const [width, setWidth] = useState(0);
@@ -322,7 +324,7 @@ export default function Canvas({ treeFromModel }: { treeFromModel?: Model }) {
   return (
     <>
       <div className="container">
-        <Legend/>
+        <Legend />
         {selectedElement && (
           <SidePanel
             setAppState={setAppState}
@@ -410,7 +412,13 @@ export default function Canvas({ treeFromModel }: { treeFromModel?: Model }) {
           onMouseDown={handlePointerDown}
           onMouseUp={handlePointerUp}
           onMouseMove={handlePointerMove}
-          onWheel={(e) => adjustZoom(e.deltaY * SCROLL_SENSITIVITY * -1, null)}
+          onWheel={(e) => {
+            const { deltaX, deltaY } = normalizeWheelEvent(e);
+            const scrollSensitivity = e.ctrlKey
+              ? SCROLL_SENSITIVITY_TOUCHPAD
+              : SCROLL_SENSITIVITY;
+            adjustZoom(deltaY * scrollSensitivity * -1, null);
+          }}
           ref={ref}
           width={width}
           height={height}
