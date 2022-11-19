@@ -537,74 +537,9 @@ export function hitTest(x: number, y: number, element: Element) {
 
 export const LEAF_WIDTH = 110;
 export const LEAF_HEIGHT = 110;
-export const colors = ["#fff", "#676767", "#ff7f00", "#9ed36a"];
+export const colors = ["#fff", "#9ed36a", "#ff7f00", "#676767"];
+
 export const RC_WIDTH = 100;
-
-function drawGrid(ctx: CanvasRenderingContext2D) {
-  try {
-    const textBaseline = ctx.textBaseline;
-    const font = ctx.font;
-    /* vertical lines */
-    for (var x = 0.5; x < ctx.canvas.width; x += 10) {
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, ctx.canvas.height);
-    }
-
-    /* horizontal lines */
-    for (var y = 0.5; y < ctx.canvas.height; y += 10) {
-      ctx.moveTo(0, y);
-      ctx.lineTo(ctx.canvas.width, y);
-    }
-
-    /* draw it! */
-    ctx.strokeStyle = "#eee";
-    ctx.stroke();
-
-    //arrows
-    /* x-axis */
-    ctx.beginPath();
-    ctx.moveTo(0, 40);
-    ctx.lineTo(240, 40);
-    ctx.moveTo(260, 40);
-    ctx.lineTo(500, 40);
-    ctx.lineTo(ctx.canvas.width, 40);
-
-    /* y-axis */
-    ctx.moveTo(60, 0);
-    ctx.lineTo(60, 153);
-    ctx.moveTo(60, 173);
-    ctx.lineTo(60, 375);
-    ctx.lineTo(60, ctx.canvas.height);
-
-    /* draw it! */
-    ctx.strokeStyle = "#000";
-    ctx.stroke();
-
-    //labels
-    try {
-      ctx.font = "bold 12px sans-serif";
-      ctx.fillText("x", 248, 43);
-      ctx.fillText("y", 58, 165);
-    } catch (err) {}
-
-    try {
-      ctx.textBaseline = "top";
-      ctx.fillText("( 0 , 0 )", 8, 5);
-    } catch (err) {}
-
-    try {
-      ctx.textBaseline = "bottom";
-      ctx.fillText(
-        "(" + ctx.canvas.width + "," + ctx.canvas.height + ")",
-        ctx.canvas.width,
-        ctx.canvas.height
-      );
-    } catch (err) {}
-
-    ctx.textBaseline = textBaseline;
-    ctx.font = font;
-  } catch (err) {}
-}
 
 function drawImage(
   rc: RoughCanvas,
@@ -684,9 +619,6 @@ function drawLeaf(
   }
   ctx.font = font;
 }
-
-const getLeafNumbers = (nbOfBranches: number) =>
-  new Array(nbOfBranches).fill(0).map((_) => getRandomArbitrary(4, 8));
 
 function drawTronc(
   rc: RoughCanvas,
@@ -778,34 +710,6 @@ function drawAddButton(canvas: HTMLCanvasElement, x: number, y: number) {
   ctx.font = font;
 }
 
-function drawSector(
-  el: Element,
-  ctx: CanvasRenderingContext2D,
-  rc: RoughCanvas,
-  i: number,
-  isSelected = false
-) {
-  rc.circle(el.x, el.y, el.width!, {
-    fill: el.color,
-    seed: el.seed,
-    fillStyle: "solid",
-  });
-  if (isSelected) {
-    rc.rectangle(
-      el.x - el.width! / 2,
-      el.y - el.width! / 2,
-      el.width!,
-      el.width!,
-      {
-        seed: 2,
-        strokeLineDash: [5, 5],
-        roughness: 0,
-      }
-    );
-  }
-  printAtWordWrap(ctx, el.text, el.x, el.y, 15, el.width! - 15, "black", "");
-}
-
 export function getRandomArbitrary(min: number, max: number) {
   return Math.random() * (max - min) + min;
 }
@@ -825,7 +729,7 @@ export function addText(context: CanvasRenderingContext2D) {
     id: guidGenerator(),
     color: "black",
   };
-  let text = prompt("What text do you want?");
+  let text = prompt("Quel texte doit on écrire ?");
   if (text === null) {
     return;
   }
@@ -859,6 +763,7 @@ export function updateText(
   context.font = element.font || "20px comic sans ms";
   const lines = text.split("\n");
   //TODO fix for words with low baseline
+  //TODO update leaf size accordingly
   if (lines.length === 1) {
     const { actualBoundingBoxAscent, actualBoundingBoxDescent, width } =
       context.measureText(text);
@@ -1024,7 +929,6 @@ export function draw(
   ctx.lineCap = "round";
   ctx.translate(canvas.width / 2, canvas.height / 2);
 
-  //if (mode === "edit") drawGrid(ctx);
   drawTronc(rc, baseTreeX, baseTreeY, endTreeX, END_TREE_Y);
 
   //Draw Branch
@@ -1045,8 +949,6 @@ export function draw(
   for (const element of elements) {
     if (element.type === "category") {
       drawCategory(element, ctx, rc, element.id === selectedId, element.angle);
-    } else if (element.type === "circle") {
-      drawSector(element, ctx, rc, i++, element.id === selectedId);
     } else {
       drawLeaf(
         rc,

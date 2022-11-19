@@ -35,6 +35,7 @@ import SidePanel from "./SidePanel";
 import useDisableScrollBounce from "../../hooks/useDisableScrollBounce";
 import { Model } from "../Model/Model";
 import useLocalStorage from "../../hooks/useLocalStorage";
+import useDisablePinchZoom from "../../hooks/useDisablePinchZoom";
 
 const useDeviceSize = () => {
   const [width, setWidth] = useState(0);
@@ -90,18 +91,7 @@ export default function Canvas({ treeFromModel }: { treeFromModel?: Model }) {
     };
   });
 
-  useEffect(() => {
-    // Block pinch-zooming on iOS outside of the content area
-    function disable(event: any) {
-      // @ts-ignore
-      if (event.scale !== 1) {
-        event.preventDefault();
-      }
-    }
-    document.addEventListener("touchmove", disable, { passive: false });
-
-    return () => document.removeEventListener("touchmove", disable);
-  }, []);
+  useDisablePinchZoom();
 
   const router = useRouter();
   const isDevMode = router.query.debug;
@@ -228,14 +218,14 @@ export default function Canvas({ treeFromModel }: { treeFromModel?: Model }) {
   };
 
   const handlePointerUp = (e: PointerEvent<HTMLCanvasElement>) => {
-    e.preventDefault();
-    setAppState((prev) => ({
-      ...prev,
-      isDragging: false,
-      initialPinchDistance: null,
-      draggedElement: null,
-    }));
+    const { x, y } = mousePosToCanvasPos(
+      canvasRef.current?.getContext("2d")!,
+      e
+    );
+    const el = elements.find((el) => hitTest(x, y, el));
+    resetMouseState();
     lastZoom.current = cameraZoom;
+    if (!el) document.documentElement.style.cursor = "default";
   };
 
   function handlePinch(e: any) {
@@ -257,7 +247,9 @@ export default function Canvas({ treeFromModel }: { treeFromModel?: Model }) {
   }
   const handlePointerMove = (e: PointerEvent<HTMLCanvasElement>) => {
     const ctx = canvasRef.current!.getContext("2d")!;
+
     const { x, y } = mousePosToCanvasPos(ctx, e);
+
     const target = e.target;
     if (!(target instanceof HTMLElement)) {
       return;
@@ -317,6 +309,15 @@ export default function Canvas({ treeFromModel }: { treeFromModel?: Model }) {
     }
   }
 
+  function resetMouseState() {
+    setAppState((prev) => ({
+      ...prev,
+      isDragging: false,
+      initialPinchDistance: null,
+      draggedElement: null,
+    }));
+  }
+
   return (
     <>
       <div className="container">
@@ -330,6 +331,7 @@ export default function Canvas({ treeFromModel }: { treeFromModel?: Model }) {
           ></SidePanel>
         )}
         <canvas
+          onMouseOut={resetMouseState}
           onContextMenu={(e) => {
             e.preventDefault();
             if (mode !== "view") return;
