@@ -413,7 +413,8 @@ export default function Canvas({ treeFromModel }: { treeFromModel?: Model }) {
           onMouseUp={handlePointerUp}
           onMouseMove={handlePointerMove}
           onWheel={(e) => {
-            const { deltaX, deltaY } = normalizeWheelEvent(e);
+            const { deltaX: _deltaX, deltaY } = normalizeWheelEvent(e);
+            // Hacky way to detect touchpad zoom
             const scrollSensitivity = e.ctrlKey
               ? SCROLL_SENSITIVITY_TOUCHPAD
               : SCROLL_SENSITIVITY;
