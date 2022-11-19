@@ -382,7 +382,7 @@ export default function Canvas({ treeFromModel }: { treeFromModel?: Model }) {
                       return {
                         ...e,
                         color: colors[nextIndex],
-                        fontColor: nextIndex === 1 ? "#fff" : "black",
+                        fontColor: nextIndex === colors.length - 1 ? "#fff" : "black",
                       };
                     }
                     return e;
