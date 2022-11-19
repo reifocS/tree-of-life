@@ -671,7 +671,7 @@ export const BASE_TREE_Y = 800;
 export const MAX_ZOOM = 5;
 export const MIN_ZOOM = 0.1;
 export const SCROLL_SENSITIVITY = 0.0005;
-export const SCROLL_SENSITIVITY_TOUCHPAD = 0.01;
+export const SCROLL_SENSITIVITY_TOUCHPAD = 0.005;
 
 let INITIAL_ZOOM = 1;
 
