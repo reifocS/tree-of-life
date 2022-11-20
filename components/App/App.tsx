@@ -39,6 +39,7 @@ import useDisablePinchZoom from "../../hooks/useDisablePinchZoom";
 import Legend from "./Legend";
 import { normalizeWheelEvent } from "../../utils/normalizeWheelEvent";
 import useDeviceSize from "../../hooks/useDeviceSize";
+import { useDrag, useMove } from "@use-gesture/react";
 
 //TODO
 //Changer la taille de font des feuille
@@ -54,7 +55,6 @@ export default function Canvas({ treeFromModel }: { treeFromModel?: Model }) {
   const [dummyUpdate, forceUpdate] = useState({});
   const [, setModels] = useLocalStorage<Model[]>("models", []);
   useDisableScrollBounce();
-
   const [appState, setAppState] = useState<AppState>(() => {
     if (!treeFromModel) return savedState as AppState;
     return {
@@ -96,7 +96,7 @@ export default function Canvas({ treeFromModel }: { treeFromModel?: Model }) {
   }, []);
 
   function handleTouch(e: any, singleTouchHandler: any) {
-    if (e.touches.length == 1) {
+    if (e.touches.length <= 1) {
       singleTouchHandler(e);
     } else if (e.type == "touchmove" && e.touches.length == 2) {
       setAppState((prev) => ({
@@ -342,6 +342,7 @@ export default function Canvas({ treeFromModel }: { treeFromModel?: Model }) {
           onTouchMove={(e) => handleTouch(e, handlePointerMove)}
           onTouchStart={(e) => handleTouch(e, handlePointerDown)}
           onTouchEnd={(e) => handleTouch(e, handlePointerUp)}
+          onTouchCancel={(e) => handleTouch(e, handlePointerUp)}
           onClick={(e) => {
             const ctx = canvasRef.current!.getContext("2d")!;
             const { x, y } = mousePosToCanvasPos(ctx, e);
@@ -381,7 +382,8 @@ export default function Canvas({ treeFromModel }: { treeFromModel?: Model }) {
                       return {
                         ...e,
                         color: colors[nextIndex],
-                        fontColor: nextIndex === colors.length - 1 ? "#fff" : "black",
+                        fontColor:
+                          nextIndex === colors.length - 1 ? "#fff" : "black",
                       };
                     }
                     return e;
@@ -420,10 +422,10 @@ export default function Canvas({ treeFromModel }: { treeFromModel?: Model }) {
           padding: "10px",
           left: "50%",
           transform: "translate(-50%, -50%)",
-          pointerEvents: "none",
           fontSize: "2rem",
           userSelect: "none",
-        }}
+          pointerEvents: "none",
+        }}  
       >
         <button
           onClick={() => adjustZoom(-0.25, null)}
@@ -431,7 +433,7 @@ export default function Canvas({ treeFromModel }: { treeFromModel?: Model }) {
         >
           -
         </button>
-        <div>{Math.floor(cameraZoom * 100)}% 🔍</div>
+        <div style={{whiteSpace: "nowrap"}}>{Math.floor(cameraZoom * 100)}% 🔍</div>
         <button
           onClick={() => adjustZoom(0.25, null)}
           style={{ pointerEvents: "all", fontSize: "2rem" }}
