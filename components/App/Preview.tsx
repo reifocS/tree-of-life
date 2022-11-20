@@ -20,7 +20,6 @@ import {
   getMousePos,
   MAX_ZOOM,
   MIN_ZOOM,
-  SCROLL_SENSITIVITY,
   adjust,
   SCROLL_SENSITIVITY_TOUCHPAD,
 } from "../../drawing";
@@ -79,7 +78,7 @@ export default function CanvasPreview({
   }, []);
 
   function handleTouch(e: any, singleTouchHandler: any) {
-    if (e.touches.length == 1) {
+    if (e.touches.length <= 1) {
       singleTouchHandler(e);
     } else if (e.type == "touchmove" && e.touches.length == 2) {
       setAppState((prev) => ({
@@ -288,6 +287,7 @@ export default function CanvasPreview({
           onTouchMove={(e) => handleTouch(e, handlePointerMove)}
           onTouchStart={(e) => handleTouch(e, handlePointerDown)}
           onTouchEnd={(e) => handleTouch(e, handlePointerUp)}
+          onTouchCancel={(e) => handleTouch(e, handlePointerUp)}
           onMouseDown={handlePointerDown}
           onMouseUp={handlePointerUp}
           onMouseMove={handlePointerMove}

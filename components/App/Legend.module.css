@@ -8,6 +8,7 @@
   background-color: hsla(0, 0%, 100%, 0.578);
   user-select: none;
   pointer-events: none;
+  font-size: large;
 }
 
 .legendContainer {
@@ -25,4 +26,15 @@
   display: flex;
   align-items: center;
   gap: 6px;
+  margin-top: 5px;
+}
+
+.legendToggle {
+  pointer-events: all;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.legendToggle button {
+  font-size: large;
 }
