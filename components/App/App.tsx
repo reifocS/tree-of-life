@@ -320,6 +320,7 @@ export default function Canvas({ treeFromModel }: { treeFromModel?: Model }) {
           }}
           onContextMenu={(e) => {
             if (mode !== "view") return;
+            e.preventDefault();
             const ctx = canvasRef.current!.getContext("2d")!;
             const { x, y } = mousePosToCanvasPos(ctx, e);
             for (const element of elements) {

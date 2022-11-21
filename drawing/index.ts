@@ -1014,7 +1014,7 @@ function printAtWordWrap(
   context.textAlign = "center";
   context.fillStyle = fontColor;
   context.textBaseline = "middle";
-  context.font = "bold 12px comic sans ms";
+  context.font = "bold 16px comic sans ms";
   fitWidth = fitWidth || 0;
 
   if (fitWidth <= 0) {

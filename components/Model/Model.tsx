@@ -7,6 +7,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import { Element, generateTreeFromModel, guidGenerator } from "../../drawing";
 import useLocalStorage from "../../hooks/useLocalStorage";
 import CanvasPreview from "../App/Preview";
+import styles from "./Model.module.css";
 
 const LOADING_TIME = 2000;
 const excelToJSON = function (
@@ -163,74 +164,79 @@ const CreateModel: NextPage = () => {
         )}
         {!model && (
           <>
-            <p>
-              Générer à partir d&apos;un fichier (⚠️ les en tête ne doivent pas
-              être modifié !)
-            </p>
-            <p>
-              télécharger un{" "}
-              <a download href="template.xlsx">
-                exemple
-              </a>
-            </p>
-            <input
-              onChange={(evt) => {
-                const files = evt.target.files;
-                if (files && files.length > 0) {
-                  //Todo faire le parsing de fichier côté serveur
-                  const parseExcel = excelToJSON(
-                    setFileData,
-                    setLoading,
-                    setError,
-                    setModelName
-                  );
-                  parseExcel(files[0]);
-                }
-              }}
-              type="file"
-              accept=".xlsx"
-            />
-            <p>Générer à partir de l&apos;interface (todo)</p>
-            <p>Modèles</p>
-            <ul className="modelList">
-              {models.map((m) => (
-                <li key={m.id}>
-                  <input
-                    value={m.name}
-                    onChange={(e) => {
-                      setLocalStorage((prev) =>
-                        prev?.map((mod) => {
-                          if (mod.id === m.id) {
-                            return {
-                              ...mod,
-                              name: e.target.value,
-                            };
-                          }
-                          return mod;
-                        })
+            <div className={styles.Gen}>
+              <div>
+                <p>
+                  Générer à partir d&apos;un fichier (⚠️ les en tête ne doivent
+                  pas être modifié !)
+                </p>
+                <p>
+                  télécharger un{" "}
+                  <a download href="template.xlsx">
+                    exemple
+                  </a>
+                </p>
+                <input
+                  onChange={(evt) => {
+                    const files = evt.target.files;
+                    if (files && files.length > 0) {
+                      //Todo faire le parsing de fichier côté serveur
+                      const parseExcel = excelToJSON(
+                        setFileData,
+                        setLoading,
+                        setError,
+                        setModelName
                       );
-                    }}
-                  ></input>
-                  <button
-                    onClick={() => {
-                      setModel(m);
-                    }}
-                  >
-                    view
-                  </button>
-                  <button
-                    onClick={() => {
-                      setLocalStorage((prev) =>
-                        prev?.filter((mod) => mod.id !== m.id)
-                      );
-                    }}
-                  >
-                    delete
-                  </button>
-                </li>
-              ))}
-            </ul>
-            <h2>Visualisation</h2>
+                      parseExcel(files[0]);
+                    }
+                  }}
+                  type="file"
+                  accept=".xlsx"
+                />
+              </div>
+              <div>
+                <p>Modèles</p>
+                <ul className="modelList">
+                  {models.map((m) => (
+                    <li key={m.id}>
+                      <input
+                        value={m.name}
+                        onChange={(e) => {
+                          setLocalStorage((prev) =>
+                            prev?.map((mod) => {
+                              if (mod.id === m.id) {
+                                return {
+                                  ...mod,
+                                  name: e.target.value,
+                                };
+                              }
+                              return mod;
+                            })
+                          );
+                        }}
+                      ></input>
+                      <button
+                        onClick={() => {
+                          setModel(m);
+                        }}
+                      >
+                        view
+                      </button>
+                      <button
+                        onClick={() => {
+                          setLocalStorage((prev) =>
+                            prev?.filter((mod) => mod.id !== m.id)
+                          );
+                        }}
+                      >
+                        delete
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+            <h2 className={styles.Viz}>Visualisation</h2>
             <div
               style={{
                 display: "flex",

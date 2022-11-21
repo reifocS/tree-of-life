@@ -28,7 +28,7 @@ import { Model } from "../Model/Model";
 import useDisablePinchZoom from "../../hooks/useDisablePinchZoom";
 import { normalizeWheelEvent } from "../../utils/normalizeWheelEvent";
 
-const PREVIEW_SIZE = 600;
+const PREVIEW_SIZE = 500;
 export default function CanvasPreview({
   treeFromModel,
 }: {
@@ -149,32 +149,20 @@ export default function CanvasPreview({
   const handlePointerDown = (e: PointerEvent<HTMLCanvasElement>) => {
     const ctx = canvasRef.current!.getContext("2d")!;
     const { x, y } = mousePosToCanvasPos(ctx, e);
-
-    const el = elements.find((el) => hitTest(x, y, el));
-    if (el && appState.mode === "edit") {
-      setAppState((prev) => ({
-        ...prev,
-        draggedElement: el,
-        downPoint: { x, y },
-        selectedElement: el,
-      }));
-      return;
-    } else {
-      setAppState((prev) => ({
-        ...prev,
-        isDragging: true,
-        selectedElement: null,
-        dragStart: {
-          x:
-            getMousePos(canvasRef.current!, e)!.x / prev.cameraZoom -
-            prev.cameraOffset.x,
-          y:
-            getMousePos(canvasRef.current!, e)!.y / prev.cameraZoom -
-            prev.cameraOffset.y,
-        },
-      }));
-      if (!el) document.documentElement.style.cursor = "grabbing";
-    }
+    setAppState((prev) => ({
+      ...prev,
+      isDragging: true,
+      selectedElement: null,
+      dragStart: {
+        x:
+          getMousePos(canvasRef.current!, e)!.x / prev.cameraZoom -
+          prev.cameraOffset.x,
+        y:
+          getMousePos(canvasRef.current!, e)!.y / prev.cameraZoom -
+          prev.cameraOffset.y,
+      },
+    }));
+    document.documentElement.style.cursor = "grabbing";
   };
 
   const handlePointerUp = (e: PointerEvent<HTMLCanvasElement>) => {
@@ -230,12 +218,6 @@ export default function CanvasPreview({
       setAppState((prev) => ({ ...prev, elements: newElems }));
       document.documentElement.style.cursor = "move";
       return;
-    }
-    if (
-      (mode === "edit" && hitTestButton(x, y, buttonEndpoints)) ||
-      elements.find((el) => hitTest(x, y, el))
-    ) {
-      document.documentElement.style.cursor = "pointer";
     } else if (!isDragging) {
       document.documentElement.style.cursor = "";
     }
@@ -301,6 +283,10 @@ export default function CanvasPreview({
           ref={ref}
           width={PREVIEW_SIZE}
           height={PREVIEW_SIZE}
+          style={{
+            border: "1px solid #cce",
+            borderRadius: "10px",
+          }}
         />
       </div>
     </>
