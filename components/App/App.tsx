@@ -1,366 +1,122 @@
 import {
-  MouseEvent,
   PointerEvent,
-  TouchEvent,
   useCallback,
-  useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
 import rough from "roughjs/bin/rough";
 import { RoughCanvas } from "roughjs/bin/canvas";
+import useKeyboard from "../../hooks/useKeyboard";
+import { useRouter } from "next/router";
+import {
+  AppState,
+  BASE_TREE_Y,
+  colors,
+  getBranchEndpoint,
+  savedState,
+  draw,
+  mousePosToCanvasPos,
+  hitTest,
+  hitTestButton,
+  getMousePos,
+  MAX_ZOOM,
+  MIN_ZOOM,
+  getRandomArbitrary,
+  guidGenerator,
+  SCROLL_SENSITIVITY,
+  adjust,
+  LEAF_WIDTH,
+  LEAF_HEIGHT,
+  SCROLL_SENSITIVITY_TOUCHPAD,
+} from "../../drawing";
+import SidePanel from "./SidePanel";
+import useDisableScrollBounce from "../../hooks/useDisableScrollBounce";
+import { Model } from "../Model/Model";
+import useLocalStorage from "../../hooks/useLocalStorage";
+import useDisablePinchZoom from "../../hooks/useDisablePinchZoom";
+import Legend from "./Legend";
+import { normalizeWheelEvent } from "../../utils/normalizeWheelEvent";
+import useDeviceSize from "../../hooks/useDeviceSize";
+import { useDrag, useMove } from "@use-gesture/react";
 
-type AppState = {
-  cameraZoom: number;
-  scaleMultiplier: number;
-  cameraOffset: {
-    x: number;
-    y: number;
-  };
-  isDragging: boolean;
-  dragStart: {
-    x: number;
-    y: number;
-  };
-  initialPinchDistance: null | number;
-  elements: Element[];
-};
-const useDeviceSize = () => {
-  const [width, setWidth] = useState(0);
-  const [height, setHeight] = useState(0);
-  const [devicePixelRatio, setDevicePixelRatio] = useState(0);
-  const handleWindowResize = () => {
-    setWidth(window.innerWidth);
-    setHeight(window.innerHeight);
-    // this tells the browser how many of the screen's actual pixels should be used to draw a single CSS pixel.
-    setDevicePixelRatio(window.devicePixelRatio);
-  };
+//TODO
+//Changer la taille de font des feuille
+//Ajuster la position de l'émoji selon la taille de la feuille
+//Modifier la position du texte sur la feuille
+//Changer la taille de la feuille selon le texte
+//Zoomer sur le pointer et non le centre
+export default function Canvas({ treeFromModel }: { treeFromModel?: Model }) {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [width, height /*devicePixelRatio*/] = useDeviceSize();
+  const [roughCanvas, setRoughCanvas] = useState<RoughCanvas | null>(null);
+  // Hack used to make sure we wait for image to load, needed for firefox
+  const [dummyUpdate, forceUpdate] = useState({});
+  const [, setModels] = useLocalStorage<Model[]>("models", []);
+  useDisableScrollBounce();
+  const [appState, setAppState] = useState<AppState>(() => {
+    if (!treeFromModel) return savedState as AppState;
+    return {
+      selectedElement: null,
+      sectors: [],
+      mode: "view",
+      cameraZoom: 1,
+      scaleMultiplier: 0.8,
+      cameraOffset: { x: 0, y: 0 },
+      isDragging: false,
+      dragStart: { x: 0, y: 0 },
+      initialPinchDistance: null,
+      draggedElement: null,
+      elements: treeFromModel.elements,
+      downPoint: { x: 0, y: 0 },
+    };
+  });
 
-  useEffect(() => {
-    // component is mounted and window is available
-    handleWindowResize();
-    window.addEventListener("resize", handleWindowResize);
-    // unsubscribe from the event on component unmount
-    return () => window.removeEventListener("resize", handleWindowResize);
+  useDisablePinchZoom();
+
+  const router = useRouter();
+  const isDevMode = router.query.debug;
+  const images = useMemo(() => {
+    return colors.map((c) => {
+      const image = new Image();
+      // Need to set fix height and width for firefox, it's a known bug https://bugzilla.mozilla.org/show_bug.cgi?id=700533
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 511.845 511.845" 
+      width="200px" height="200px"
+      style="enable-background:new 0 0 511.845 511.845" xml:space="preserve">
+      <path style="fill:${c}" d="M503.141 9.356c-.016 0-215.215-56.483-390.225 118.511C-31.579 272.371 96.155 416.35 96.155 416.35s143.979 127.742 288.476-16.775C559.64 224.588 503.156 9.388 503.141 9.356Z"/><g style="opacity:.2"><path style="fill:#fff" d="m503.141 8.696-21.337-4.108c.016.031 56.499 219.339-118.495 394.326-48.172 48.203-96.299 66.104-139.052 68.572 47.705 2.75 104-12.184 160.374-68.572C559.64 223.928 503.156 8.728 503.141 8.696z"/></g>
+      <path style="fill:${
+        c.includes("fff") ? "lightgray" : adjust(c, -20)
+      }" d="M300.125 211.728c-4.154-4.17-10.918-4.17-15.074 0L3.122 493.635c-4.163 4.186-4.163 10.934 0 15.09 4.163 4.154 10.911 4.154 15.081 0l281.922-281.923c4.17-4.171 4.17-10.919 0-15.074z"/></svg>`;
+      image.src = `data:image/svg+xml;base64,${window.btoa(svg)}`;
+      // we make sure we redraw on image load, otherwise firefox wont wait for it.
+      image.onload = () => forceUpdate({});
+      return { color: c, image };
+    });
   }, []);
 
-  return [width, height, devicePixelRatio];
-};
-
-//https://stackoverflow.com/a/6860916/14536535
-function guidGenerator() {
-  var S4 = function () {
-    return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
-  };
-  return (
-    S4() +
-    S4() +
-    "-" +
-    S4() +
-    "-" +
-    S4() +
-    "-" +
-    S4() +
-    "-" +
-    S4() +
-    S4() +
-    S4()
-  );
-}
-
-function drawBubble(
-  canvas: HTMLCanvasElement,
-  x: number,
-  y: number,
-  w: number,
-  h: number,
-  radius: number
-) {
-  const ctx = canvas.getContext("2d")!;
-  const r = x + w;
-  const b = y + h;
-  ctx.beginPath();
-  ctx.strokeStyle = "black";
-  ctx.lineWidth = 2;
-  ctx.moveTo(x + radius, y);
-  ctx.lineTo(x + radius / 2, y - 10);
-  ctx.lineTo(x + radius * 2, y);
-  ctx.lineTo(r - radius, y);
-  ctx.quadraticCurveTo(r, y, r, y + radius);
-  ctx.lineTo(r, y + h - radius);
-  ctx.quadraticCurveTo(r, b, r - radius, b);
-  ctx.lineTo(x + radius, b);
-  ctx.quadraticCurveTo(x, b, x, b - radius);
-  ctx.lineTo(x, y + radius);
-  ctx.quadraticCurveTo(x, y, x + radius, y);
-  ctx.fillText("hello world", x + 20, y + h / 2);
-  ctx.stroke();
-}
-/*
-function drawSpeechText(
-  canvas: HTMLCanvasElement,
-  originX = 75,
-  originY = 25,
-  width = 100,
-  heigth = 75,
-  color = "gray",
-  cpx: number,
-  cpy: number
-) {
-  const ctx = canvas.getContext("2d")!;
-  const r = 25;
-  ctx.beginPath();
-  ctx.moveTo(originX, originY);
-  ctx.quadraticCurveTo(originY, originY, originX - width / 2, originY + heigth / 2);
-  //ctx.quadraticCurveTo(25, 100, originX - width / 2 + r, originY + heigth);
-  //ctx.quadraticCurveTo(50, 120, originX - width / 2 + r - 20, heigth + originY + r);
-  //ctx.quadraticCurveTo(60, 120, originX - width / 2 + r + 15, heigth + r);
-  //ctx.quadraticCurveTo(125, 100, width + originX - width / 2, originY + heigth / 2);
-  //ctx.quadraticCurveTo(125, 25, originX, originY);
-  ctx.rect(originX - width / 2, originY, width, heigth)
-  ctx.moveTo(originX, originY);
-  ctx.fillText("hello world!", originX - 30, originY + heigth / 2);
-  //ctx.fillStyle = color;
-  //ctx.fill();
-  ctx.stroke();
-}*/
-
-type Element = {
-  x: number;
-  y: number;
-  seed: number;
-  color: string;
-  id: string;
-  text: string;
-  icon: string;
-};
-
-const matrix = [1, 0, 0, 1, 0, 0];
-const KEYS = {
-  ARROW_LEFT: "ArrowLeft",
-  ARROW_RIGHT: "ArrowRight",
-  ARROW_DOWN: "ArrowDown",
-  ARROW_UP: "ArrowUp",
-  ESCAPE: "Escape",
-  DELETE: "Delete",
-  BACKSPACE: "Backspace",
-  SPACE: "Space",
-};
-
-function isArrowKey(keyCode: string) {
-  return (
-    keyCode === KEYS.ARROW_LEFT ||
-    keyCode === KEYS.ARROW_RIGHT ||
-    keyCode === KEYS.ARROW_DOWN ||
-    keyCode === KEYS.ARROW_UP
-  );
-}
-
-function hitTest(
-  x: number,
-  y: number,
-  element: Element,
-  canvas: HTMLCanvasElement,
-  cameraZoom: number
-) {
-  const context = canvas.getContext("2d")!;
-  const transform = context.getTransform();
-  // Destructure to get the x and y values out of the transformed DOMPoint.
-  const { x: newX, y: newY } = transform.transformPoint(
-    new DOMPoint(element.x, element.y)
-  );
-  //const {x, y} = getXY(mx, my)
-  return (
-    x > newX &&
-    x < newX + RC_WIDTH * cameraZoom &&
-    y > newY &&
-    y < newY + RC_HEIGTH * cameraZoom
-  );
-
-  //return x > element.x && x < element.x + RC_WIDTH && y > element.y && y < element.y + RC_HEIGTH;
-}
-
-const RC_WIDTH = 200;
-const RC_HEIGTH = 100;
-
-const colors = ["gray", "orange", "#82c91e"];
-
-function drawLeaf(
-  rc: RoughCanvas,
-  canvas: HTMLCanvasElement,
-  elements: Element[],
-  cameraOffset: { x: number; y: number }
-) {
-  const ctx = canvas.getContext("2d")!;
-  for (const { x, y, seed, color, text, icon } of elements) {
-    rc.rectangle(x, y, RC_WIDTH, RC_HEIGTH, {
-      fill: color,
-      fillWeight: 0.5, // thicker lines for hachure,
-      seed,
-    });
-    ctx.font = "16px Comic Sans MS";
-    ctx.textAlign = "center";
-    ctx.fillText(text, x + RC_WIDTH / 2, y + RC_HEIGTH / 2);
-    ctx.font = "20px Comic Sans MS";
-    ctx.fillText(icon, x + RC_WIDTH / 2, y + RC_HEIGTH / 2 + 30);
+  function handleTouch(e: any, singleTouchHandler: any) {
+    if (e.touches.length <= 1) {
+      singleTouchHandler(e);
+    } else if (e.type == "touchmove" && e.touches.length == 2) {
+      setAppState((prev) => ({
+        ...prev,
+        isDragging: false,
+      }));
+      handlePinch(e);
+    }
   }
 
-  /*rc.path("M230 80 A 45 45, 0, 1, 0, 275 125 L 275 80 Z", {
-    fill: "rgb(10,150,10)",
-    fillStyle: "solid",
-    seed: 2,
-  });
-  ctx.font = "20px Comic Sans MS";
-  ctx.fillStyle = "white";
-  ctx.textAlign = "center";
-  ctx.fillText("Hello world", 500, 150);*/
-}
-
-function getEventLocation(
-  e:
-    | PointerEvent<HTMLCanvasElement>
-    | TouchEvent<HTMLCanvasElement>
-    | MouseEvent<HTMLCanvasElement>
-) {
-  if ("touches" in e && e.touches.length == 1) {
-    return { x: e.touches[0].clientX, y: e.touches[0].clientY };
-  } else if ("clientX" in e && e.clientY) {
-    return { x: e.clientX, y: e.clientY };
-  } else {
-    throw new Error("getEventLocation");
-  }
-}
-
-function getRandomArbitrary(min: number, max: number) {
-  return Math.random() * (max - min) + min;
-}
-
-function translate(x: number, y: number, ctx: CanvasRenderingContext2D) {
-  matrix[4] += matrix[0] * x + matrix[2] * y;
-  matrix[5] += matrix[1] * x + matrix[3] * y;
-  ctx.translate(x, y);
-}
-
-/*
-function getXY(mouseX: number, mouseY: number) {
-  let newX = mouseX * matrix[0] + mouseY * matrix[2] + matrix[4];
-  let newY = mouseX * matrix[1] + mouseY * matrix[3] + matrix[5];
-  return { x: newX, y: newY };
-}
-*/
-
-function scale(x: number, y: number, ctx: CanvasRenderingContext2D) {
-  matrix[0] *= x;
-  matrix[1] *= x;
-  matrix[2] *= y;
-  matrix[3] *= y;
-  ctx.scale(x, y);
-}
-function draw(
-  canvas: HTMLCanvasElement,
-  cameraZoom: number,
-  cameraOffset: { x: number; y: number },
-  roughCanvas: RoughCanvas,
-  elements: Element[]
-) {
-  const ctx = canvas.getContext("2d")!;
-  translate(canvas.width / 2, canvas.height / 2, ctx);
-  scale(cameraZoom, cameraZoom, ctx);
-  translate(
-    -canvas.width / 2 + cameraOffset.x,
-    -canvas.height / 2 + cameraOffset.y,
-    ctx
-  );
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  roughCanvas.circle(500, 500, 800, {
-    seed: 3,
-  });
-  drawLeaf(roughCanvas, canvas, elements, cameraOffset);
-}
-
-function getMousePos(canvas: HTMLCanvasElement, evt: any) {
-  var rect = canvas.getBoundingClientRect();
-  return {
-    x: evt.clientX - rect.left,
-    y: evt.clientY - rect.top,
-  };
-}
-let MAX_ZOOM = 5;
-let MIN_ZOOM = 0.1;
-let SCROLL_SENSITIVITY = 0.0005;
-let STEP = 50;
-export default function Canvas() {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [width, height, devicePixelRatio] = useDeviceSize();
-  const posRef = useRef<HTMLDivElement>(null);
-  const [roughCanvas, setRoughCanvas] = useState<RoughCanvas | null>(null);
-  const [appState, setAppState] = useState<AppState>({
-    cameraZoom: 0.30,
-    scaleMultiplier: 0.8,
-    cameraOffset: { x: width / 2, y: height / 2 },
-    isDragging: false,
-    dragStart: { x: 0, y: 0 },
-    initialPinchDistance: null,
-    elements: [
-      {
-        x: 300,
-        y: 300,
-        seed: 1,
-        color: "rgb(10,150,10)",
-        id: guidGenerator(),
-        text: "go muscu",
-        icon: "💪",
-      },
-      {
-        x: 400,
-        y: 500,
-        seed: 1,
-        color: "gray",
-        id: guidGenerator(),
-        text: "coder toute la nigth",
-        icon: "👨‍💻",
-      },
-      {
-        x: 600,
-        y: 300,
-        seed: 1,
-        color: "gray",
-        id: guidGenerator(),
-        text: "tortelinni",
-        icon: "👨",
-      },
-      {
-        x: 3000,
-        y: 300,
-        seed: 1,
-        color: "gray",
-        id: guidGenerator(),
-        text: "tortelinni",
-        icon: "👨",
-      },
-      {
-        x: 3200,
-        y: 500,
-        seed: 1,
-        color: "gray",
-        id: guidGenerator(),
-        text: "tortelinni",
-        icon: "👨",
-      },
-      {
-        x: 3600,
-        y: 300,
-        seed: 1,
-        color: "gray",
-        id: guidGenerator(),
-        text: "tortelinni",
-        icon: "👨",
-      },
-    ],
-  });
-
-  const { cameraZoom, elements, cameraOffset, isDragging } = appState;
+  useKeyboard(setAppState);
+  const {
+    cameraZoom,
+    elements,
+    cameraOffset,
+    isDragging,
+    sectors,
+    selectedElement,
+    mode,
+  } = appState;
   const { x: cameraOffsetX, y: cameraOffsetY } = cameraOffset;
   const lastZoom = useRef(cameraZoom);
   const ref = useCallback((node: HTMLCanvasElement) => {
@@ -370,64 +126,31 @@ export default function Canvas() {
     }
   }, []);
 
-  useEffect(() => {
-    function handleKeyDown(e: KeyboardEvent) {
-      if (isArrowKey(e.code)) {
-        console.log("true");
-        if (e.key === KEYS.ARROW_LEFT)
-          setAppState((prev) => ({
-            ...prev,
-            cameraOffset: {
-              x: prev.cameraOffset.x - STEP,
-              y: prev.cameraOffset.y,
-            },
-          }));
-        else if (e.key === KEYS.ARROW_RIGHT)
-          setAppState((prev) => ({
-            ...prev,
-            cameraOffset: {
-              x: prev.cameraOffset.x + STEP,
-              y: prev.cameraOffset.y,
-            },
-          }));
-        else if (e.key === KEYS.ARROW_UP)
-          setAppState((prev) => ({
-            ...prev,
-            cameraOffset: {
-              x: prev.cameraOffset.x,
-              y: prev.cameraOffset.y - STEP,
-            },
-          }));
-        else if (e.key === KEYS.ARROW_DOWN)
-          setAppState((prev) => ({
-            ...prev,
-            cameraOffset: {
-              x: prev.cameraOffset.x,
-              y: prev.cameraOffset.y + STEP,
-            },
-          }));
-      }
-    }
+  const nbOfBranches = treeFromModel?.nbOfBranches;
 
-    document.addEventListener("keydown", handleKeyDown, false);
+  const buttonEndpoints = useMemo(
+    () => getBranchEndpoint(BASE_TREE_Y, nbOfBranches),
+    [nbOfBranches]
+  );
 
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, []);
   useLayoutEffect(() => {
     if (!roughCanvas) return;
     const canvas = canvasRef.current!;
-    //const scale = devicePixelRatio;
+
     canvas.width = width;
     canvas.height = height;
     canvas.style.width = `${width}px`;
     canvas.style.height = `${height}px`;
-
     draw(
       canvas,
       cameraZoom,
       { x: cameraOffsetX, y: cameraOffsetY },
       roughCanvas,
-      elements
+      elements,
+      images,
+      selectedElement?.id,
+      mode,
+      nbOfBranches
     );
   }, [
     cameraOffsetX,
@@ -437,42 +160,102 @@ export default function Canvas() {
     height,
     roughCanvas,
     width,
+    selectedElement,
+    sectors,
+    images,
+    mode,
+    dummyUpdate,
+    nbOfBranches,
   ]);
 
   const handlePointerDown = (e: PointerEvent<HTMLCanvasElement>) => {
-    const { x, y } = getMousePos(canvasRef.current!, e);
-    if (
-      elements.find((el) => hitTest(x, y, el, canvasRef.current!, cameraZoom))
-    )
-      return;
-    setAppState((prev) => ({
-      ...prev,
-      isDragging: true,
-      dragStart: {
-        x: getEventLocation(e)!.x / prev.cameraZoom - prev.cameraOffset.x,
-        y: getEventLocation(e)!.y / prev.cameraZoom - prev.cameraOffset.y,
-      },
-    }));
+    const ctx = canvasRef.current!.getContext("2d")!;
+    const { x, y } = mousePosToCanvasPos(ctx, e);
 
-    document.documentElement.style.cursor = "grabbing";
+    const el = elements.find((el) => hitTest(x, y, el));
+    if (el && appState.mode === "edit") {
+      setAppState((prev) => ({
+        ...prev,
+        draggedElement: el,
+        downPoint: { x, y },
+        selectedElement: el,
+      }));
+      return;
+    } else {
+      setAppState((prev) => ({
+        ...prev,
+        isDragging: true,
+        selectedElement: null,
+        dragStart: {
+          x:
+            getMousePos(canvasRef.current!, e)!.x / prev.cameraZoom -
+            prev.cameraOffset.x,
+          y:
+            getMousePos(canvasRef.current!, e)!.y / prev.cameraZoom -
+            prev.cameraOffset.y,
+        },
+      }));
+      if (!el) document.documentElement.style.cursor = "grabbing";
+    }
   };
 
   const handlePointerUp = (e: PointerEvent<HTMLCanvasElement>) => {
-    //const { x, y } = getMousePos(canvasRef.current!, e);
-    const wasDragging = isDragging;
-    setAppState((prev) => ({
-      ...prev,
-      isDragging: false,
-      initialPinchDistance: null,
-    }));
+    const { x, y } = mousePosToCanvasPos(
+      canvasRef.current?.getContext("2d")!,
+      e
+    );
+    const el = elements.find((el) => hitTest(x, y, el));
+    resetMouseState();
     lastZoom.current = cameraZoom;
-    if (wasDragging) document.documentElement.style.cursor = "";
+    if (!el) document.documentElement.style.cursor = "default";
   };
 
+  function handlePinch(e: any) {
+    let touch1 = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    let touch2 = { x: e.touches[1].clientX, y: e.touches[1].clientY };
+
+    // This is distance squared, but no need for an expensive sqrt as it's only used in ratio
+    let currentDistance =
+      (touch1.x - touch2.x) ** 2 + (touch1.y - touch2.y) ** 2;
+
+    if (appState.initialPinchDistance == null) {
+      setAppState((prev) => ({
+        ...prev,
+        initialPinchDistance: currentDistance,
+      }));
+    } else {
+      adjustZoom(null, currentDistance / appState.initialPinchDistance);
+    }
+  }
   const handlePointerMove = (e: PointerEvent<HTMLCanvasElement>) => {
-    const { x, y } = getMousePos(canvasRef.current!, e);
+    const ctx = canvasRef.current!.getContext("2d")!;
+
+    const { x, y } = mousePosToCanvasPos(ctx, e);
+
+    const target = e.target;
+    if (!(target instanceof HTMLElement)) {
+      return;
+    }
+    if (appState.draggedElement) {
+      let { x: startX, y: startY } = appState.draggedElement;
+      let dragTarget = {
+        ...appState.draggedElement,
+        x: startX + (x - appState.downPoint!.x),
+        y: startY + (y - appState.downPoint!.y),
+      };
+      const newElems = appState.elements.map((e) => {
+        if (e.id === dragTarget.id) {
+          return dragTarget;
+        }
+        return e;
+      });
+      setAppState((prev) => ({ ...prev, elements: newElems }));
+      document.documentElement.style.cursor = "move";
+      return;
+    }
     if (
-      elements.find((el) => hitTest(x, y, el, canvasRef.current!, cameraZoom))
+      (mode === "edit" && hitTestButton(x, y, buttonEndpoints)) ||
+      elements.find((el) => hitTest(x, y, el))
     ) {
       document.documentElement.style.cursor = "pointer";
     } else if (!isDragging) {
@@ -482,31 +265,16 @@ export default function Canvas() {
       setAppState((prev) => ({
         ...prev,
         cameraOffset: {
-          x: getEventLocation(e)!.x / prev.cameraZoom - prev.dragStart.x,
-          y: getEventLocation(e)!.y / prev.cameraZoom - prev.dragStart.y,
+          x:
+            getMousePos(canvasRef.current!, e)!.x / prev.cameraZoom -
+            prev.dragStart.x,
+          y:
+            getMousePos(canvasRef.current!, e)!.y / prev.cameraZoom -
+            prev.dragStart.y,
         },
       }));
     }
   };
-  function handlePinch(e: any) {
-    e.preventDefault();
-
-    let touch1 = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-    let touch2 = { x: e.touches[1].clientX, y: e.touches[1].clientY };
-
-    // This is distance squared, but no need for an expensive sqrt as it's only used in ratio
-    let currentDistance =
-      (touch1.x - touch2.x) ** 2 + (touch1.y - touch2.y) ** 2;
-
-    if (appState.initialPinchDistance === null) {
-      setAppState((prev) => ({
-        ...prev,
-        initialPinchDistance: currentDistance,
-      }));
-    } else {
-      adjustZoom(null, currentDistance / appState.initialPinchDistance);
-    }
-  }
 
   function adjustZoom(zoomAmount: number | null, zoomFactor: number | null) {
     if (!isDragging) {
@@ -514,96 +282,222 @@ export default function Canvas() {
       if (zoomAmount) {
         cameraZoom += zoomAmount;
       } else if (zoomFactor) {
-        console.log(zoomFactor);
         cameraZoom = zoomFactor * lastZoom.current;
       }
 
       cameraZoom = Math.min(cameraZoom, MAX_ZOOM);
       cameraZoom = Math.max(cameraZoom, MIN_ZOOM);
       setAppState((prev) => ({ ...prev, cameraZoom }));
-      console.log(zoomAmount);
     }
   }
 
-  const handleTouch = (e: any, singleTouchHandler: (e: any) => void) => {
-    if (e.touches.length == 1) {
-      singleTouchHandler(e);
-    } else if (e.type == "touchmove" && e.touches.length == 2) {
-      setAppState((prev) => ({ ...prev, isDragging: false }));
-      handlePinch(e);
-    }
-  };
+  function resetMouseState() {
+    setAppState((prev) => ({
+      ...prev,
+      isDragging: false,
+      initialPinchDistance: null,
+      draggedElement: null,
+    }));
+  }
+
   return (
-    <div>
-      <canvas
-        onClick={(e) => {
-          const { x, y } = getEventLocation(e);
-          for (const element of elements) {
-            if (hitTest(x, y, element, canvasRef.current!, cameraZoom)) {
-              setAppState((prev) => ({
-                ...prev,
-                elements: prev.elements.map((e) => {
-                  if (e.id === element.id) {
-                    let nextIndex =
-                      (colors.findIndex((color) => color === e.color) + 1) %
-                      colors.length;
-                    return { ...e, color: colors[nextIndex] };
-                  }
-                  return e;
-                }),
-              }));
+    <>
+      <div className="container">
+        <Legend />
+        {selectedElement && (
+          <SidePanel
+            setAppState={setAppState}
+            selectedElement={selectedElement}
+            elements={elements}
+            appState={appState}
+            ctx={canvasRef.current?.getContext("2d")!}
+          ></SidePanel>
+        )}
+        <canvas
+          onMouseOut={() => {
+            resetMouseState();
+            document.documentElement.style.cursor = "default";
+          }}
+          onContextMenu={(e) => {
+            if (mode !== "view") return;
+            e.preventDefault();
+            const ctx = canvasRef.current!.getContext("2d")!;
+            const { x, y } = mousePosToCanvasPos(ctx, e);
+            for (const element of elements) {
+              if (hitTest(x, y, element)) {
+                setAppState((prev) => ({
+                  ...prev,
+                  elements: prev.elements.map((el) => {
+                    if (el.id === element.id) {
+                      return {
+                        ...el,
+                        weTalkedAboutIt: !el.weTalkedAboutIt,
+                      };
+                    }
+                    return el;
+                  }),
+                }));
+              }
             }
-          }
-        }}
-        onMouseDown={handlePointerDown}
-        onTouchStart={(e) => handleTouch(e, handlePointerDown)}
-        onMouseUp={handlePointerUp}
-        onTouchEnd={(e) => handleTouch(e, handlePointerUp)}
-        onMouseMove={handlePointerMove}
-        onTouchMove={(e) => handleTouch(e, handlePointerMove)}
-        onWheel={(e) => adjustZoom(e.deltaY * SCROLL_SENSITIVITY, null)}
-        ref={ref}
-        width={width}
-        height={height}
-      />
+          }}
+          onTouchMove={(e) => handleTouch(e, handlePointerMove)}
+          onTouchStart={(e) => handleTouch(e, handlePointerDown)}
+          onTouchEnd={(e) => handleTouch(e, handlePointerUp)}
+          onTouchCancel={(e) => handleTouch(e, handlePointerUp)}
+          onClick={(e) => {
+            const ctx = canvasRef.current!.getContext("2d")!;
+            const { x, y } = mousePosToCanvasPos(ctx, e);
+            if (appState.mode === "edit") {
+              if (hitTestButton(x, y, buttonEndpoints)) {
+                setAppState((prev) => ({
+                  ...prev,
+                  elements: [
+                    ...prev.elements,
+                    {
+                      id: guidGenerator(),
+                      x,
+                      y,
+                      color: colors[0],
+                      seed: getRandomArbitrary(1, 10000),
+                      text: "",
+                      icon: "",
+                      type: "leaf",
+                      width: LEAF_WIDTH,
+                      height: LEAF_HEIGHT,
+                      fontColor: "#fff",
+                    },
+                  ],
+                }));
+              }
+              return;
+            }
+            for (const element of elements) {
+              if (hitTest(x, y, element)) {
+                setAppState((prev) => ({
+                  ...prev,
+                  elements: prev.elements.map((e) => {
+                    if (e.id === element.id) {
+                      let nextIndex =
+                        (colors.findIndex((color) => color === e.color) + 1) %
+                        colors.length;
+                      return {
+                        ...e,
+                        color: colors[nextIndex],
+                        fontColor:
+                          nextIndex === colors.length - 1 ? "#fff" : "black",
+                      };
+                    }
+                    return e;
+                  }),
+                }));
+              }
+            }
+          }}
+          onMouseDown={handlePointerDown}
+          onMouseUp={handlePointerUp}
+          onMouseMove={handlePointerMove}
+          onWheel={(e) => {
+            const { deltaX: _deltaX, deltaY } = normalizeWheelEvent(e);
+            // Hacky way to detect touchpad zoom
+            const scrollSensitivity = e.ctrlKey
+              ? SCROLL_SENSITIVITY_TOUCHPAD
+              : SCROLL_SENSITIVITY;
+            adjustZoom(deltaY * scrollSensitivity * -1, null);
+          }}
+          ref={ref}
+          width={width}
+          height={height}
+        />
+      </div>
       <div
         style={{
           position: "absolute",
-          left: 300,
-          bottom: 100,
-        }}
-        ref={posRef}
-      ></div>
-      <div
-        id="buttonWrapper"
-        style={{
           display: "flex",
-        }}
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 5,
+          bottom: 10,
+          boxShadow: "0 0 0 1px rgba(0, 0, 0, 0.01)",
+          backgroundColor: "#fff",
+          borderRadius: 6,
+          padding: "10px",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          fontSize: "2rem",
+          userSelect: "none",
+          pointerEvents: "none",
+        }}  
       >
         <button
-          onClick={() => {
-            setAppState((prev) => ({
-              ...prev,
-              elements: [
-                ...prev.elements,
-                {
-                  id: guidGenerator(),
-                  x: getRandomArbitrary(0, canvasRef.current!.width),
-                  y: getRandomArbitrary(0, canvasRef.current!.height),
-                  color: colors[0],
-                  seed: 2,
-                  text: "hello world!",
-                  icon: "🦍",
-                },
-              ],
-            }));
-          }}
+          onClick={() => adjustZoom(-0.25, null)}
+          style={{ pointerEvents: "all", fontSize: "2rem" }}
         >
-          Add
+          -
         </button>
-        <button onClick={(e) => adjustZoom(0.25, null)}>+</button>
-        <button onClick={(e) => adjustZoom(-0.25, null)}>-</button>
+        <div style={{whiteSpace: "nowrap"}}>{Math.floor(cameraZoom * 100)}% 🔍</div>
+        <button
+          onClick={() => adjustZoom(0.25, null)}
+          style={{ pointerEvents: "all", fontSize: "2rem" }}
+        >
+          +
+        </button>
       </div>
-    </div>
+      <div
+        style={{
+          position: "absolute",
+          left: "50%",
+          top: 20,
+          transform: "translate(-50%, -50%)",
+          borderRadius: 6,
+          padding: 6,
+          userSelect: "none",
+        }}
+      >
+        {isDevMode && (
+          <button
+            onClick={() =>
+              setAppState((prev) => ({
+                ...prev,
+                mode: prev.mode === "edit" ? "view" : "edit",
+                selectedElement: null,
+              }))
+            }
+          >
+            Switch to {appState.mode === "edit" ? "view" : "developer"} mode
+          </button>
+        )}{" "}
+        {mode === "edit" && (
+          <>
+            <button
+              onClick={() =>
+                navigator.clipboard.writeText(JSON.stringify(appState))
+              }
+            >
+              save to clipboard
+            </button>
+            <button
+              disabled={!treeFromModel}
+              onClick={() => {
+                if (!treeFromModel) return;
+
+                setModels((prev) =>
+                  prev?.map((m) => {
+                    if (m.id === treeFromModel.id) {
+                      return {
+                        ...m,
+                        elements,
+                      };
+                    }
+                    return m;
+                  })
+                );
+              }}
+            >
+              save
+            </button>
+          </>
+        )}
+      </div>
+    </>
   );
 }
