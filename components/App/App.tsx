@@ -39,7 +39,6 @@ import useDisablePinchZoom from "../../hooks/useDisablePinchZoom";
 import Legend from "./Legend";
 import { normalizeWheelEvent } from "../../utils/normalizeWheelEvent";
 import useDeviceSize from "../../hooks/useDeviceSize";
-import { useDrag, useMove } from "@use-gesture/react";
 
 //TODO
 //Changer la taille de font des feuille

@@ -535,8 +535,8 @@ export function hitTest(x: number, y: number, element: Element) {
   }
 }
 
-export const LEAF_WIDTH = 110;
-export const LEAF_HEIGHT = 110;
+export const LEAF_WIDTH = 130;
+export const LEAF_HEIGHT = 130;
 type Green = "#9ed36a";
 type White = "#fff";
 type Orange = "#ff7f00";
@@ -556,7 +556,6 @@ export const colorsMeaning: Record<Color, string> = {
   [gray]: "Je préfère éviter le sujet",
 };
 
-export const RC_WIDTH = 100;
 
 function drawImage(
   rc: RoughCanvas,
@@ -662,7 +661,7 @@ const BUTTON_SIZE = 30;
 const SPACE_BETWEEN_LINES = 3;
 export const NUMBER_OF_BRANCHES = 4;
 //const leafNumbers = getLeafNumbers(NUMBER_OF_BRANCHES);
-const BRANCH_LENGTH = 500;
+const BRANCH_LENGTH = 600;
 //TODO replace 5 with dynamic nb of branches
 const END_TREE_Y = -100 - LEAF_HEIGHT * 5;
 export const BASE_TREE_X = 0;
@@ -1133,7 +1132,7 @@ export function generateTreeFromModel(
         text: leafs[i][j].text,
         id: guidGenerator(),
         seed: getRandomArbitrary(1, 100),
-        color: colors[3],
+        color: white,
         icon: leafs[i][j].icon,
         height: LEAF_HEIGHT,
         width: LEAF_WIDTH,

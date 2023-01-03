@@ -236,24 +236,6 @@ const CreateModel: NextPage = () => {
                 </ul>
               </div>
             </div>
-            <h2 className={styles.Viz}>Visualisation</h2>
-            <div
-              style={{
-                display: "flex",
-                gap: 10,
-                padding: 30,
-                justifyContent: "center",
-                alignItems: "center",
-                flexWrap: "wrap",
-              }}
-            >
-              {models.map((m) => (
-                <div key={m.id}>
-                  <p>{m.name}</p>
-                  <CanvasPreview treeFromModel={m} />
-                </div>
-              ))}
-            </div>
           </>
         )}
         {model && !loading && (
