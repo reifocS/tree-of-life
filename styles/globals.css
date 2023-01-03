@@ -10,6 +10,7 @@ body {
 
 canvas {
   background-color: #87ceeb;
+  touch-action: none;
 }
 
 .container {
