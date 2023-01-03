@@ -1,7 +1,6 @@
 import {
   PointerEvent,
   useCallback,
-  useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -30,54 +29,32 @@ import {
   adjust,
   LEAF_WIDTH,
   LEAF_HEIGHT,
-  Element,
-  NUMBER_OF_BRANCHES,
+  SCROLL_SENSITIVITY_TOUCHPAD,
 } from "../../drawing";
 import SidePanel from "./SidePanel";
 import useDisableScrollBounce from "../../hooks/useDisableScrollBounce";
-
-const useDeviceSize = () => {
-  const [width, setWidth] = useState(0);
-  const [height, setHeight] = useState(0);
-  const [devicePixelRatio, setDevicePixelRatio] = useState(0);
-
-  useDisableScrollBounce();
-  const handleWindowResize = () => {
-    setWidth(window.innerWidth);
-    setHeight(window.innerHeight);
-    // this tells the browser how many of the screen's actual pixels should be used to draw a single CSS pixel.
-    setDevicePixelRatio(window.devicePixelRatio);
-  };
-
-  useEffect(() => {
-    // component is mounted and window is available
-    handleWindowResize();
-    window.addEventListener("resize", handleWindowResize);
-    // unsubscribe from the event on component unmount
-    return () => window.removeEventListener("resize", handleWindowResize);
-  }, []);
-
-  return [width, height, devicePixelRatio];
-};
+import { Model } from "../Model/Model";
+import useLocalStorage from "../../hooks/useLocalStorage";
+import useDisablePinchZoom from "../../hooks/useDisablePinchZoom";
+import Legend from "./Legend";
+import { normalizeWheelEvent } from "../../utils/normalizeWheelEvent";
+import useDeviceSize from "../../hooks/useDeviceSize";
 
 //TODO
 //Changer la taille de font des feuille
 //Ajuster la position de l'émoji selon la taille de la feuille
 //Modifier la position du texte sur la feuille
-export default function Canvas({
-  treeFromModel,
-  nbOfBranches = NUMBER_OF_BRANCHES,
-  modelName = "",
-}: {
-  treeFromModel?: Element[];
-  nbOfBranches: number;
-  modelName: string;
-}) {
+//Changer la taille de la feuille selon le texte
+//Zoomer sur le pointer et non le centre
+export default function Canvas({ treeFromModel }: { treeFromModel?: Model }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [width, height /*devicePixelRatio*/] = useDeviceSize();
   const [roughCanvas, setRoughCanvas] = useState<RoughCanvas | null>(null);
   // Hack used to make sure we wait for image to load, needed for firefox
   const [dummyUpdate, forceUpdate] = useState({});
+  const [, setModels] = useLocalStorage<Model[]>("models", []);
+  useDisableScrollBounce();
+
   const [appState, setAppState] = useState<AppState>(() => {
     if (!treeFromModel) return savedState as AppState;
     return {
@@ -91,23 +68,12 @@ export default function Canvas({
       dragStart: { x: 0, y: 0 },
       initialPinchDistance: null,
       draggedElement: null,
-      elements: treeFromModel,
+      elements: treeFromModel.elements,
       downPoint: { x: 0, y: 0 },
     };
   });
 
-  useEffect(() => {
-    // Block pinch-zooming on iOS outside of the content area
-    function disable(event: any) {
-      // @ts-ignore
-      if (event.scale !== 1) {
-        event.preventDefault();
-      }
-    }
-    document.addEventListener("touchmove", disable, { passive: false });
-
-    return () => document.removeEventListener("touchmove", disable);
-  }, []);
+  useDisablePinchZoom();
 
   const router = useRouter();
   const isDevMode = router.query.debug;
@@ -159,6 +125,8 @@ export default function Canvas({
       canvasRef.current = node;
     }
   }, []);
+
+  const nbOfBranches = treeFromModel?.nbOfBranches;
 
   const buttonEndpoints = useMemo(
     () => getBranchEndpoint(BASE_TREE_Y, nbOfBranches),
@@ -232,14 +200,14 @@ export default function Canvas({
   };
 
   const handlePointerUp = (e: PointerEvent<HTMLCanvasElement>) => {
-    e.preventDefault();
-    setAppState((prev) => ({
-      ...prev,
-      isDragging: false,
-      initialPinchDistance: null,
-      draggedElement: null,
-    }));
+    const { x, y } = mousePosToCanvasPos(
+      canvasRef.current?.getContext("2d")!,
+      e
+    );
+    const el = elements.find((el) => hitTest(x, y, el));
+    resetMouseState();
     lastZoom.current = cameraZoom;
+    if (!el) document.documentElement.style.cursor = "default";
   };
 
   function handlePinch(e: any) {
@@ -261,7 +229,9 @@ export default function Canvas({
   }
   const handlePointerMove = (e: PointerEvent<HTMLCanvasElement>) => {
     const ctx = canvasRef.current!.getContext("2d")!;
+
     const { x, y } = mousePosToCanvasPos(ctx, e);
+
     const target = e.target;
     if (!(target instanceof HTMLElement)) {
       return;
@@ -321,9 +291,19 @@ export default function Canvas({
     }
   }
 
+  function resetMouseState() {
+    setAppState((prev) => ({
+      ...prev,
+      isDragging: false,
+      initialPinchDistance: null,
+      draggedElement: null,
+    }));
+  }
+
   return (
     <>
       <div className="container">
+        <Legend />
         {selectedElement && (
           <SidePanel
             setAppState={setAppState}
@@ -334,6 +314,10 @@ export default function Canvas({
           ></SidePanel>
         )}
         <canvas
+          onMouseOut={() => {
+            resetMouseState();
+            document.documentElement.style.cursor = "default"
+          }}
           onContextMenu={(e) => {
             e.preventDefault();
             if (mode !== "view") return;
@@ -398,7 +382,7 @@ export default function Canvas({
                       return {
                         ...e,
                         color: colors[nextIndex],
-                        fontColor: nextIndex === 1 ? "#fff" : "black",
+                        fontColor: nextIndex === colors.length - 1 ? "#fff" : "black",
                       };
                     }
                     return e;
@@ -410,7 +394,14 @@ export default function Canvas({
           onMouseDown={handlePointerDown}
           onMouseUp={handlePointerUp}
           onMouseMove={handlePointerMove}
-          onWheel={(e) => adjustZoom(e.deltaY * SCROLL_SENSITIVITY * -1, null)}
+          onWheel={(e) => {
+            const { deltaX: _deltaX, deltaY } = normalizeWheelEvent(e);
+            // Hacky way to detect touchpad zoom
+            const scrollSensitivity = e.ctrlKey
+              ? SCROLL_SENSITIVITY_TOUCHPAD
+              : SCROLL_SENSITIVITY;
+            adjustZoom(deltaY * scrollSensitivity * -1, null);
+          }}
           ref={ref}
           width={width}
           height={height}
@@ -474,13 +465,35 @@ export default function Canvas({
           </button>
         )}{" "}
         {mode === "edit" && (
-          <button
-            onClick={() =>
-              navigator.clipboard.writeText(JSON.stringify(appState))
-            }
-          >
-            save to clipboard
-          </button>
+          <>
+            <button
+              onClick={() =>
+                navigator.clipboard.writeText(JSON.stringify(appState))
+              }
+            >
+              save to clipboard
+            </button>
+            <button
+              disabled={!treeFromModel}
+              onClick={() => {
+                if (!treeFromModel) return;
+
+                setModels((prev) =>
+                  prev?.map((m) => {
+                    if (m.id === treeFromModel.id) {
+                      return {
+                        ...m,
+                        elements,
+                      };
+                    }
+                    return m;
+                  })
+                );
+              }}
+            >
+              save
+            </button>
+          </>
         )}
       </div>
     </>

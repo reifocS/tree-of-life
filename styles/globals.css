@@ -128,3 +128,15 @@ button {
 .wrapper {
   text-align: center;
 }
+
+.modelList {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.modelList li {
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+}

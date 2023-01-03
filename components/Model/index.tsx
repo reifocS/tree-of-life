@@ -2,11 +2,11 @@ import dynamic from "next/dynamic";
 import Head from "next/head";
 import { Suspense } from "react";
 
-const DynamicComponentWithNoSSR = dynamic(import("./App"), {
+const DynamicComponentWithNoSSR = dynamic(import("./Model"), {
   ssr: false,
 });
 
-export default function CanvasComponentWrapper(props: any) {
+export default function ModelComponentWrapper(props: any) {
   return (
     <>
       <Head>

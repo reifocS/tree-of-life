@@ -39,11 +39,12 @@ export const savedState: AppState = {
       text: "Mes bilans biologiques",
       id: "b2181630-2328-3d6d-d3cb-ac278f2dda82",
       seed: 84.90601359235511,
-      color: "#9ed36a",
+      color: "#fff",
       icon: "📝",
       height: 110,
       width: 110,
       angle: 0,
+      fontColor: "black",
     },
     {
       x: 116.37334169774857,
@@ -52,11 +53,12 @@ export const savedState: AppState = {
       text: "Psychologue",
       id: "694b90e9-2b4a-bef4-9d4b-64eb1f7847af",
       seed: 83.31349390401876,
-      color: "#9ed36a",
+      color: "#fff",
       icon: "👥",
       height: 110,
       width: 110,
       angle: 1.2133,
+      fontColor: "black",
     },
     {
       x: 161.0807251039056,
@@ -65,11 +67,12 @@ export const savedState: AppState = {
       text: "Assistance sociale",
       id: "4d4f1538-200c-ea1c-6057-e5bb2b400ce5",
       seed: 74.27989831740231,
-      color: "#9ed36a",
+      color: "#fff",
       icon: "🧑",
       height: 110,
       width: 110,
       angle: 0,
+      fontColor: "black",
     },
     {
       x: 218.10337980039077,
@@ -78,11 +81,12 @@ export const savedState: AppState = {
       text: "Nephrologue",
       id: "c3c00b04-55d4-8a58-3915-2ea1500ca17e",
       seed: 75.62922866959165,
-      color: "#9ed36a",
+      color: "#fff",
       icon: "🧑‍⚕️",
       height: 110,
       width: 110,
       angle: 1.1638,
+      fontColor: "black",
     },
     {
       x: 270.19992598074487,
@@ -91,11 +95,12 @@ export const savedState: AppState = {
       text: "Infirimière",
       id: "fe53e2f9-efd0-d509-a13e-4b33a17c42df",
       seed: 92.15459050043543,
-      color: "#9ed36a",
+      color: "#fff",
       icon: "🧑‍⚕️",
       height: 110,
       width: 110,
       angle: 0,
+      fontColor: "black",
     },
     {
       x: 324.7595264191645,
@@ -104,11 +109,12 @@ export const savedState: AppState = {
       text: "Diéteticien",
       id: "aa386c65-ab25-d2a8-5cca-0c28640c8c74",
       seed: 83.67064023542027,
-      color: "#9ed36a",
+      color: "#fff",
       icon: "🧑‍⚕️",
       height: 110,
       width: 110,
       angle: 1.1143,
+      fontColor: "black",
     },
     {
       x: 379.31912685758414,
@@ -117,11 +123,12 @@ export const savedState: AppState = {
       text: "Association de patients",
       id: "561d2aa6-8bdb-367c-d6d2-f4c4fdb5fb63",
       seed: 55.828849688265535,
-      color: "#9ed36a",
+      color: "#fff",
       icon: "🧑‍🤝‍🧑",
       height: 110,
       width: 110,
       angle: 0,
+      fontColor: "black",
     },
     {
       x: -161.96152422706632,
@@ -130,11 +137,12 @@ export const savedState: AppState = {
       text: "Hémodialyse",
       id: "b8be8996-997c-3703-6e02-d355c05d16cb",
       seed: 85.7230953335066,
-      color: "#9ed36a",
+      color: "#fff",
       icon: "🩺",
       height: 110,
       width: 110,
       angle: 4.71238898038469,
+      fontColor: "black",
     },
     {
       x: -223.9102874396828,
@@ -143,11 +151,12 @@ export const savedState: AppState = {
       text: "Dialyse péritonéale",
       id: "e703eb6c-4adc-7d53-f775-66983ec78475",
       seed: 72.76722849161703,
-      color: "#9ed36a",
+      color: "#fff",
       icon: "🩺",
       height: 110,
       width: 110,
       angle: 3.4913,
+      fontColor: "black",
     },
     {
       x: -271.0807251039056,
@@ -156,11 +165,12 @@ export const savedState: AppState = {
       text: "Greffe",
       id: "135924e4-f212-8754-4baf-a1bc6d0034bf",
       seed: 71.56457121446046,
-      color: "#9ed36a",
+      color: "#fff",
       icon: "🩺",
       height: 110,
       width: 110,
       angle: 4.71238898038469,
+      fontColor: "black",
     },
     {
       x: -347.8078138649162,
@@ -169,11 +179,12 @@ export const savedState: AppState = {
       text: "Traitement conservateur",
       id: "ce312fec-7963-7cb2-c1ec-718a50b33303",
       seed: 65.41677684663816,
-      color: "#9ed36a",
+      color: "#fff",
       icon: "🩺",
       height: 110,
       width: 110,
       angle: 3.6152,
+      fontColor: "black",
     },
     {
       x: 51.96152422706632,
@@ -182,7 +193,7 @@ export const savedState: AppState = {
       text: "Tension artérielle",
       id: "1e226507-6fba-90d3-a470-de2ea72dc97f",
       seed: 65.52261507892119,
-      color: "#9ed36a",
+      color: "#fff",
       icon: "🩺",
       height: 110,
       width: 110,
@@ -196,7 +207,7 @@ export const savedState: AppState = {
       text: "Poids",
       id: "c9fbbdeb-8c6a-0df3-7b56-62932ad8584b",
       seed: 24.088641963948785,
-      color: "#9ed36a",
+      color: "#fff",
       icon: "⚖️",
       height: 110,
       width: 110,
@@ -210,7 +221,7 @@ export const savedState: AppState = {
       text: "Activités physiques",
       id: "15924c51-6b04-7ea6-0f59-a2796bd4cc46",
       seed: 46.48315443546134,
-      color: "#9ed36a",
+      color: "#fff",
       icon: "🏋️",
       height: 110,
       width: 110,
@@ -224,11 +235,12 @@ export const savedState: AppState = {
       text: "Médicaments",
       id: "cda2bf1c-c211-bb16-ced1-e46307fc0dc7",
       seed: 5.475167029824293,
-      color: "#9ed36a",
+      color: "#fff",
       icon: "💊",
       height: 110,
       width: 110,
       angle: 1.3619,
+      fontColor: "black",
     },
     {
       x: 289.28365493097294,
@@ -237,7 +249,7 @@ export const savedState: AppState = {
       text: "Alimentation",
       id: "77593e85-131e-ee9c-84d1-52efdcc767a6",
       seed: 71.34333344278149,
-      color: "#9ed36a",
+      color: "#fff",
       icon: "🥕",
       height: 110,
       width: 110,
@@ -251,11 +263,12 @@ export const savedState: AppState = {
       text: "Projets",
       id: "affe4d4f-a371-e451-6b88-28d058f60ec7",
       seed: 76.60329478252463,
-      color: "#9ed36a",
+      color: "#fff",
       icon: "💡",
       height: 110,
       width: 110,
       angle: 1.1885,
+      fontColor: "black",
     },
     {
       x: 430.00405704013417,
@@ -264,7 +277,7 @@ export const savedState: AppState = {
       text: "Finances",
       id: "d92e1e38-6519-9ea2-1669-e723bde5a273",
       seed: 73.8150519321184,
-      color: "#9ed36a",
+      color: "#fff",
       icon: "💶",
       height: 110,
       width: 110,
@@ -278,11 +291,12 @@ export const savedState: AppState = {
       text: "Loisirs",
       id: "27023a94-4483-65b0-a0b0-02502bf31873",
       seed: 73.87496010158564,
-      color: "#9ed36a",
+      color: "#fff",
       icon: "🎲",
       height: 110,
       width: 110,
       angle: 5.0513,
+      fontColor: "black",
     },
     {
       x: -217.89098764339263,
@@ -291,11 +305,12 @@ export const savedState: AppState = {
       text: "Famille",
       id: "eb2d5af0-112f-bc8b-f310-c8f88ee11af9",
       seed: 6.902064260125903,
-      color: "#9ed36a",
+      color: "#fff",
       icon: "👪",
       height: 110,
       width: 110,
       angle: 3.5161,
+      fontColor: "black",
     },
     {
       x: -271.0807251039056,
@@ -304,11 +319,12 @@ export const savedState: AppState = {
       text: "Amis",
       id: "18ae0c82-fa76-8b7a-bab5-403126fc6176",
       seed: 41.65012222404828,
-      color: "#9ed36a",
+      color: "#fff",
       icon: "🧑‍🤝‍🧑",
       height: 110,
       width: 110,
       angle: 4.977,
+      fontColor: "black",
     },
     {
       x: -325.64032554232523,
@@ -317,11 +333,12 @@ export const savedState: AppState = {
       text: "Couple",
       id: "a085d230-f6e8-2c8c-8fdb-3f7a48b6045f",
       seed: 99.7961860878947,
-      color: "#9ed36a",
+      color: "#fff",
       icon: "💑",
       height: 110,
       width: 110,
       angle: 3.6894,
+      fontColor: "black",
     },
     {
       x: -380.19992598074487,
@@ -330,11 +347,12 @@ export const savedState: AppState = {
       text: "Travail",
       id: "62d97982-07ba-cb70-6c62-3fa90a129a7c",
       seed: 84.55621502543795,
-      color: "#9ed36a",
+      color: "#fff",
       icon: "💼",
       height: 110,
       width: 110,
       angle: 4.9523,
+      fontColor: "black",
     },
     {
       x: -445.7184302424186,
@@ -343,11 +361,12 @@ export const savedState: AppState = {
       text: "Sexualité",
       id: "238e2a85-6681-e9b0-52d9-3d6ebf91f171",
       seed: 83.4140672522203,
-      color: "#9ed36a",
+      color: "#fff",
       icon: "♥️",
       height: 110,
       width: 110,
       angle: 3.6399,
+      fontColor: "black",
     },
     {
       x: 465.76780426662066,
@@ -518,74 +537,26 @@ export function hitTest(x: number, y: number, element: Element) {
 
 export const LEAF_WIDTH = 110;
 export const LEAF_HEIGHT = 110;
-export const colors = ["#fff", "#676767", "#ff7f00", "#9ed36a"];
+type Green = "#9ed36a";
+type White = "#fff";
+type Orange = "#ff7f00";
+type Gray = "#676767";
+type Color = Green | White | Orange | Gray;
+const green: Color = "#9ed36a";
+const white: Color = "#fff";
+const orange: Color = "#ff7f00";
+const gray: Color = "#676767";
+type Colors = Color[];
+export const colors: Colors = ["#fff", "#9ed36a", "#ff7f00", "#676767"];
+
+export const colorsMeaning: Record<Color, string> = {
+  [white]: "Je n'ai pas abordé le sujet",
+  [green]: "Je souhaite en parler",
+  [orange]: "Je ne suis pas à l'aise pour en parler",
+  [gray]: "Je préfère éviter le sujet",
+};
+
 export const RC_WIDTH = 100;
-
-function drawGrid(ctx: CanvasRenderingContext2D) {
-  try {
-    const textBaseline = ctx.textBaseline;
-    const font = ctx.font;
-    /* vertical lines */
-    for (var x = 0.5; x < ctx.canvas.width; x += 10) {
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, ctx.canvas.height);
-    }
-
-    /* horizontal lines */
-    for (var y = 0.5; y < ctx.canvas.height; y += 10) {
-      ctx.moveTo(0, y);
-      ctx.lineTo(ctx.canvas.width, y);
-    }
-
-    /* draw it! */
-    ctx.strokeStyle = "#eee";
-    ctx.stroke();
-
-    //arrows
-    /* x-axis */
-    ctx.beginPath();
-    ctx.moveTo(0, 40);
-    ctx.lineTo(240, 40);
-    ctx.moveTo(260, 40);
-    ctx.lineTo(500, 40);
-    ctx.lineTo(ctx.canvas.width, 40);
-
-    /* y-axis */
-    ctx.moveTo(60, 0);
-    ctx.lineTo(60, 153);
-    ctx.moveTo(60, 173);
-    ctx.lineTo(60, 375);
-    ctx.lineTo(60, ctx.canvas.height);
-
-    /* draw it! */
-    ctx.strokeStyle = "#000";
-    ctx.stroke();
-
-    //labels
-    try {
-      ctx.font = "bold 12px sans-serif";
-      ctx.fillText("x", 248, 43);
-      ctx.fillText("y", 58, 165);
-    } catch (err) {}
-
-    try {
-      ctx.textBaseline = "top";
-      ctx.fillText("( 0 , 0 )", 8, 5);
-    } catch (err) {}
-
-    try {
-      ctx.textBaseline = "bottom";
-      ctx.fillText(
-        "(" + ctx.canvas.width + "," + ctx.canvas.height + ")",
-        ctx.canvas.width,
-        ctx.canvas.height
-      );
-    } catch (err) {}
-
-    ctx.textBaseline = textBaseline;
-    ctx.font = font;
-  } catch (err) {}
-}
 
 function drawImage(
   rc: RoughCanvas,
@@ -666,9 +637,6 @@ function drawLeaf(
   ctx.font = font;
 }
 
-const getLeafNumbers = (nbOfBranches: number) =>
-  new Array(nbOfBranches).fill(0).map((_) => getRandomArbitrary(4, 8));
-
 function drawTronc(
   rc: RoughCanvas,
   startX: number,
@@ -703,6 +671,8 @@ export const BASE_TREE_Y = 800;
 export const MAX_ZOOM = 5;
 export const MIN_ZOOM = 0.1;
 export const SCROLL_SENSITIVITY = 0.0005;
+export const SCROLL_SENSITIVITY_TOUCHPAD = 0.005;
+
 let INITIAL_ZOOM = 1;
 
 function drawBranch(
@@ -759,34 +729,6 @@ function drawAddButton(canvas: HTMLCanvasElement, x: number, y: number) {
   ctx.font = font;
 }
 
-function drawSector(
-  el: Element,
-  ctx: CanvasRenderingContext2D,
-  rc: RoughCanvas,
-  i: number,
-  isSelected = false
-) {
-  rc.circle(el.x, el.y, el.width!, {
-    fill: el.color,
-    seed: el.seed,
-    fillStyle: "solid",
-  });
-  if (isSelected) {
-    rc.rectangle(
-      el.x - el.width! / 2,
-      el.y - el.width! / 2,
-      el.width!,
-      el.width!,
-      {
-        seed: 2,
-        strokeLineDash: [5, 5],
-        roughness: 0,
-      }
-    );
-  }
-  printAtWordWrap(ctx, el.text, el.x, el.y, 15, el.width! - 15, "black", "");
-}
-
 export function getRandomArbitrary(min: number, max: number) {
   return Math.random() * (max - min) + min;
 }
@@ -806,7 +748,7 @@ export function addText(context: CanvasRenderingContext2D) {
     id: guidGenerator(),
     color: "black",
   };
-  let text = prompt("What text do you want?");
+  let text = prompt("Quel texte doit on écrire ?");
   if (text === null) {
     return;
   }
@@ -840,6 +782,7 @@ export function updateText(
   context.font = element.font || "20px comic sans ms";
   const lines = text.split("\n");
   //TODO fix for words with low baseline
+  //TODO update leaf size accordingly
   if (lines.length === 1) {
     const { actualBoundingBoxAscent, actualBoundingBoxDescent, width } =
       context.measureText(text);
@@ -1005,7 +948,6 @@ export function draw(
   ctx.lineCap = "round";
   ctx.translate(canvas.width / 2, canvas.height / 2);
 
-  //if (mode === "edit") drawGrid(ctx);
   drawTronc(rc, baseTreeX, baseTreeY, endTreeX, END_TREE_Y);
 
   //Draw Branch
@@ -1026,8 +968,6 @@ export function draw(
   for (const element of elements) {
     if (element.type === "category") {
       drawCategory(element, ctx, rc, element.id === selectedId, element.angle);
-    } else if (element.type === "circle") {
-      drawSector(element, ctx, rc, i++, element.id === selectedId);
     } else {
       drawLeaf(
         rc,
@@ -1193,7 +1133,7 @@ export function generateTreeFromModel(
         text: leafs[i][j].text,
         id: guidGenerator(),
         seed: getRandomArbitrary(1, 100),
-        color: colors[3],
+        color: white,
         icon: leafs[i][j].icon,
         height: LEAF_HEIGHT,
         width: LEAF_WIDTH,
