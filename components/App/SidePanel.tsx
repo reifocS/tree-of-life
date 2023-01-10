@@ -53,12 +53,15 @@ export default function SidePanel({
   }, [selectedElement, setAppState]);
 
   return (
+    //TODO afficher une indication "valeur par défaut" pour la taille de la feuille
     <div className="sidePanel">
       <div className="panelColumn">
         <>
+          
           {selectedElement.type !== "category" && (
             <>
-              size
+              <h1>Leaf's properties</h1>
+              Set the size of the leaf
               <input
                 onChange={(e) => {
                   setAppState((prev) => ({
@@ -93,7 +96,7 @@ export default function SidePanel({
               >
                 {elements.find((el) => el.id === selectedElement.id)?.icon}
               </button>
-              emoji fontSize
+              Set the size of the emoji (default value: 23)
               <input
                 type="number"
                 value={
@@ -110,35 +113,60 @@ export default function SidePanel({
                     }),
                   }));
                 }}
+                
               ></input>
+              Set the leaf's title
+              <textarea
+                key={selectedElement.id}
+                onChange={(e) => {
+                  setAppState((prev) => ({
+                    ...prev,
+                    elements: prev.elements.map((el) => {
+                      if (el.id === selectedElement.id) {
+                        if (el.type !== "category")
+                          return {
+                            ...el,
+                            text: e.target.value,
+                          };
+                        return {
+                          ...updateText(ctx!, e.target.value ?? "", el),
+                        };
+                      }
+                      return el;
+                    }),
+                  }));
+                }}
+                value={elements.find((el) => el.id === selectedElement.id)?.text!}
+              ></textarea>
             </>
-          )}
-          text
-          <textarea
-            key={selectedElement.id}
-            onChange={(e) => {
-              setAppState((prev) => ({
-                ...prev,
-                elements: prev.elements.map((el) => {
-                  if (el.id === selectedElement.id) {
-                    if (el.type !== "category")
-                      return {
-                        ...el,
-                        text: e.target.value,
-                      };
-                    return {
-                      ...updateText(ctx!, e.target.value ?? "", el),
-                    };
-                  }
-                  return el;
-                }),
-              }));
-            }}
-            value={elements.find((el) => el.id === selectedElement.id)?.text!}
-          ></textarea>
+          )}     
           {selectedElement.type === "category" && (
             <>
-              font
+              <h1>Category's properties</h1>
+              Set the category's title
+              <textarea
+                key={selectedElement.id}
+                onChange={(e) => {
+                  setAppState((prev) => ({
+                    ...prev,
+                    elements: prev.elements.map((el) => {
+                      if (el.id === selectedElement.id) {
+                        if (el.type !== "category")
+                          return {
+                            ...el,
+                            text: e.target.value,
+                          };
+                        return {
+                          ...updateText(ctx!, e.target.value ?? "", el),
+                        };
+                      }
+                      return el;
+                    }),
+                  }));
+                }}
+                value={elements.find((el) => el.id === selectedElement.id)?.text!}
+              ></textarea>
+              Set the font for the text
               <input
                 value={
                   elements.find((el) => el.id === selectedElement.id)?.font!
@@ -155,11 +183,13 @@ export default function SidePanel({
                   }));
                 }}
               ></input>
-              color
+              Set the text's color
               <input
-                value={
+                type="color"
+                /*value={
                   elements.find((el) => el.id === selectedElement.id)?.color!
-                }
+                }*/
+                value="#ffffff"
                 onChange={(e) => {
                   setAppState((prev) => ({
                     ...prev,
@@ -174,7 +204,7 @@ export default function SidePanel({
               ></input>
             </>
           )}
-          angle
+          Set the orientation of the object
           <input
             onChange={(e) => {
               setAppState((prev) => ({

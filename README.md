@@ -1,3 +1,9 @@
+## Launch the app
+npm install
+npm run dev
+
+on the website http://localhost:3000, use http://localhost:3000/?debug=true to access modifications
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
