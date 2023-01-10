@@ -501,16 +501,15 @@ export function draw(
   images: { color: string; image: HTMLImageElement }[],
   selectedId?: string,
   mode?: string,
-  nbOfBranches = NUMBER_OF_BRANCHES,
+  nbOfBranches = NUMBER_OF_BRANCHES
 ) {
   const ctx = canvas.getContext("2d")!;
   // Zooming and padding
-  translate(canvas.width / 2, canvas.height / 2, ctx);
-  scale(cameraZoom, cameraZoom, ctx);
-  translate(
+  ctx.translate(canvas.width / 2, canvas.height / 2);
+  ctx.scale(cameraZoom, cameraZoom);
+  ctx.translate(
     -canvas.width / 2 + cameraOffset.x,
-    -canvas.height / 2 + cameraOffset.y,
-    ctx
+    -canvas.height / 2 + cameraOffset.y
   );
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -520,7 +519,6 @@ export function draw(
   const baseTreeY = BASE_TREE_Y;
   ctx.lineCap = "round";
   ctx.translate(canvas.width / 2, canvas.height / 2);
-
   drawTronc(rc, baseTreeX, baseTreeY, endTreeX, END_TREE_Y);
 
   //Draw Branch
