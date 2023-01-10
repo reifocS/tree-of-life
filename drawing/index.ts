@@ -20,417 +20,6 @@ export type AppState = {
   sectors: Sector[];
   mode: "edit" | "view";
 };
-export const savedState: AppState = {
-  selectedElement: null,
-  sectors: [],
-  mode: "view",
-  cameraZoom: 1,
-  scaleMultiplier: 0.8,
-  cameraOffset: { x: 0, y: 0 },
-  isDragging: false,
-  dragStart: { x: 0, y: 0 },
-  initialPinchDistance: null,
-  draggedElement: null,
-  elements: [
-    {
-      x: 51.96152422706632,
-      y: 492.5,
-      type: "leaf",
-      text: "Mes bilans biologiques",
-      id: "b2181630-2328-3d6d-d3cb-ac278f2dda82",
-      seed: 84.90601359235511,
-      color: "#fff",
-      icon: "📝",
-      height: 110,
-      width: 110,
-      angle: 0,
-      fontColor: "black",
-    },
-    {
-      x: 116.37334169774857,
-      y: 645.8891627741971,
-      type: "leaf",
-      text: "Psychologue",
-      id: "694b90e9-2b4a-bef4-9d4b-64eb1f7847af",
-      seed: 83.31349390401876,
-      color: "#fff",
-      icon: "👥",
-      height: 110,
-      width: 110,
-      angle: 1.2133,
-      fontColor: "black",
-    },
-    {
-      x: 161.0807251039056,
-      y: 429.5,
-      type: "leaf",
-      text: "Assistance sociale",
-      id: "4d4f1538-200c-ea1c-6057-e5bb2b400ce5",
-      seed: 74.27989831740231,
-      color: "#fff",
-      icon: "🧑",
-      height: 110,
-      width: 110,
-      angle: 0,
-      fontColor: "black",
-    },
-    {
-      x: 218.10337980039077,
-      y: 587.8152712903284,
-      type: "leaf",
-      text: "Nephrologue",
-      id: "c3c00b04-55d4-8a58-3915-2ea1500ca17e",
-      seed: 75.62922866959165,
-      color: "#fff",
-      icon: "🧑‍⚕️",
-      height: 110,
-      width: 110,
-      angle: 1.1638,
-      fontColor: "black",
-    },
-    {
-      x: 270.19992598074487,
-      y: 366.5,
-      type: "leaf",
-      text: "Infirimière",
-      id: "fe53e2f9-efd0-d509-a13e-4b33a17c42df",
-      seed: 92.15459050043543,
-      color: "#fff",
-      icon: "🧑‍⚕️",
-      height: 110,
-      width: 110,
-      angle: 0,
-      fontColor: "black",
-    },
-    {
-      x: 324.7595264191645,
-      y: 512.5,
-      type: "leaf",
-      text: "Diéteticien",
-      id: "aa386c65-ab25-d2a8-5cca-0c28640c8c74",
-      seed: 83.67064023542027,
-      color: "#fff",
-      icon: "🧑‍⚕️",
-      height: 110,
-      width: 110,
-      angle: 1.1143,
-      fontColor: "black",
-    },
-    {
-      x: 379.31912685758414,
-      y: 303.5,
-      type: "leaf",
-      text: "Association de patients",
-      id: "561d2aa6-8bdb-367c-d6d2-f4c4fdb5fb63",
-      seed: 55.828849688265535,
-      color: "#fff",
-      icon: "🧑‍🤝‍🧑",
-      height: 110,
-      width: 110,
-      angle: 0,
-      fontColor: "black",
-    },
-    {
-      x: -161.96152422706632,
-      y: 155,
-      type: "leaf",
-      text: "Hémodialyse",
-      id: "b8be8996-997c-3703-6e02-d355c05d16cb",
-      seed: 85.7230953335066,
-      color: "#fff",
-      icon: "🩺",
-      height: 110,
-      width: 110,
-      angle: 4.71238898038469,
-      fontColor: "black",
-    },
-    {
-      x: -223.9102874396828,
-      y: 303.46305425806565,
-      type: "leaf",
-      text: "Dialyse péritonéale",
-      id: "e703eb6c-4adc-7d53-f775-66983ec78475",
-      seed: 72.76722849161703,
-      color: "#fff",
-      icon: "🩺",
-      height: 110,
-      width: 110,
-      angle: 3.4913,
-      fontColor: "black",
-    },
-    {
-      x: -271.0807251039056,
-      y: 92,
-      type: "leaf",
-      text: "Greffe",
-      id: "135924e4-f212-8754-4baf-a1bc6d0034bf",
-      seed: 71.56457121446046,
-      color: "#fff",
-      icon: "🩺",
-      height: 110,
-      width: 110,
-      angle: 4.71238898038469,
-      fontColor: "black",
-    },
-    {
-      x: -347.8078138649162,
-      y: 233.0738914838687,
-      type: "leaf",
-      text: "Traitement conservateur",
-      id: "ce312fec-7963-7cb2-c1ec-718a50b33303",
-      seed: 65.41677684663816,
-      color: "#fff",
-      icon: "🩺",
-      height: 110,
-      width: 110,
-      angle: 3.6152,
-      fontColor: "black",
-    },
-    {
-      x: 51.96152422706632,
-      y: -182.5,
-      type: "leaf",
-      text: "Tension artérielle",
-      id: "1e226507-6fba-90d3-a470-de2ea72dc97f",
-      seed: 65.52261507892119,
-      color: "#fff",
-      icon: "🩺",
-      height: 110,
-      width: 110,
-      angle: 0,
-      fontColor: "black",
-    },
-    {
-      x: 95.56222084223185,
-      y: -11.842466397678201,
-      type: "leaf",
-      text: "Poids",
-      id: "c9fbbdeb-8c6a-0df3-7b56-62932ad8584b",
-      seed: 24.088641963948785,
-      color: "#fff",
-      icon: "⚖️",
-      height: 110,
-      width: 110,
-      angle: 1.3371,
-      fontColor: "black",
-    },
-    {
-      x: 161.0807251039056,
-      y: -245.5,
-      type: "leaf",
-      text: "Activités physiques",
-      id: "15924c51-6b04-7ea6-0f59-a2796bd4cc46",
-      seed: 46.48315443546134,
-      color: "#fff",
-      icon: "🏋️",
-      height: 110,
-      width: 110,
-      angle: 0,
-      fontColor: "black",
-    },
-    {
-      x: 214.27046256441832,
-      y: -83.06164426511894,
-      type: "leaf",
-      text: "Médicaments",
-      id: "cda2bf1c-c211-bb16-ced1-e46307fc0dc7",
-      seed: 5.475167029824293,
-      color: "#fff",
-      icon: "💊",
-      height: 110,
-      width: 110,
-      angle: 1.3619,
-      fontColor: "black",
-    },
-    {
-      x: 289.28365493097294,
-      y: -313.9794519116271,
-      type: "leaf",
-      text: "Alimentation",
-      id: "77593e85-131e-ee9c-84d1-52efdcc767a6",
-      seed: 71.34333344278149,
-      color: "#fff",
-      icon: "🥕",
-      height: 110,
-      width: 110,
-      angle: 0,
-      fontColor: "black",
-    },
-    {
-      x: 334.3485672645117,
-      y: -141.95205533139855,
-      type: "leaf",
-      text: "Projets",
-      id: "affe4d4f-a371-e451-6b88-28d058f60ec7",
-      seed: 76.60329478252463,
-      color: "#fff",
-      icon: "💡",
-      height: 110,
-      width: 110,
-      angle: 1.1885,
-      fontColor: "black",
-    },
-    {
-      x: 430.00405704013417,
-      y: -203.00685371746812,
-      type: "leaf",
-      text: "Finances",
-      id: "d92e1e38-6519-9ea2-1669-e723bde5a273",
-      seed: 73.8150519321184,
-      color: "#fff",
-      icon: "💶",
-      height: 110,
-      width: 110,
-      angle: 1.3619,
-      fontColor: "black",
-    },
-    {
-      x: -159.22179827125274,
-      y: -513.1506851104662,
-      type: "leaf",
-      text: "Loisirs",
-      id: "27023a94-4483-65b0-a0b0-02502bf31873",
-      seed: 73.87496010158564,
-      color: "#fff",
-      icon: "🎲",
-      height: 110,
-      width: 110,
-      angle: 5.0513,
-      fontColor: "black",
-    },
-    {
-      x: -217.89098764339263,
-      y: -369.89041106627974,
-      type: "leaf",
-      text: "Famille",
-      id: "eb2d5af0-112f-bc8b-f310-c8f88ee11af9",
-      seed: 6.902064260125903,
-      color: "#fff",
-      icon: "👪",
-      height: 110,
-      width: 110,
-      angle: 3.5161,
-      fontColor: "black",
-    },
-    {
-      x: -271.0807251039056,
-      y: -583,
-      type: "leaf",
-      text: "Amis",
-      id: "18ae0c82-fa76-8b7a-bab5-403126fc6176",
-      seed: 41.65012222404828,
-      color: "#fff",
-      icon: "🧑‍🤝‍🧑",
-      height: 110,
-      width: 110,
-      angle: 4.977,
-      fontColor: "black",
-    },
-    {
-      x: -325.64032554232523,
-      y: -437,
-      type: "leaf",
-      text: "Couple",
-      id: "a085d230-f6e8-2c8c-8fdb-3f7a48b6045f",
-      seed: 99.7961860878947,
-      color: "#fff",
-      icon: "💑",
-      height: 110,
-      width: 110,
-      angle: 3.6894,
-      fontColor: "black",
-    },
-    {
-      x: -380.19992598074487,
-      y: -646,
-      type: "leaf",
-      text: "Travail",
-      id: "62d97982-07ba-cb70-6c62-3fa90a129a7c",
-      seed: 84.55621502543795,
-      color: "#fff",
-      icon: "💼",
-      height: 110,
-      width: 110,
-      angle: 4.9523,
-      fontColor: "black",
-    },
-    {
-      x: -445.7184302424186,
-      y: -495.8904110662797,
-      type: "leaf",
-      text: "Sexualité",
-      id: "238e2a85-6681-e9b0-52d9-3d6ebf91f171",
-      seed: 83.4140672522203,
-      color: "#fff",
-      icon: "♥️",
-      height: 110,
-      width: 110,
-      angle: 3.6399,
-      fontColor: "black",
-    },
-    {
-      x: 465.76780426662066,
-      y: 405.5612235891166,
-      type: "category",
-      text: "Parcours \n     de \n   soins",
-      id: "feac5aec-40fc-74ca-bded-9220a1d5e660",
-      seed: 58.8124628647302,
-      color: "#fff",
-      icon: "",
-      height: 100.921875,
-      width: 173.5625,
-      font: "40px comic sans ms",
-      angle: 0,
-      actualBoundingBoxAscent: 31.1328125,
-    },
-    {
-      x: -531.4718779933107,
-      y: 166.27551187200626,
-      type: "category",
-      text: "    Mes \n   reins \nfatiguent",
-      id: "99b7e8ec-f65b-2210-2289-b3f0589a256b",
-      seed: 7.035306981271768,
-      color: "#fff",
-      icon: "",
-      height: 110.47265625,
-      width: 174.6041717529297,
-      font: "40px comic sans ms",
-      angle: 0,
-      actualBoundingBoxAscent: 31.23046875,
-    },
-    {
-      x: 455.75242784803294,
-      y: -298.01369698371116,
-      type: "category",
-      text: "    Mon \nquotidien",
-      id: "53237f1e-cc7b-0318-1552-391ec2d66557",
-      seed: 98.1161170754753,
-      color: "#fff",
-      icon: "",
-      height: 76.57421875,
-      width: 170.25,
-      font: "40px comic sans ms",
-      angle: 0,
-      actualBoundingBoxAscent: 31.1328125,
-    },
-    {
-      x: -592.3069063044284,
-      y: -564.8469385753592,
-      type: "category",
-      text: "Ma vie \nsociale",
-      id: "8b08bb5d-ac53-3987-e4bd-c5f2efe58959",
-      seed: 22.271414836113458,
-      color: "#fff",
-      icon: "",
-      height: 67.296875,
-      width: 132.2916717529297,
-      font: "40px comic sans ms",
-      angle: 0,
-      actualBoundingBoxAscent: 31.42578125,
-    },
-  ],
-  downPoint: { x: 0, y: 0 },
-};
 
 //https://stackoverflow.com/a/6860916/14536535
 export function guidGenerator() {
@@ -461,7 +50,7 @@ export type Element = {
   id: string;
   text: string;
   icon: string;
-  type: "leaf" | "category" | "circle";
+  type: "leaf" | "category";
   width?: number;
   height?: number;
   actualBoundingBoxAscent?: number;
@@ -472,8 +61,6 @@ export type Element = {
   weTalkedAboutIt?: boolean;
   iconSize?: number;
 };
-
-const matrix = [1, 0, 0, 1, 0, 0];
 
 export function rotate(
   x1: number,
@@ -507,14 +94,7 @@ export function hitTestButton(
 }
 
 export function hitTest(x: number, y: number, element: Element) {
-  if (element.type === "circle") {
-    const { x: newX, y: newY } = element;
-    const dx = x - newX;
-    const dy = y - newY;
-    const r = element.width! / 2;
-    const hit = dx * dx + dy * dy < r * r;
-    return hit;
-  } else if (element.type === "leaf") {
+  if (element.type === "leaf") {
     let { x: x1, y: y1, angle = 0 } = element;
     let x2 = x1 + element.width!;
     let y2 = y1 + element.height!;
@@ -535,8 +115,8 @@ export function hitTest(x: number, y: number, element: Element) {
   }
 }
 
-export const LEAF_WIDTH = 110;
-export const LEAF_HEIGHT = 110;
+export const LEAF_WIDTH = 130;
+export const LEAF_HEIGHT = 130;
 type Green = "#9ed36a";
 type White = "#fff";
 type Orange = "#ff7f00";
@@ -548,6 +128,7 @@ const orange: Color = "#ff7f00";
 const gray: Color = "#676767";
 type Colors = Color[];
 export const colors: Colors = ["#fff", "#9ed36a", "#ff7f00", "#676767"];
+const FONT_TEXT_LEAF = "bold 16px comic sans ms";
 
 export const colorsMeaning: Record<Color, string> = {
   [white]: "Je n'ai pas abordé le sujet",
@@ -555,8 +136,6 @@ export const colorsMeaning: Record<Color, string> = {
   [orange]: "Je ne suis pas à l'aise pour en parler",
   [gray]: "Je préfère éviter le sujet",
 };
-
-export const RC_WIDTH = 100;
 
 function drawImage(
   rc: RoughCanvas,
@@ -662,7 +241,7 @@ const BUTTON_SIZE = 30;
 const SPACE_BETWEEN_LINES = 3;
 export const NUMBER_OF_BRANCHES = 4;
 //const leafNumbers = getLeafNumbers(NUMBER_OF_BRANCHES);
-const BRANCH_LENGTH = 500;
+const BRANCH_LENGTH = 600;
 //TODO replace 5 with dynamic nb of branches
 const END_TREE_Y = -100 - LEAF_HEIGHT * 5;
 export const BASE_TREE_X = 0;
@@ -734,8 +313,6 @@ export function getRandomArbitrary(min: number, max: number) {
 }
 
 function translate(x: number, y: number, ctx: CanvasRenderingContext2D) {
-  matrix[4] += matrix[0] * x + matrix[2] * y;
-  matrix[5] += matrix[1] * x + matrix[3] * y;
   ctx.translate(x, y);
 }
 
@@ -854,10 +431,6 @@ function drawCategory(
 }
 
 function scale(x: number, y: number, ctx: CanvasRenderingContext2D) {
-  matrix[0] *= x;
-  matrix[1] *= x;
-  matrix[2] *= y;
-  matrix[3] *= y;
   ctx.scale(x, y);
 }
 
@@ -928,7 +501,7 @@ export function draw(
   images: { color: string; image: HTMLImageElement }[],
   selectedId?: string,
   mode?: string,
-  nbOfBranches = NUMBER_OF_BRANCHES
+  nbOfBranches = NUMBER_OF_BRANCHES,
 ) {
   const ctx = canvas.getContext("2d")!;
   // Zooming and padding
@@ -1014,7 +587,7 @@ function printAtWordWrap(
   context.textAlign = "center";
   context.fillStyle = fontColor;
   context.textBaseline = "middle";
-  context.font = "bold 16px comic sans ms";
+  context.font = FONT_TEXT_LEAF;
   fitWidth = fitWidth || 0;
 
   if (fitWidth <= 0) {
@@ -1040,8 +613,10 @@ function printAtWordWrap(
         x,
         y + lineHeight * currentLine
       );
-      currentLine++;
       words = words.splice(idx - 1);
+      if (words.length > 0) {
+        currentLine++;
+      }
       idx = 1;
     } else {
       idx++;
@@ -1087,6 +662,26 @@ export function adjust(color: string, amount: number) {
   );
 }
 
+/*
+function measureRequiredWidth(
+  ctx: CanvasRenderingContext2D,
+  leafWidth: number,
+  text: string,
+  fontText: string
+) {
+  const words = text.split(" ");
+  let maxWidth = 0;
+  const font = ctx.font;
+  ctx.font = fontText;
+  for (const word of words) {
+    const { width } = ctx.measureText(word);
+    if (width > maxWidth) maxWidth = width;
+  }
+  ctx.font = font;
+  return { needMoreSpace: maxWidth > leafWidth, neededSpace: maxWidth };
+}
+*/
+
 // Need to run on client
 export function generateTreeFromModel(
   canvas: HTMLCanvasElement,
@@ -1124,40 +719,55 @@ export function generateTreeFromModel(
     textElements.push(newTextElem);
   }
 
+  const getAngleForLeaf = (index: number, isRight: boolean) => {
+    if (!isRight) {
+      if (index % 2 !== 0) {
+        return 3.6;
+      }
+      return (3 * Math.PI) / 2;
+    }
+    if (index % 2 !== 0) {
+      return 1;
+    }
+    return 0;
+  };
+
   let elements: Element[] = coords
     .map((arr, i) => {
-      return arr.map(({ x, y, isRight }, j) => ({
-        x,
-        y,
-        type: "leaf" as any,
-        text: leafs[i][j].text,
-        id: guidGenerator(),
-        seed: getRandomArbitrary(1, 100),
-        color: colors[3],
-        icon: leafs[i][j].icon,
-        height: LEAF_HEIGHT,
-        width: LEAF_WIDTH,
-        angle: !isRight ? (3 * Math.PI) / 2 : 0,
-      }));
+      return arr.map(({ x, y, isRight }, j) => {
+        let width = LEAF_WIDTH;
+        /*
+        const { needMoreSpace, neededSpace } = measureRequiredWidth(
+          context!,
+          width,
+          leafs[i][j].text,
+          FONT_TEXT_LEAF
+        );
+        if (needMoreSpace) {
+          width = neededSpace + 40;
+          //TODO recompute x and y, check also for height
+          x += LEAF_WIDTH - width;
+          const isUp = j % 2 === 0;
+          if (isUp) y += 0;
+          else y += 0;
+        }*/
+        return {
+          x,
+          y,
+          type: "leaf" as any,
+          text: leafs[i][j].text,
+          id: guidGenerator(),
+          seed: getRandomArbitrary(1, 100),
+          color: white,
+          icon: leafs[i][j].icon,
+          height: width,
+          width,
+          angle: getAngleForLeaf(j, isRight),
+        };
+      });
     })
     .flat();
   elements = elements.concat(textElements);
 
   return elements;
-}
-
-function makeid(length: number) {
-  let result = "";
-  let characters =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let charactersLength = characters.length;
-  for (let i = 0; i < length; i++) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength));
-  }
-  return result;
-}
-function getMid(startX: number, startY: number, endX: number, endY: number) {
-  let midX = startX + (endX - startX) * 0.5;
-  let midY = startY + (endY - startY) * 0.5;
-  return [midX, midY];
 }
