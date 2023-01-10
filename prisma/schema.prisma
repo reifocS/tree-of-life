@@ -7,56 +7,75 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Tree {
+model ElementInfo {
   id       Int     @id @default(autoincrement())
-  label    String  
-  branches Branch[]
-  treeConsultation Consultation[]  @relation("treeConsultation")
-}
-
-model Branch {
-  id    Int    @id @default(autoincrement())
-  label String 
-  treeId Int 
-  tree  Tree   @relation(fields: [treeId], references: [id])
+  x Float
+  y Float 
+  height Int
+  label String
+  width Int
+  angle Float
   leafs Leaf[]
+  branches Branch[]
+
 }
 
 model Leaf {
-  id     Int    @id @default(autoincrement())
-  label  String 
-  branchId Int 
-  branch  Branch   @relation(fields: [branchId], references: [id])
+  id       Int     @id @default(autoincrement())
+  branch_fk Int
+  branch  Branch   @relation(fields: [branch_fk], references: [id])
+
+  icon String
+  fontColor String
+  elementInfo_fk Int
+  elementInfo  ElementInfo   @relation(fields: [elementInfo_fk], references: [id])
+
+}
+
+model Branch {
+  id       Int     @id @default(autoincrement())
+  tree_fk Int
+  tree  TreeVersion   @relation(fields: [tree_fk], references: [id])
+  actualBoundingBoxAscent Int
+  font String
+  elementInfo_fk Int
+  elementInfo  ElementInfo   @relation(fields: [elementInfo_fk], references: [id])
+  leafs Leaf[]
+}
+
+model TreeVersion {
+  id       Int     @id @default(autoincrement())
+  tree_fk Int
+  treeMaster  TreeMaster   @relation(fields: [tree_fk], references: [id])
+  label String
+  version Int
+  branches Branch[]
+
+}
+
+model TreeMaster {
+  id       Int     @id @default(autoincrement())
+  user_fk Int
+  user  User   @relation(fields: [user_fk], references: [id])
+  created_at DateTime @default(now())
+  treeVersions TreeVersion[]
 }
 
 model User {
-  id      Int    @id @default(autoincrement())
-  nom     String
-  roleID Int 
-  role  Role   @relation(fields: [roleID], references: [id])
-  soignantConsultation Consultation[]  @relation("soignantConsultation")
-  patientConsultation   Consultation[]   @relation("patientConsultation")
+  id       Int     @id @default(autoincrement())
+  name String
+  userType_fk Int
+  userType  UserType   @relation(fields: [userType_fk], references: [id])
+  treeMasters TreeMaster[]
 }
 
-model Role {
-  id     Int    @id
-  label  String 
-  user User[]
+model UserType {
+    id       Int     @id @default(autoincrement())
+    label String 
+    users User[]
 }
 
-// consultation = user patient + user soignant
 
-model Consultation {
-  id Int @id @default(autoincrement())
-  date DateTime @default(now())
-  patientID Int 
-  soignantID Int 
-  treeID Int
-  patient  User   @relation("soignantConsultation",fields: [patientID], references: [id])
-  soignant  User   @relation("patientConsultation",fields: [soignantID], references: [id])
-  tree  Tree   @relation("treeConsultation",fields: [treeID], references: [id])
-
-}
 
 
 // npx prisma migrate dev --name init
