@@ -2,12 +2,11 @@ import type { NextPage } from "next";
 import Image from "next/image";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { read, utils } from "xlsx";
-import CanvasComponentWrapper from "../App";
 import { ErrorBoundary } from "react-error-boundary";
 import { Element, generateTreeFromModel, guidGenerator } from "../../drawing";
 import useLocalStorage from "../../hooks/useLocalStorage";
-import CanvasPreview from "../App/Preview";
 import styles from "./Model.module.css";
+import Canvas from "./App";
 
 const LOADING_TIME = 2000;
 const excelToJSON = function (
@@ -240,7 +239,7 @@ const CreateModel: NextPage = () => {
         )}
         {model && !loading && (
           <>
-            <CanvasComponentWrapper treeFromModel={model} />
+            <Canvas treeFromModel={model} />
           </>
         )}
       </div>

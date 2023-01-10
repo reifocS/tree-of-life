@@ -15,7 +15,6 @@ import {
   BASE_TREE_Y,
   colors,
   getBranchEndpoint,
-  savedState,
   draw,
   mousePosToCanvasPos,
   hitTest,
@@ -33,7 +32,7 @@ import {
 } from "../../drawing";
 import SidePanel from "./SidePanel";
 import useDisableScrollBounce from "../../hooks/useDisableScrollBounce";
-import { Model } from "../Model/Model";
+import { Model } from "./Model";
 import useLocalStorage from "../../hooks/useLocalStorage";
 import useDisablePinchZoom from "../../hooks/useDisablePinchZoom";
 import Legend from "./Legend";
@@ -46,16 +45,16 @@ import useDeviceSize from "../../hooks/useDeviceSize";
 //Modifier la position du texte sur la feuille
 //Changer la taille de la feuille selon le texte
 //Zoomer sur le pointer et non le centre
-export default function Canvas({ treeFromModel }: { treeFromModel?: Model }) {
+export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [width, height /*devicePixelRatio*/] = useDeviceSize();
   const [roughCanvas, setRoughCanvas] = useState<RoughCanvas | null>(null);
   // Hack used to make sure we wait for image to load, needed for firefox
   const [dummyUpdate, forceUpdate] = useState({});
+  //const centerPointerZoom = useRef({ x: width / 2, y: height / 2 });
   const [, setModels] = useLocalStorage<Model[]>("models", []);
   useDisableScrollBounce();
   const [appState, setAppState] = useState<AppState>(() => {
-    if (!treeFromModel) return savedState as AppState;
     return {
       selectedElement: null,
       sectors: [],
@@ -298,7 +297,7 @@ export default function Canvas({ treeFromModel }: { treeFromModel?: Model }) {
       draggedElement: null,
     }));
   }
-
+  const ctx = canvasRef.current?.getContext("2d")!;
   return (
     <>
       <div className="container">
@@ -309,7 +308,7 @@ export default function Canvas({ treeFromModel }: { treeFromModel?: Model }) {
             selectedElement={selectedElement}
             elements={elements}
             appState={appState}
-            ctx={canvasRef.current?.getContext("2d")!}
+            ctx={ctx}
           ></SidePanel>
         )}
         <canvas
@@ -397,6 +396,9 @@ export default function Canvas({ treeFromModel }: { treeFromModel?: Model }) {
           onMouseMove={handlePointerMove}
           onWheel={(e) => {
             const { deltaX: _deltaX, deltaY } = normalizeWheelEvent(e);
+            const currentTransformedCursor = mousePosToCanvasPos(ctx, e);
+            console.log(currentTransformedCursor);
+
             // Hacky way to detect touchpad zoom
             const scrollSensitivity = e.ctrlKey
               ? SCROLL_SENSITIVITY_TOUCHPAD
@@ -425,7 +427,7 @@ export default function Canvas({ treeFromModel }: { treeFromModel?: Model }) {
           fontSize: "2rem",
           userSelect: "none",
           pointerEvents: "none",
-        }}  
+        }}
       >
         <button
           onClick={() => adjustZoom(-0.25, null)}
@@ -433,7 +435,9 @@ export default function Canvas({ treeFromModel }: { treeFromModel?: Model }) {
         >
           -
         </button>
-        <div style={{whiteSpace: "nowrap"}}>{Math.floor(cameraZoom * 100)}% 🔍</div>
+        <div style={{ whiteSpace: "nowrap" }}>
+          {Math.floor(cameraZoom * 100)}% 🔍
+        </div>
         <button
           onClick={() => adjustZoom(0.25, null)}
           style={{ pointerEvents: "all", fontSize: "2rem" }}
@@ -467,13 +471,6 @@ export default function Canvas({ treeFromModel }: { treeFromModel?: Model }) {
         )}{" "}
         {mode === "edit" && (
           <>
-            <button
-              onClick={() =>
-                navigator.clipboard.writeText(JSON.stringify(appState))
-              }
-            >
-              save to clipboard
-            </button>
             <button
               disabled={!treeFromModel}
               onClick={() => {
