@@ -1,16 +1,16 @@
 import { useRouter } from 'next/router'
 import Link from 'next/link'
-import { getTreesMastersByUser,createTreeMaster} from "../../../../../prisma/treeMaster.mjs"; // only works in CJS
+import { createTreeVersion} from "../../../../../prisma/treeVersion.mjs"; // only works in CJS
 
 export default async (req, res) => {
   const { method } = req;
   console.log("handler tree")
-  const data = req.query
-  console.log(data.userId)
+  const { userId } = req.query
+
   switch (method) {
     case "GET":
       console.log("GET");
-      return res.status(200).json(await getTreesMastersByUser(data.userId));
+      res.status(200).json(createTreeVersion(userId));
       break;
     default:
       console.log("DEFAULT")
