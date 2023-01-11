@@ -20,7 +20,9 @@ const KEYS = {
 };
 let STEP = 50;
 
-function useKeyboard(setAppState: (value: SetStateAction<AppState>) => void) {
+function useKeyboard(
+  setAppState: (value: SetStateAction<Omit<AppState, "mode" | "selectedElement">>) => void
+) {
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if (isArrowKey(e.code)) {

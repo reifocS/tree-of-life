@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@liveblocks/client": "^0.19.4",
+    "@liveblocks/react": "^0.19.4",
     "@picmo/popup-picker": "^5.7.2",
     "@use-gesture/react": "^10.2.22",
     "immer": "^9.0.15",

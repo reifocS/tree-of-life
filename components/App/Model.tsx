@@ -6,9 +6,9 @@ import { ErrorBoundary } from "react-error-boundary";
 import { Element, generateTreeFromModel, guidGenerator } from "../../drawing";
 import useLocalStorage from "../../hooks/useLocalStorage";
 import styles from "./Model.module.css";
-import Canvas from "./App";
+import Link from "next/link";
 
-const LOADING_TIME = 2000;
+const LOADING_TIME = 1500;
 const excelToJSON = function (
   setState: Dispatch<any>,
   setLoading: Dispatch<SetStateAction<boolean>>,
@@ -214,13 +214,7 @@ const CreateModel: NextPage = () => {
                           );
                         }}
                       ></input>
-                      <button
-                        onClick={() => {
-                          setModel(m);
-                        }}
-                      >
-                        view
-                      </button>
+                      <Link href={`/arbre/${m.id}`}>Consulter</Link>
                       <button
                         onClick={() => {
                           setLocalStorage((prev) =>
@@ -235,11 +229,6 @@ const CreateModel: NextPage = () => {
                 </ul>
               </div>
             </div>
-          </>
-        )}
-        {model && !loading && (
-          <>
-            <Canvas treeFromModel={model} />
           </>
         )}
       </div>

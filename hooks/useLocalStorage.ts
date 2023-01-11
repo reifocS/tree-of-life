@@ -1,4 +1,4 @@
-import { SetStateAction, useCallback, useLayoutEffect, useState, useTransition } from "react";
+import { SetStateAction, useCallback, useEffect, useState, useTransition } from "react";
 
 import { localStorageGetItem, localStorageSetItem } from "../utils/storage";
 
@@ -33,7 +33,7 @@ export default function useLocalStorage<T>(
   );
 
   // Listen for changes to this local storage value made from other windows.
-  useLayoutEffect(() => {
+  useEffect(() => {
     const onStorage = () => {
       const newValue = localStorageGetItem(key);
       if (newValue != null) {
@@ -51,7 +51,7 @@ export default function useLocalStorage<T>(
   }, [key]);
 
   // Sync changes to local storage
-  useLayoutEffect(() => {
+  useEffect(() => {
     const string = JSON.stringify(value);
 
     localStorageSetItem(key, string);

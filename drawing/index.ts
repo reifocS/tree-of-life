@@ -1,4 +1,6 @@
+import { BaseUserMeta, Others } from "@liveblocks/client";
 import { RoughCanvas } from "roughjs/bin/canvas";
+import { Presence } from "../liveblocks.config";
 
 type Point = {
   x: number;
@@ -250,7 +252,7 @@ export const BASE_TREE_Y = 800;
 export const MAX_ZOOM = 5;
 export const MIN_ZOOM = 0.1;
 export const SCROLL_SENSITIVITY = 0.0005;
-export const SCROLL_SENSITIVITY_TOUCHPAD = 0.005;
+export const SCROLL_SENSITIVITY_TOUCHPAD = 0.003;
 
 let INITIAL_ZOOM = 1;
 
@@ -501,7 +503,8 @@ export function draw(
   images: { color: string; image: HTMLImageElement }[],
   selectedId?: string,
   mode?: string,
-  nbOfBranches = NUMBER_OF_BRANCHES
+  nbOfBranches = NUMBER_OF_BRANCHES,
+  others?: Others<Presence, BaseUserMeta>
 ) {
   const ctx = canvas.getContext("2d")!;
   // Zooming and padding
@@ -518,6 +521,9 @@ export function draw(
   const baseTreeX = BASE_TREE_X;
   const baseTreeY = BASE_TREE_Y;
   ctx.lineCap = "round";
+
+  // draw everything from center of the screen
+  // to keep coordinates absolute across windows size
   ctx.translate(canvas.width / 2, canvas.height / 2);
   drawTronc(rc, baseTreeX, baseTreeY, endTreeX, END_TREE_Y);
 
@@ -549,6 +555,23 @@ export function draw(
       );
     }
   }
+
+  others?.forEach(({ presence }) => {
+    if (presence.cursor === null) {
+      return;
+    }
+    ctx.translate(presence.cursor.x, presence.cursor.y);
+    rc.path(
+      "M5.65376 12.3673H5.46026L5.31717 12.4976L0.500002 16.8829L0.500002 1.19841L11.7841 12.3673H5.65376Z",
+      {
+        fill: "#F06292",
+        fillStyle: "solid",
+        roughness: 0,
+      }
+    );
+    ctx.translate(-presence.cursor.x, -presence.cursor.y);
+    //ctx.fillText(`X`, presence.cursor.x, presence.cursor.y);
+  });
 }
 
 export function mousePosToCanvasPos(context: CanvasRenderingContext2D, e: any) {
