@@ -2,7 +2,7 @@ import { BaseUserMeta, Others } from "@liveblocks/client";
 import { RoughCanvas } from "roughjs/bin/canvas";
 import { Presence } from "../liveblocks.config";
 
-type Point = {
+type MyPoint = {
   x: number;
   y: number;
 };
@@ -11,16 +11,15 @@ type Sector = { color: string; text: string; id: string };
 export type AppState = {
   cameraZoom: number;
   scaleMultiplier: number;
-  cameraOffset: Point;
+  cameraOffset: MyPoint;
   isDragging: boolean;
-  dragStart: Point;
+  dragStart: MyPoint;
   initialPinchDistance: null | number;
   elements: Element[];
   draggedElement: Element | null;
-  downPoint?: Point;
+  downPoint?: MyPoint;
   selectedElement: Element | null;
   sectors: Sector[];
-  mode: "edit" | "view";
 };
 
 //https://stackoverflow.com/a/6860916/14536535

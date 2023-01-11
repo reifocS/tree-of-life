@@ -1,26 +1,17 @@
-import {
-  PointerEvent,
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { PointerEvent, useCallback, useRef, useState } from "react";
 import rough from "roughjs/bin/rough";
 import { RoughCanvas } from "roughjs/bin/canvas";
 import useKeyboard from "../../hooks/useKeyboard";
+import { useCanvas } from "../../hooks/useCanvas";
 import {
   AppState,
   colors,
-  draw,
   mousePosToCanvasPos,
   hitTest,
   getMousePos,
   MAX_ZOOM,
   MIN_ZOOM,
   SCROLL_SENSITIVITY,
-  adjust,
   SCROLL_SENSITIVITY_TOUCHPAD,
 } from "../../drawing";
 import useDisableScrollBounce from "../../hooks/useDisableScrollBounce";
@@ -30,16 +21,7 @@ import Legend from "./Legend";
 import { normalizeWheelEvent } from "../../utils/normalizeWheelEvent";
 import useDeviceSize from "../../hooks/useDeviceSize";
 import { useOthers, useUpdateMyPresence } from "../../liveblocks.config";
-const COLORS = [
-  "#E57373",
-  "#9575CD",
-  "#4FC3F7",
-  "#81C784",
-  "#FFF176",
-  "#FF8A65",
-  "#F06292",
-  "#7986CB",
-];
+import { useLeafImages } from "../../hooks/useLeafImages";
 
 export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -70,23 +52,7 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
   const others = useOthers();
   const updateMyPresence = useUpdateMyPresence();
 
-  const images = useMemo(() => {
-    return colors.map((c) => {
-      const image = new Image();
-      // Need to set fix height and width for firefox, it's a known bug https://bugzilla.mozilla.org/show_bug.cgi?id=700533
-      const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 511.845 511.845" 
-      width="200px" height="200px"
-      style="enable-background:new 0 0 511.845 511.845" xml:space="preserve">
-      <path style="fill:${c}" d="M503.141 9.356c-.016 0-215.215-56.483-390.225 118.511C-31.579 272.371 96.155 416.35 96.155 416.35s143.979 127.742 288.476-16.775C559.64 224.588 503.156 9.388 503.141 9.356Z"/><g style="opacity:.2"><path style="fill:#fff" d="m503.141 8.696-21.337-4.108c.016.031 56.499 219.339-118.495 394.326-48.172 48.203-96.299 66.104-139.052 68.572 47.705 2.75 104-12.184 160.374-68.572C559.64 223.928 503.156 8.728 503.141 8.696z"/></g>
-      <path style="fill:${
-        c.includes("fff") ? "lightgray" : adjust(c, -20)
-      }" d="M300.125 211.728c-4.154-4.17-10.918-4.17-15.074 0L3.122 493.635c-4.163 4.186-4.163 10.934 0 15.09 4.163 4.154 10.911 4.154 15.081 0l281.922-281.923c4.17-4.171 4.17-10.919 0-15.074z"/></svg>`;
-      image.src = `data:image/svg+xml;base64,${window.btoa(svg)}`;
-      // we make sure we redraw on image load, otherwise firefox wont wait for it.
-      image.onload = () => forceUpdate({});
-      return { color: c, image };
-    });
-  }, []);
+  const images = useLeafImages(forceUpdate);
 
   function handleTouch(e: any, singleTouchHandler: any) {
     if (e.touches.length <= 1) {
@@ -113,41 +79,23 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
 
   const nbOfBranches = treeFromModel?.nbOfBranches;
 
-  useLayoutEffect(() => {
-    if (!roughCanvas) return;
-    const canvas = canvasRef.current!;
-
-    canvas.width = width;
-    canvas.height = height;
-    canvas.style.width = `${width}px`;
-    canvas.style.height = `${height}px`;
-    draw(
-      canvas,
-      cameraZoom,
-      { x: cameraOffsetX, y: cameraOffsetY },
-      roughCanvas,
-      elements,
-      images,
-      undefined,
-      "view",
-      nbOfBranches,
-      others
-    );
-  }, [
-    cameraOffsetX,
-    others,
-    cameraOffsetY,
-    cameraZoom,
-    elements,
-    height,
+  useCanvas(
+    "view",
     roughCanvas,
+    canvasRef,
     width,
-    sectors,
+    height,
+    cameraZoom,
+    cameraOffsetX,
+    cameraOffsetY,
+    elements,
     images,
-    dummyUpdate,
+    null,
     nbOfBranches,
-  ]);
-
+    sectors,
+    dummyUpdate,
+    others
+  );
   const handlePointerDown = (e: PointerEvent<HTMLCanvasElement>) => {
     const ctx = canvasRef.current!.getContext("2d")!;
     const { x, y } = mousePosToCanvasPos(ctx, e);
@@ -269,9 +217,7 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
       initialPinchDistance: null,
       draggedElement: null,
     }));
-    updateMyPresence({
-      cursor: null,
-    });
+  
   }
   return (
     <>
@@ -281,7 +227,6 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
         <canvas
           onMouseOut={() => {
             resetMouseState();
-
             document.documentElement.style.cursor = "default";
           }}
           onContextMenu={(e) => {

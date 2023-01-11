@@ -1,7 +1,6 @@
 import dynamic from "next/dynamic";
 import Head from "next/head";
 import { Suspense } from "react";
-
 const DynamicComponentWithNoSSR = dynamic(import("./Model"), {
   ssr: false,
 });

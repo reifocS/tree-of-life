@@ -8,8 +8,6 @@ import {
 } from "react";
 import rough from "roughjs/bin/rough";
 import { RoughCanvas } from "roughjs/bin/canvas";
-import useKeyboard from "../../hooks/useKeyboard";
-import { useRouter } from "next/router";
 import {
   AppState,
   BASE_TREE_Y,
@@ -38,8 +36,11 @@ import useDisablePinchZoom from "../../hooks/useDisablePinchZoom";
 import Legend from "./Legend";
 import { normalizeWheelEvent } from "../../utils/normalizeWheelEvent";
 import useDeviceSize from "../../hooks/useDeviceSize";
+import { useLeafImages } from "../../hooks/useLeafImages";
+import { useCanvas } from "../../hooks/useCanvas";
 
 //TODO
+//Merge CanvasEditing et CanvasMultiplayer
 //Changer la taille de font des feuille
 //Ajuster la position de l'émoji selon la taille de la feuille
 //Modifier la position du texte sur la feuille
@@ -58,7 +59,6 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
     return {
       selectedElement: null,
       sectors: [],
-      mode: "view",
       cameraZoom: 1,
       scaleMultiplier: 0.8,
       cameraOffset: { x: 0, y: 0 },
@@ -73,25 +73,7 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
 
   useDisablePinchZoom();
 
-  const router = useRouter();
-  const isDevMode = router.query.debug;
-  const images = useMemo(() => {
-    return colors.map((c) => {
-      const image = new Image();
-      // Need to set fix height and width for firefox, it's a known bug https://bugzilla.mozilla.org/show_bug.cgi?id=700533
-      const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 511.845 511.845" 
-      width="200px" height="200px"
-      style="enable-background:new 0 0 511.845 511.845" xml:space="preserve">
-      <path style="fill:${c}" d="M503.141 9.356c-.016 0-215.215-56.483-390.225 118.511C-31.579 272.371 96.155 416.35 96.155 416.35s143.979 127.742 288.476-16.775C559.64 224.588 503.156 9.388 503.141 9.356Z"/><g style="opacity:.2"><path style="fill:#fff" d="m503.141 8.696-21.337-4.108c.016.031 56.499 219.339-118.495 394.326-48.172 48.203-96.299 66.104-139.052 68.572 47.705 2.75 104-12.184 160.374-68.572C559.64 223.928 503.156 8.728 503.141 8.696z"/></g>
-      <path style="fill:${
-        c.includes("fff") ? "lightgray" : adjust(c, -20)
-      }" d="M300.125 211.728c-4.154-4.17-10.918-4.17-15.074 0L3.122 493.635c-4.163 4.186-4.163 10.934 0 15.09 4.163 4.154 10.911 4.154 15.081 0l281.922-281.923c4.17-4.171 4.17-10.919 0-15.074z"/></svg>`;
-      image.src = `data:image/svg+xml;base64,${window.btoa(svg)}`;
-      // we make sure we redraw on image load, otherwise firefox wont wait for it.
-      image.onload = () => forceUpdate({});
-      return { color: c, image };
-    });
-  }, []);
+  const images = useLeafImages(forceUpdate);
 
   function handleTouch(e: any, singleTouchHandler: any) {
     if (e.touches.length <= 1) {
@@ -105,7 +87,6 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
     }
   }
 
-  //useKeyboard(setAppState);
   const {
     cameraZoom,
     elements,
@@ -113,7 +94,6 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
     isDragging,
     sectors,
     selectedElement,
-    mode,
   } = appState;
   const { x: cameraOffsetX, y: cameraOffsetY } = cameraOffset;
   const lastZoom = useRef(cameraZoom);
@@ -131,47 +111,29 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
     [nbOfBranches]
   );
 
-  useLayoutEffect(() => {
-    if (!roughCanvas) return;
-    const canvas = canvasRef.current!;
-
-    canvas.width = width;
-    canvas.height = height;
-    canvas.style.width = `${width}px`;
-    canvas.style.height = `${height}px`;
-    draw(
-      canvas,
-      cameraZoom,
-      { x: cameraOffsetX, y: cameraOffsetY },
-      roughCanvas,
-      elements,
-      images,
-      selectedElement?.id,
-      mode,
-      nbOfBranches
-    );
-  }, [
+  useCanvas(
+    "edit",
+    roughCanvas,
+    canvasRef,
+    width,
+    height,
+    cameraZoom,
     cameraOffsetX,
     cameraOffsetY,
-    cameraZoom,
     elements,
-    height,
-    roughCanvas,
-    width,
-    selectedElement,
-    sectors,
     images,
-    mode,
-    dummyUpdate,
+    selectedElement,
     nbOfBranches,
-  ]);
+    sectors,
+    dummyUpdate
+  );
 
   const handlePointerDown = (e: PointerEvent<HTMLCanvasElement>) => {
     const ctx = canvasRef.current!.getContext("2d")!;
     const { x, y } = mousePosToCanvasPos(ctx, e);
 
     const el = elements.find((el) => hitTest(x, y, el));
-    if (el && appState.mode === "edit") {
+    if (el) {
       setAppState((prev) => ({
         ...prev,
         draggedElement: el,
@@ -252,7 +214,7 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
       return;
     }
     if (
-      (mode === "edit" && hitTestButton(x, y, buttonEndpoints)) ||
+      hitTestButton(x, y, buttonEndpoints) ||
       elements.find((el) => hitTest(x, y, el))
     ) {
       document.documentElement.style.cursor = "pointer";
@@ -316,28 +278,6 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
             resetMouseState();
             document.documentElement.style.cursor = "default";
           }}
-          onContextMenu={(e) => {
-            if (mode !== "view") return;
-            e.preventDefault();
-            const ctx = canvasRef.current!.getContext("2d")!;
-            const { x, y } = mousePosToCanvasPos(ctx, e);
-            for (const element of elements) {
-              if (hitTest(x, y, element)) {
-                setAppState((prev) => ({
-                  ...prev,
-                  elements: prev.elements.map((el) => {
-                    if (el.id === element.id) {
-                      return {
-                        ...el,
-                        weTalkedAboutIt: !el.weTalkedAboutIt,
-                      };
-                    }
-                    return el;
-                  }),
-                }));
-              }
-            }
-          }}
           onTouchMove={(e) => handleTouch(e, handlePointerMove)}
           onTouchStart={(e) => handleTouch(e, handlePointerDown)}
           onTouchEnd={(e) => handleTouch(e, handlePointerUp)}
@@ -345,50 +285,26 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
           onClick={(e) => {
             const ctx = canvasRef.current!.getContext("2d")!;
             const { x, y } = mousePosToCanvasPos(ctx, e);
-            if (appState.mode === "edit") {
-              if (hitTestButton(x, y, buttonEndpoints)) {
-                setAppState((prev) => ({
-                  ...prev,
-                  elements: [
-                    ...prev.elements,
-                    {
-                      id: guidGenerator(),
-                      x,
-                      y,
-                      color: colors[0],
-                      seed: getRandomArbitrary(1, 10000),
-                      text: "",
-                      icon: "",
-                      type: "leaf",
-                      width: LEAF_WIDTH,
-                      height: LEAF_HEIGHT,
-                      fontColor: "#fff",
-                    },
-                  ],
-                }));
-              }
-              return;
-            }
-            for (const element of elements) {
-              if (hitTest(x, y, element)) {
-                setAppState((prev) => ({
-                  ...prev,
-                  elements: prev.elements.map((e) => {
-                    if (e.id === element.id) {
-                      let nextIndex =
-                        (colors.findIndex((color) => color === e.color) + 1) %
-                        colors.length;
-                      return {
-                        ...e,
-                        color: colors[nextIndex],
-                        fontColor:
-                          nextIndex === colors.length - 1 ? "#fff" : "black",
-                      };
-                    }
-                    return e;
-                  }),
-                }));
-              }
+            if (hitTestButton(x, y, buttonEndpoints)) {
+              setAppState((prev) => ({
+                ...prev,
+                elements: [
+                  ...prev.elements,
+                  {
+                    id: guidGenerator(),
+                    x,
+                    y,
+                    color: colors[0],
+                    seed: getRandomArbitrary(1, 10000),
+                    text: "",
+                    icon: "",
+                    type: "leaf",
+                    width: LEAF_WIDTH,
+                    height: LEAF_HEIGHT,
+                    fontColor: "#fff",
+                  },
+                ],
+              }));
             }
           }}
           onMouseDown={handlePointerDown}
@@ -396,9 +312,6 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
           onMouseMove={handlePointerMove}
           onWheel={(e) => {
             const { deltaX: _deltaX, deltaY } = normalizeWheelEvent(e);
-            const currentTransformedCursor = mousePosToCanvasPos(ctx, e);
-            console.log(currentTransformedCursor);
-
             // Hacky way to detect touchpad zoom
             const scrollSensitivity = e.ctrlKey
               ? SCROLL_SENSITIVITY_TOUCHPAD
@@ -456,43 +369,28 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
           userSelect: "none",
         }}
       >
-        {isDevMode && (
+        <>
           <button
-            onClick={() =>
-              setAppState((prev) => ({
-                ...prev,
-                mode: prev.mode === "edit" ? "view" : "edit",
-                selectedElement: null,
-              }))
-            }
-          >
-            Switch to {appState.mode === "edit" ? "view" : "developer"} mode
-          </button>
-        )}{" "}
-        {mode === "edit" && (
-          <>
-            <button
-              disabled={!treeFromModel}
-              onClick={() => {
-                if (!treeFromModel) return;
+            disabled={!treeFromModel}
+            onClick={() => {
+              if (!treeFromModel) return;
 
-                setModels((prev) =>
-                  prev?.map((m) => {
-                    if (m.id === treeFromModel.id) {
-                      return {
-                        ...m,
-                        elements,
-                      };
-                    }
-                    return m;
-                  })
-                );
-              }}
-            >
-              save
-            </button>
-          </>
-        )}
+              setModels((prev) =>
+                prev?.map((m) => {
+                  if (m.id === treeFromModel.id) {
+                    return {
+                      ...m,
+                      elements,
+                    };
+                  }
+                  return m;
+                })
+              );
+            }}
+          >
+            save
+          </button>
+        </>
       </div>
     </>
   );
