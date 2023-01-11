@@ -101,8 +101,7 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
     null,
     nbOfBranches,
     sectors,
-    dummyUpdate,
-    others
+    dummyUpdate
   );
   const handlePointerDown = (e: PointerEvent<HTMLCanvasElement>) => {
     const ctx = canvasRef.current!.getContext("2d")!;
@@ -214,10 +213,44 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
       draggedElement: null,
     }));
   }
+  const canvas = canvasRef.current;
   return (
     <>
       <div className="container">
         <Legend />
+        {others?.map(({ presence, connectionId }) => {
+          if (presence.cursor === null) {
+            return;
+          }
+          const context = canvas!.getContext("2d")!;
+          const transform = context.getTransform();
+          // Destructure to get the x and y values out of the transformed DOMPoint.
+          const { x, y } = transform.transformPoint(
+            new DOMPoint(presence.cursor.x, presence.cursor.y)
+          );
+          return (
+            <svg
+              key={connectionId}
+              style={{
+                position: "absolute",
+                left: 0,
+                top: 0,
+                transition: "transform 120ms linear",
+                transform: `translateX(${x}px) translateY(${y}px)`,
+              }}
+              width="34"
+              height="46"
+              viewBox="0 0 24 36"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M5.65376 12.3673H5.46026L5.31717 12.4976L0.500002 16.8829L0.500002 1.19841L11.7841 12.3673H5.65376Z"
+                fill={"#800080"}
+              />
+            </svg>
+          );
+        })}
 
         <canvas
           onMouseOut={() => {

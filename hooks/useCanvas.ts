@@ -21,8 +21,7 @@ export function useCanvas(
   selectedElement: Element | null,
   nbOfBranches: number,
   sectors: { color: string; text: string; id: string }[],
-  dummyUpdate: {},
-  others?: Others<Presence, BaseUserMeta>
+  dummyUpdate: {}
 ) {
   useLayoutEffect(() => {
     if (!roughCanvas) return;
@@ -41,8 +40,7 @@ export function useCanvas(
       images,
       selectedElement?.id,
       mode,
-      nbOfBranches,
-      others
+      nbOfBranches
     );
   }, [
     cameraOffsetX,
@@ -58,7 +56,6 @@ export function useCanvas(
     dummyUpdate,
     nbOfBranches,
     canvasRef,
-    others,
     mode,
   ]);
 }

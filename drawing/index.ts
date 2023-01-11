@@ -503,7 +503,6 @@ export function draw(
   selectedId?: string,
   mode?: string,
   nbOfBranches = NUMBER_OF_BRANCHES,
-  others?: Others<Presence, BaseUserMeta>
 ) {
   const ctx = canvas.getContext("2d")!;
   // Zooming and padding
@@ -555,22 +554,7 @@ export function draw(
     }
   }
 
-  others?.forEach(({ presence }) => {
-    if (presence.cursor === null) {
-      return;
-    }
-    ctx.translate(presence.cursor.x, presence.cursor.y);
-    rc.path(
-      "M5.65376 12.3673H5.46026L5.31717 12.4976L0.500002 16.8829L0.500002 1.19841L11.7841 12.3673H5.65376Z",
-      {
-        fill: "#F06292",
-        fillStyle: "solid",
-        roughness: 0,
-      }
-    );
-    ctx.translate(-presence.cursor.x, -presence.cursor.y);
-    //ctx.fillText(`X`, presence.cursor.x, presence.cursor.y);
-  });
+  
 }
 
 export function mousePosToCanvasPos(context: CanvasRenderingContext2D, e: any) {
