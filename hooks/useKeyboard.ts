@@ -21,7 +21,11 @@ const KEYS = {
 let STEP = 50;
 
 function useKeyboard(
-  setAppState: (value: SetStateAction<Omit<AppState, "mode" | "selectedElement">>) => void
+  setAppState: (
+    value: SetStateAction<
+      Omit<AppState, "mode" | "selectedElement" | "elements" | "draggedElement">
+    >
+  ) => void
 ) {
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {

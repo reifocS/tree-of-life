@@ -13,6 +13,7 @@ import {
   MIN_ZOOM,
   SCROLL_SENSITIVITY,
   SCROLL_SENSITIVITY_TOUCHPAD,
+  Element,
 } from "../../drawing";
 import useDisableScrollBounce from "../../hooks/useDisableScrollBounce";
 import { Model } from "./Model";
@@ -20,7 +21,12 @@ import useDisablePinchZoom from "../../hooks/useDisablePinchZoom";
 import Legend from "./Legend";
 import { normalizeWheelEvent } from "../../utils/normalizeWheelEvent";
 import useDeviceSize from "../../hooks/useDeviceSize";
-import { useOthers, useUpdateMyPresence } from "../../liveblocks.config";
+import {
+  useOthers,
+  useUpdateMyPresence,
+  useStorage,
+  useMutation,
+} from "../../liveblocks.config";
 import { useLeafImages } from "../../hooks/useLeafImages";
 
 export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
@@ -29,11 +35,13 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
   const [roughCanvas, setRoughCanvas] = useState<RoughCanvas | null>(null);
   // Hack used to make sure we wait for image to load, needed for firefox
   const [dummyUpdate, forceUpdate] = useState({});
+  const elements = useStorage((root) => root.elements) as Element[];
+
   //const centerPointerZoom = useRef({ x: width / 2, y: height / 2 });
   useDisableScrollBounce();
   useDisablePinchZoom();
   const [appState, setAppState] = useState<
-    Omit<AppState, "mode" | "selectedElement">
+    Omit<AppState, "mode" | "selectedElement" | "elements" | "draggedElement">
   >(() => {
     return {
       sectors: [],
@@ -67,7 +75,7 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
   }
 
   useKeyboard(setAppState);
-  const { cameraZoom, elements, cameraOffset, isDragging, sectors } = appState;
+  const { cameraZoom, cameraOffset, isDragging, sectors } = appState;
   const { x: cameraOffsetX, y: cameraOffsetY } = cameraOffset;
   const lastZoom = useRef(cameraZoom);
   const ref = useCallback((node: HTMLCanvasElement) => {
@@ -160,23 +168,6 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
     if (!(target instanceof HTMLElement)) {
       return;
     }
-    if (appState.draggedElement) {
-      let { x: startX, y: startY } = appState.draggedElement;
-      let dragTarget = {
-        ...appState.draggedElement,
-        x: startX + (x - appState.downPoint!.x),
-        y: startY + (y - appState.downPoint!.y),
-      };
-      const newElems = appState.elements.map((e) => {
-        if (e.id === dragTarget.id) {
-          return dragTarget;
-        }
-        return e;
-      });
-      setAppState((prev) => ({ ...prev, elements: newElems }));
-      document.documentElement.style.cursor = "move";
-      return;
-    }
     if (!isDragging) {
       document.documentElement.style.cursor = "";
     }
@@ -209,7 +200,12 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
       setAppState((prev) => ({ ...prev, cameraZoom }));
     }
   }
-
+  const updateElements = useMutation(({ storage }, newList: Element[]) => {
+    const mutableList = storage.get("elements");
+    for (let i = 0; i < newList.length; ++i) {
+      mutableList.set(i, newList[i]);
+    }
+  }, []);
   function resetMouseState() {
     setAppState((prev) => ({
       ...prev,
@@ -217,7 +213,6 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
       initialPinchDistance: null,
       draggedElement: null,
     }));
-  
   }
   return (
     <>
@@ -229,7 +224,11 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
             resetMouseState();
             document.documentElement.style.cursor = "default";
           }}
+          onMouseLeave={() => {
+            updateMyPresence({ cursor: null });
+          }}
           onContextMenu={(e) => {
+            /*
             e.preventDefault();
             const ctx = canvasRef.current!.getContext("2d")!;
             const { x, y } = mousePosToCanvasPos(ctx, e);
@@ -249,6 +248,7 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
                 }));
               }
             }
+            */
           }}
           onTouchMove={(e) => handleTouch(e, handlePointerMove)}
           onTouchStart={(e) => handleTouch(e, handlePointerDown)}
@@ -260,23 +260,21 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
 
             for (const element of elements) {
               if (hitTest(x, y, element)) {
-                setAppState((prev) => ({
-                  ...prev,
-                  elements: prev.elements.map((e) => {
-                    if (e.id === element.id) {
-                      let nextIndex =
-                        (colors.findIndex((color) => color === e.color) + 1) %
-                        colors.length;
-                      return {
-                        ...e,
-                        color: colors[nextIndex],
-                        fontColor:
-                          nextIndex === colors.length - 1 ? "#fff" : "black",
-                      };
-                    }
-                    return e;
-                  }),
-                }));
+                const newElems = elements.map((e) => {
+                  if (e.id === element.id) {
+                    let nextIndex =
+                      (colors.findIndex((color) => color === e.color) + 1) %
+                      colors.length;
+                    return {
+                      ...e,
+                      color: colors[nextIndex],
+                      fontColor:
+                        nextIndex === colors.length - 1 ? "#fff" : "black",
+                    };
+                  }
+                  return e;
+                });
+                updateElements(newElems);
               }
             }
           }}

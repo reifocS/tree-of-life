@@ -1,3 +1,4 @@
+import { LiveList } from "@liveblocks/client";
 import { ClientSideSuspense } from "@liveblocks/react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
@@ -21,8 +22,14 @@ const Arbre = () => {
     //TODO redirect to 404
     return <p>Oups, l&apos;arbre n&apos;existe pas</p>;
   }
+  // We only keep the elements in the live storage as it is the only
+  // thing that can change.
   return (
-    <RoomProvider id={id as string} initialPresence={{ cursor: null }}>
+    <RoomProvider
+      id={id as string}
+      initialPresence={{ cursor: null }}
+      initialStorage={{ elements: new LiveList(treeFromModel.elements) }}
+    >
       <ClientSideSuspense fallback={<div>Loading...</div>}>
         {() => <DynamicComponentWithNoSSR treeFromModel={treeFromModel} />}
       </ClientSideSuspense>
