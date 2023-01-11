@@ -1,11 +1,16 @@
+html,
+body {
+  overflow: hidden;
+}
+
 body {
   margin: 0;
   font-family: Arial, Helvetica, sans-serif;
-  overflow: hidden;
 }
 
 canvas {
   background-color: #87ceeb;
+  touch-action: none;
 }
 
 .container {

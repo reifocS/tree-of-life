@@ -20,62 +20,60 @@ import {
   getMousePos,
   MAX_ZOOM,
   MIN_ZOOM,
+  getRandomArbitrary,
+  guidGenerator,
+  SCROLL_SENSITIVITY,
   adjust,
+  LEAF_WIDTH,
+  LEAF_HEIGHT,
   SCROLL_SENSITIVITY_TOUCHPAD,
 } from "../../drawing";
+import SidePanel from "./SidePanel";
 import useDisableScrollBounce from "../../hooks/useDisableScrollBounce";
-import { Model } from "../Model/Model";
+import { Model } from "./Model";
+import useLocalStorage from "../../hooks/useLocalStorage";
 import useDisablePinchZoom from "../../hooks/useDisablePinchZoom";
+import Legend from "./Legend";
 import { normalizeWheelEvent } from "../../utils/normalizeWheelEvent";
+import useDeviceSize from "../../hooks/useDeviceSize";
+import { useLeafImages } from "../../hooks/useLeafImages";
+import { useCanvas } from "../../hooks/useCanvas";
 
-const PREVIEW_SIZE = 500;
-export default function CanvasPreview({
-  treeFromModel,
-}: {
-  treeFromModel?: Model;
-}) {
+//TODO
+//Merge CanvasEditing et CanvasMultiplayer
+//Changer la taille de font des feuille
+//Ajuster la position de l'émoji selon la taille de la feuille
+//Modifier la position du texte sur la feuille
+//Changer la taille de la feuille selon le texte
+//Zoomer sur le pointer et non le centre
+export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [width, height /*devicePixelRatio*/] = useDeviceSize();
   const [roughCanvas, setRoughCanvas] = useState<RoughCanvas | null>(null);
   // Hack used to make sure we wait for image to load, needed for firefox
   const [dummyUpdate, forceUpdate] = useState({});
+  //const centerPointerZoom = useRef({ x: width / 2, y: height / 2 });
+  const [, setModels] = useLocalStorage<Model[]>("models", []);
   useDisableScrollBounce();
-
   const [appState, setAppState] = useState<AppState>(() => {
     return {
       selectedElement: null,
       sectors: [],
-      mode: "view",
-      cameraZoom: 0.5,
+      cameraZoom: 1,
       scaleMultiplier: 0.8,
       cameraOffset: { x: 0, y: 0 },
       isDragging: false,
       dragStart: { x: 0, y: 0 },
       initialPinchDistance: null,
       draggedElement: null,
-      elements: treeFromModel!.elements,
+      elements: treeFromModel.elements,
       downPoint: { x: 0, y: 0 },
     };
   });
 
   useDisablePinchZoom();
 
-  const images = useMemo(() => {
-    return colors.map((c) => {
-      const image = new Image();
-      // Need to set fix height and width for firefox, it's a known bug https://bugzilla.mozilla.org/show_bug.cgi?id=700533
-      const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 511.845 511.845" 
-        width="200px" height="200px"
-        style="enable-background:new 0 0 511.845 511.845" xml:space="preserve">
-        <path style="fill:${c}" d="M503.141 9.356c-.016 0-215.215-56.483-390.225 118.511C-31.579 272.371 96.155 416.35 96.155 416.35s143.979 127.742 288.476-16.775C559.64 224.588 503.156 9.388 503.141 9.356Z"/><g style="opacity:.2"><path style="fill:#fff" d="m503.141 8.696-21.337-4.108c.016.031 56.499 219.339-118.495 394.326-48.172 48.203-96.299 66.104-139.052 68.572 47.705 2.75 104-12.184 160.374-68.572C559.64 223.928 503.156 8.728 503.141 8.696z"/></g>
-        <path style="fill:${
-          c.includes("fff") ? "lightgray" : adjust(c, -20)
-        }" d="M300.125 211.728c-4.154-4.17-10.918-4.17-15.074 0L3.122 493.635c-4.163 4.186-4.163 10.934 0 15.09 4.163 4.154 10.911 4.154 15.081 0l281.922-281.923c4.17-4.171 4.17-10.919 0-15.074z"/></svg>`;
-      image.src = `data:image/svg+xml;base64,${window.btoa(svg)}`;
-      // we make sure we redraw on image load, otherwise firefox wont wait for it.
-      image.onload = () => forceUpdate({});
-      return { color: c, image };
-    });
-  }, []);
+  const images = useLeafImages(forceUpdate);
 
   function handleTouch(e: any, singleTouchHandler: any) {
     if (e.touches.length <= 1) {
@@ -88,6 +86,7 @@ export default function CanvasPreview({
       handlePinch(e);
     }
   }
+
   const {
     cameraZoom,
     elements,
@@ -95,7 +94,6 @@ export default function CanvasPreview({
     isDragging,
     sectors,
     selectedElement,
-    mode,
   } = appState;
   const { x: cameraOffsetX, y: cameraOffsetY } = cameraOffset;
   const lastZoom = useRef(cameraZoom);
@@ -113,56 +111,52 @@ export default function CanvasPreview({
     [nbOfBranches]
   );
 
-  useLayoutEffect(() => {
-    if (!roughCanvas) return;
-    const canvas = canvasRef.current!;
-
-    canvas.width = PREVIEW_SIZE;
-    canvas.height = PREVIEW_SIZE;
-    canvas.style.width = `${PREVIEW_SIZE}px`;
-    canvas.style.height = `${PREVIEW_SIZE}px`;
-    draw(
-      canvas,
-      cameraZoom,
-      { x: cameraOffsetX, y: cameraOffsetY },
-      roughCanvas,
-      elements,
-      images,
-      selectedElement?.id,
-      mode,
-      nbOfBranches
-    );
-  }, [
+  useCanvas(
+    "edit",
+    roughCanvas,
+    canvasRef,
+    width,
+    height,
+    cameraZoom,
     cameraOffsetX,
     cameraOffsetY,
-    cameraZoom,
     elements,
-    roughCanvas,
-    selectedElement,
-    sectors,
     images,
-    mode,
-    dummyUpdate,
+    selectedElement,
     nbOfBranches,
-  ]);
+    sectors,
+    dummyUpdate
+  );
 
   const handlePointerDown = (e: PointerEvent<HTMLCanvasElement>) => {
     const ctx = canvasRef.current!.getContext("2d")!;
     const { x, y } = mousePosToCanvasPos(ctx, e);
-    setAppState((prev) => ({
-      ...prev,
-      isDragging: true,
-      selectedElement: null,
-      dragStart: {
-        x:
-          getMousePos(canvasRef.current!, e)!.x / prev.cameraZoom -
-          prev.cameraOffset.x,
-        y:
-          getMousePos(canvasRef.current!, e)!.y / prev.cameraZoom -
-          prev.cameraOffset.y,
-      },
-    }));
-    document.documentElement.style.cursor = "grabbing";
+
+    const el = elements.find((el) => hitTest(x, y, el));
+    if (el) {
+      setAppState((prev) => ({
+        ...prev,
+        draggedElement: el,
+        downPoint: { x, y },
+        selectedElement: el,
+      }));
+      return;
+    } else {
+      setAppState((prev) => ({
+        ...prev,
+        isDragging: true,
+        selectedElement: null,
+        dragStart: {
+          x:
+            getMousePos(canvasRef.current!, e)!.x / prev.cameraZoom -
+            prev.cameraOffset.x,
+          y:
+            getMousePos(canvasRef.current!, e)!.y / prev.cameraZoom -
+            prev.cameraOffset.y,
+        },
+      }));
+      if (!el) document.documentElement.style.cursor = "grabbing";
+    }
   };
 
   const handlePointerUp = (e: PointerEvent<HTMLCanvasElement>) => {
@@ -218,6 +212,12 @@ export default function CanvasPreview({
       setAppState((prev) => ({ ...prev, elements: newElems }));
       document.documentElement.style.cursor = "move";
       return;
+    }
+    if (
+      hitTestButton(x, y, buttonEndpoints) ||
+      elements.find((el) => hitTest(x, y, el))
+    ) {
+      document.documentElement.style.cursor = "pointer";
     } else if (!isDragging) {
       document.documentElement.style.cursor = "";
     }
@@ -258,36 +258,139 @@ export default function CanvasPreview({
       initialPinchDistance: null,
       draggedElement: null,
     }));
-    document.documentElement.style.cursor = "default";
   }
-
+  const ctx = canvasRef.current?.getContext("2d")!;
   return (
     <>
       <div className="container">
+        <Legend />
+        {selectedElement && (
+          <SidePanel
+            setAppState={setAppState}
+            selectedElement={selectedElement}
+            elements={elements}
+            appState={appState}
+            ctx={ctx}
+          ></SidePanel>
+        )}
         <canvas
-          onMouseOut={resetMouseState}
+          onMouseOut={() => {
+            resetMouseState();
+            document.documentElement.style.cursor = "default";
+          }}
           onTouchMove={(e) => handleTouch(e, handlePointerMove)}
           onTouchStart={(e) => handleTouch(e, handlePointerDown)}
           onTouchEnd={(e) => handleTouch(e, handlePointerUp)}
           onTouchCancel={(e) => handleTouch(e, handlePointerUp)}
+          onClick={(e) => {
+            const ctx = canvasRef.current!.getContext("2d")!;
+            const { x, y } = mousePosToCanvasPos(ctx, e);
+            if (hitTestButton(x, y, buttonEndpoints)) {
+              setAppState((prev) => ({
+                ...prev,
+                elements: [
+                  ...prev.elements,
+                  {
+                    id: guidGenerator(),
+                    x,
+                    y,
+                    color: colors[0],
+                    seed: getRandomArbitrary(1, 10000),
+                    text: "",
+                    icon: "",
+                    type: "leaf",
+                    width: LEAF_WIDTH,
+                    height: LEAF_HEIGHT,
+                    fontColor: "#fff",
+                  },
+                ],
+              }));
+            }
+          }}
           onMouseDown={handlePointerDown}
           onMouseUp={handlePointerUp}
           onMouseMove={handlePointerMove}
           onWheel={(e) => {
             const { deltaX: _deltaX, deltaY } = normalizeWheelEvent(e);
-            if (!e.ctrlKey) return;
             // Hacky way to detect touchpad zoom
-            const scrollSensitivity = SCROLL_SENSITIVITY_TOUCHPAD;
+            const scrollSensitivity = e.ctrlKey
+              ? SCROLL_SENSITIVITY_TOUCHPAD
+              : SCROLL_SENSITIVITY;
             adjustZoom(deltaY * scrollSensitivity * -1, null);
           }}
           ref={ref}
-          width={PREVIEW_SIZE}
-          height={PREVIEW_SIZE}
-          style={{
-            border: "1px solid #cce",
-            borderRadius: "10px",
-          }}
+          width={width}
+          height={height}
         />
+      </div>
+      <div
+        style={{
+          position: "absolute",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 5,
+          bottom: 10,
+          boxShadow: "0 0 0 1px rgba(0, 0, 0, 0.01)",
+          backgroundColor: "#fff",
+          borderRadius: 6,
+          padding: "10px",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          fontSize: "2rem",
+          userSelect: "none",
+          pointerEvents: "none",
+        }}
+      >
+        <button
+          onClick={() => adjustZoom(-0.25, null)}
+          style={{ pointerEvents: "all", fontSize: "2rem" }}
+        >
+          -
+        </button>
+        <div style={{ whiteSpace: "nowrap" }}>
+          {Math.floor(cameraZoom * 100)}% 🔍
+        </div>
+        <button
+          onClick={() => adjustZoom(0.25, null)}
+          style={{ pointerEvents: "all", fontSize: "2rem" }}
+        >
+          +
+        </button>
+      </div>
+      <div
+        style={{
+          position: "absolute",
+          left: "50%",
+          top: 20,
+          transform: "translate(-50%, -50%)",
+          borderRadius: 6,
+          padding: 6,
+          userSelect: "none",
+        }}
+      >
+        <>
+          <button
+            disabled={!treeFromModel}
+            onClick={() => {
+              if (!treeFromModel) return;
+
+              setModels((prev) =>
+                prev?.map((m) => {
+                  if (m.id === treeFromModel.id) {
+                    return {
+                      ...m,
+                      elements,
+                    };
+                  }
+                  return m;
+                })
+              );
+            }}
+          >
+            save
+          </button>
+        </>
       </div>
     </>
   );

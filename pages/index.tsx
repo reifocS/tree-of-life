@@ -1,8 +1,8 @@
-import type { NextPage } from "next";
-import App from "../components/App";
+import { NextPage } from "next";
+import ModelComponentWrapper from "../components/App";
 
-const Home: NextPage = () => {
-  return <App />;
+const Models: NextPage = () => {
+  return <ModelComponentWrapper />;
 };
 
-export default Home;
+export default Models;
