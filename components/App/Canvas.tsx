@@ -105,7 +105,7 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
     }
   }
 
-  useKeyboard(setAppState);
+  //useKeyboard(setAppState);
   const {
     cameraZoom,
     elements,
