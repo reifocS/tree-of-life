@@ -216,7 +216,7 @@ export default function Canvas({}: {}) {
   return (
     <>
       <div className="container">
-        <Legend />
+        {/*<Legend />*/}
         {others?.map(({ presence, connectionId }) => {
           if (presence.cursor === null) {
             return;

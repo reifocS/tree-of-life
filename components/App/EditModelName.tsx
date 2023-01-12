@@ -21,6 +21,7 @@ export default function EditModelName({ m, setLocalStorage }: Props) {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
+        marginBottom: "10px",
         gap: 5,
       }}
     >
