@@ -8,6 +8,10 @@ import useLocalStorage from "../../hooks/useLocalStorage";
 import styles from "./Model.module.css";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import EditIcon from "./EditIcon";
+import EditModelName from "./EditModelName";
+import DownLoadIcon from "../DownloadIcon";
+import InfoIcon from "./InfoIcon";
 
 const LOADING_TIME = 1500;
 const excelToJSON = function (
@@ -119,49 +123,43 @@ const CreateModel: NextPage = () => {
         reset();
       }}
     >
-      <div
-        className="wrapper"
-        style={{
-          overscrollBehavior: "auto",
-          height: "100vh",
-          overflow: "scroll",
-        }}
-      >
-        {error && <p>Could not read file</p>}
-        <>
-          <div
-            className="loadingModel"
-            style={{
-              display: loading ? "block" : "none",
-            }}
-          >
-            <div className="loadingGif">
-              <Image
-                priority
-                src="/growingplant.gif"
-                width={300}
-                height={300}
-                alt="growing plant"
-              ></Image>
-              <p>Génération de l&apos;arbre...</p>
+      <div className={styles.Background}>
+        <section className={styles.Wrapper}>
+          <h1 className={styles.h1}>L&apos;arbre de vie des reins</h1>
+          {error && <p>Could not read file</p>}
+          <>
+            <div
+              className="loadingModel"
+              style={{
+                display: loading ? "block" : "none",
+              }}
+            >
+              <div className="loadingGif">
+                <Image
+                  priority
+                  src="/growingplant.gif"
+                  width={300}
+                  height={300}
+                  alt="growing plant"
+                ></Image>
+                <p>Génération de l&apos;arbre...</p>
+              </div>
             </div>
-          </div>
-        </>
+          </>
 
-        <canvas ref={ref} style={{ display: "none" }} />
-
-        <>
+          <canvas ref={ref} style={{ display: "none" }} />
           <div className={styles.Gen}>
-            <div>
+            <div className={styles.DownloadBanner}>
+              <div className={styles.InfoIcon}>
+                <InfoIcon />
+              </div>
               <p>
-                Générer à partir d&apos;un fichier (⚠️ les en tête ne doivent
-                pas être modifié !)
-              </p>
-              <p>
-                télécharger un{" "}
+                Générer un nouvel arbre à partir d&apos;un fichier excel (⚠️ les en
+                tête ne doivent pas être modifié, référez vous à{" "}
                 <a download href="template.xlsx">
-                  exemple
+                  l&apos;exemple
                 </a>
+                )
               </p>
               <input
                 onChange={(evt) => {
@@ -181,44 +179,35 @@ const CreateModel: NextPage = () => {
                 accept=".xlsx"
               />
             </div>
+
             <div>
-              <p>Modèles</p>
-              <ul className="modelList">
+              <h2>Mes arbres</h2>
+              <ul className={styles.ModelList}>
                 {models.map((m) => (
-                  <li key={m.id}>
-                    <input
-                      value={m.name}
-                      onChange={(e) => {
-                        setLocalStorage((prev) =>
-                          prev?.map((mod) => {
-                            if (mod.id === m.id) {
-                              return {
-                                ...mod,
-                                name: e.target.value,
-                              };
-                            }
-                            return mod;
-                          })
-                        );
-                      }}
-                    ></input>
-                    <Link href={`/arbre/${m.id}`}>Consulter</Link>
-                    <Link href={`/edition/${m.id}`}>Editer</Link>
+                  <li key={m.id} className={styles.ModelItem}>
+                    <EditModelName m={m} setLocalStorage={setLocalStorage} />
+                    <Link className={styles.Link} href={`/arbre/${m.id}`}>
+                      Consulter
+                    </Link>
+                    <Link className={styles.Link} href={`/edition/${m.id}`}>
+                      Editer
+                    </Link>
                     <button
+                      className={styles.ButtonDelete}
                       onClick={() => {
                         setLocalStorage((prev) =>
                           prev?.filter((mod) => mod.id !== m.id)
                         );
                       }}
                     >
-                      delete
+                      Supprimer
                     </button>
                   </li>
                 ))}
               </ul>
             </div>
           </div>
-        </>
+        </section>
       </div>
     </ErrorBoundary>
   );
