@@ -17,13 +17,22 @@ const Arbre = () => {
   const router = useRouter();
   const { id, room } = router.query;
   const [models] = useLocalStorage<Model[]>("models", []);
+
+  // The first user to enter the room is the one with the tree
+  // He will then share the link to another that does not have access to the tree.
+  // When a new Room is entered for the first time
+  // It will set the data to reflect the tree at the time the room was created.
+  // We should get the tree from db to make sure who enters first the room does not matter
   let treeFromModel = models.find((m) => m.id === id);
+
   // We only keep the elements in the live storage as it is the only
   // thing that can change.
 
   if (!room) {
-    return <p>Room not defined</p>;
+    // useRouter is not accessible before hydration.
+    return null;
   }
+
   return (
     <RoomProvider
       id={room as string}

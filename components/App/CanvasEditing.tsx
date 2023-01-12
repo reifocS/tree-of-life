@@ -38,6 +38,7 @@ import { normalizeWheelEvent } from "../../utils/normalizeWheelEvent";
 import useDeviceSize from "../../hooks/useDeviceSize";
 import { useLeafImages } from "../../hooks/useLeafImages";
 import { useCanvas } from "../../hooks/useCanvas";
+import { useRouter } from "next/router";
 
 //TODO
 //Merge CanvasEditing et CanvasMultiplayer
@@ -55,6 +56,7 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
   //const centerPointerZoom = useRef({ x: width / 2, y: height / 2 });
   const [, setModels] = useLocalStorage<Model[]>("models", []);
   useDisableScrollBounce();
+  const router = useRouter();
   const [appState, setAppState] = useState<AppState>(() => {
     return {
       selectedElement: null,
@@ -386,6 +388,7 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
                   return m;
                 })
               );
+              router.push("/");
             }}
           >
             save

@@ -27,6 +27,7 @@ import {
   useMutation,
 } from "../../liveblocks.config";
 import { useLeafImages } from "../../hooks/useLeafImages";
+import CopyIcon from "../CopyIcon";
 
 export default function Canvas({}: {}) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -220,7 +221,10 @@ export default function Canvas({}: {}) {
           if (presence.cursor === null) {
             return;
           }
-          const context = canvas!.getContext("2d")!;
+          if (!canvas) {
+            return;
+          }
+          const context = canvas.getContext("2d")!;
           const transform = context.getTransform();
           // Destructure to get the x and y values out of the transformed DOMPoint.
           const { x, y } = transform.transformPoint(
@@ -360,6 +364,7 @@ export default function Canvas({}: {}) {
           +
         </button>
       </div>
+      <CopyIcon />
     </>
   );
 }

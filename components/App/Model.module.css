@@ -45,12 +45,14 @@
 .Link:hover {
   background-color: rgb(26 101 179);
 }
-
+.Link:disabled {
+  opacity: 0.7;
+}
 .ButtonDelete {
   background-color: #f44250;
   font-weight: 600;
-  padding-left: 2rem;
-  padding-right: 2rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
   color: #fff;
   display: inline-flex;
   justify-content: center;
@@ -73,18 +75,28 @@
 
 .ModelItem {
   display: flex;
+  min-width: 450px;
   justify-content: center;
   gap: 5px;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  padding: 16px;
+  flex-direction: column;
+}
+
+.ModelContainer {
+  width: 100%;
 }
 
 .ModelList {
   display: flex;
-  flex-direction: column;
-  gap: 5px;
+  gap: 25px;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .DownloadBanner {
-  background-color: #e70f0f36;
+  background-color: rgb(26 101 179);;
   padding: 16px;
   border-radius: 6px;
 }
@@ -95,6 +107,18 @@
 
 .InfoIcon {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   margin-bottom: 6px;
+}
+
+.ModelButtonContainer {
+  display: flex;
+  gap: 5px;
+}
+
+.ButtonWrapper {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  gap: 5px;
 }

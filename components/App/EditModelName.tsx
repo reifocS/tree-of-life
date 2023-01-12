@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import EditIcon from "./EditIcon";
+import EditIcon from "../EditIcon";
 import { Model } from "./Model";
 
 interface Props {
@@ -57,9 +57,6 @@ export default function EditModelName({ m, setLocalStorage }: Props) {
           <input
             ref={inputRef}
             value={m.name}
-            style={{
-              width: 150,
-            }}
             onBlur={handleSubmit}
             onChange={(e) => {
               setLocalStorage((prev) =>
@@ -78,7 +75,14 @@ export default function EditModelName({ m, setLocalStorage }: Props) {
         </form>
       )}
       {!editMode && (
-        <div style={{ width: 150, display: "inline-flex" }}>{m.name}</div>
+        <div
+          style={{
+            justifyContent: "center",
+            display: "inline-flex",
+          }}
+        >
+          {m.name}
+        </div>
       )}
     </div>
   );

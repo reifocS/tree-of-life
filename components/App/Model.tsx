@@ -9,13 +9,11 @@ import styles from "./Model.module.css";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import EditModelName from "./EditModelName";
-import InfoIcon from "./InfoIcon";
+import InfoIcon from "../InfoIcon";
 import { generateCollaborationLink } from "../../utils/crypto";
 
-const LOADING_TIME = 1500;
 const excelToJSON = function (
   setState: Dispatch<any>,
-  setLoading: Dispatch<SetStateAction<boolean>>,
   setError: Dispatch<SetStateAction<boolean>>,
   setModelName: Dispatch<SetStateAction<string>>
 ) {
@@ -27,7 +25,6 @@ const excelToJSON = function (
       const workbook = read(data, {
         type: "binary",
       });
-      setLoading(true);
       const jsons = workbook.SheetNames.map(function (sheetName) {
         setModelName(sheetName);
         const json_object = utils.sheet_to_json(workbook.Sheets[sheetName]);
@@ -35,12 +32,9 @@ const excelToJSON = function (
       });
       const json = jsons[0] as any[];
       setState(groupBy(json, "Branche"));
-      //Simulate loading time
-      setTimeout(() => setLoading(false), LOADING_TIME);
     };
 
     reader.onerror = function (ex) {
-      setLoading(false);
       setError(true);
       console.log(ex);
     };
@@ -82,7 +76,6 @@ export type Model = {
 
 const CreateModel: NextPage = () => {
   const [fileData, setFileData] = useState<any>();
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const [modelName, setModelName] = useState("");
   const [models, setLocalStorage] = useLocalStorage<Model[]>("models", []);
@@ -112,7 +105,6 @@ const CreateModel: NextPage = () => {
   function reset() {
     setFileData(undefined);
     setError(false);
-    setLoading(false);
     setModelName("");
   }
 
@@ -127,26 +119,6 @@ const CreateModel: NextPage = () => {
         <section className={styles.Wrapper}>
           <h1 className={styles.h1}>L&apos;arbre de vie des reins</h1>
           {error && <p>Could not read file</p>}
-          <>
-            <div
-              className="loadingModel"
-              style={{
-                display: loading ? "block" : "none",
-              }}
-            >
-              <div className="loadingGif">
-                <Image
-                  priority
-                  src="/growingplant.gif"
-                  width={300}
-                  height={300}
-                  alt="growing plant"
-                ></Image>
-                <p>Génération de l&apos;arbre...</p>
-              </div>
-            </div>
-          </>
-
           <canvas ref={ref} style={{ display: "none" }} />
           <div className={styles.Gen}>
             <div className={styles.DownloadBanner}>
@@ -168,7 +140,6 @@ const CreateModel: NextPage = () => {
                     //Todo faire le parsing de fichier côté serveur
                     const parseExcel = excelToJSON(
                       setFileData,
-                      setLoading,
                       setError,
                       setModelName
                     );
@@ -180,32 +151,40 @@ const CreateModel: NextPage = () => {
               />
             </div>
 
-            <div>
+            <div className={styles.ModelContainer}>
               <h2>Mes arbres</h2>
               <ul className={styles.ModelList}>
                 {models.map((m) => (
                   <li key={m.id} className={styles.ModelItem}>
                     <EditModelName m={m} setLocalStorage={setLocalStorage} />
-                    <Link
-                      className={styles.Link}
-                      href={generateCollaborationLink(`/arbre/${m.id}`)}
-                    >
-                      Consulter
-                    </Link>
-                    <Link className={styles.Link} href={`/edition/${m.id}`}>
-                      Editer
-                    </Link>
-                    <button
-                      className={styles.ButtonDelete}
-                      onClick={() => {
-                        setLocalStorage((prev) =>
-                          prev?.filter((mod) => mod.id !== m.id)
-                        );
-                      }}
-                    >
-                      Supprimer
-                    </button>
-                    <button>Historique (TODO)</button>
+                    <div className={styles.ModelButtonContainer}>
+                      <div className={styles.ButtonWrapper}>
+                        <Link
+                          className={styles.Link}
+                          href={generateCollaborationLink(`/arbre/${m.id}`)}
+                        >
+                          Consulter
+                        </Link>
+                        <Link className={styles.Link} href={`/edition/${m.id}`}>
+                          Editer
+                        </Link>
+                      </div>
+                      <div className={styles.ButtonWrapper}>
+                        <button
+                          className={styles.ButtonDelete}
+                          onClick={() => {
+                            setLocalStorage((prev) =>
+                              prev?.filter((mod) => mod.id !== m.id)
+                            );
+                          }}
+                        >
+                          Supprimer
+                        </button>
+                        <button disabled className={styles.Link}>
+                          Historique
+                        </button>
+                      </div>
+                    </div>
                   </li>
                 ))}
               </ul>
