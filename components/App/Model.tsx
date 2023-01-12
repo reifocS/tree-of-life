@@ -8,9 +8,7 @@ import useLocalStorage from "../../hooks/useLocalStorage";
 import styles from "./Model.module.css";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import EditIcon from "./EditIcon";
 import EditModelName from "./EditModelName";
-import DownLoadIcon from "../DownloadIcon";
 import InfoIcon from "./InfoIcon";
 
 const LOADING_TIME = 1500;
@@ -201,6 +199,9 @@ const CreateModel: NextPage = () => {
                       }}
                     >
                       Supprimer
+                    </button>
+                    <button>
+                      Historique (TODO)
                     </button>
                   </li>
                 ))}

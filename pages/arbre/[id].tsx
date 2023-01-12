@@ -20,7 +20,11 @@ const Arbre = () => {
   const treeFromModel = models.find((m) => m.id === id);
   if (!treeFromModel) {
     //TODO redirect to 404
-    return <p>Oups, l&apos;arbre n&apos;existe pas</p>;
+    return (
+      <p style={{ color: "black", fontWeight: 600 }}>
+        Oups, l&apos;arbre n&apos;existe pas
+      </p>
+    );
   }
   // We only keep the elements in the live storage as it is the only
   // thing that can change.
@@ -30,7 +34,21 @@ const Arbre = () => {
       initialPresence={{ cursor: null }}
       initialStorage={{ elements: new LiveList(treeFromModel.elements) }}
     >
-      <ClientSideSuspense fallback={<div>Loading...</div>}>
+      <ClientSideSuspense
+        fallback={
+          <div
+            style={{
+              color: "black",
+              fontWeight: 600,
+              height: "100vh",
+              width: "100vw",
+              backgroundColor: "#87ceeb",
+            }}
+          >
+            Loading...
+          </div>
+        }
+      >
         {() => <DynamicComponentWithNoSSR treeFromModel={treeFromModel} />}
       </ClientSideSuspense>
     </RoomProvider>
