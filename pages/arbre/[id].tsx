@@ -15,24 +15,20 @@ const DynamicComponentWithNoSSR = dynamic(
 
 const Arbre = () => {
   const router = useRouter();
-  const { id } = router.query;
+  const { id, room } = router.query;
   const [models] = useLocalStorage<Model[]>("models", []);
-  const treeFromModel = models.find((m) => m.id === id);
-  if (!treeFromModel) {
-    //TODO redirect to 404
-    return (
-      <p style={{ color: "black", fontWeight: 600 }}>
-        Oups, l&apos;arbre n&apos;existe pas
-      </p>
-    );
-  }
+  let treeFromModel = models.find((m) => m.id === id);
   // We only keep the elements in the live storage as it is the only
   // thing that can change.
+
+  if (!room) {
+    return <p>Room not defined</p>;
+  }
   return (
     <RoomProvider
-      id={id as string}
+      id={room as string}
       initialPresence={{ cursor: null }}
-      initialStorage={{ elements: new LiveList(treeFromModel.elements) }}
+      initialStorage={{ elements: new LiveList(treeFromModel?.elements) }}
     >
       <ClientSideSuspense
         fallback={
@@ -49,7 +45,7 @@ const Arbre = () => {
           </div>
         }
       >
-        {() => <DynamicComponentWithNoSSR treeFromModel={treeFromModel} />}
+        {() => <DynamicComponentWithNoSSR />}
       </ClientSideSuspense>
     </RoomProvider>
   );

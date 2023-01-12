@@ -16,7 +16,6 @@ import {
   Element,
 } from "../../drawing";
 import useDisableScrollBounce from "../../hooks/useDisableScrollBounce";
-import { Model } from "./Model";
 import useDisablePinchZoom from "../../hooks/useDisablePinchZoom";
 import Legend from "./Legend";
 import { normalizeWheelEvent } from "../../utils/normalizeWheelEvent";
@@ -29,7 +28,7 @@ import {
 } from "../../liveblocks.config";
 import { useLeafImages } from "../../hooks/useLeafImages";
 
-export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
+export default function Canvas({}: {}) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [width, height /*devicePixelRatio*/] = useDeviceSize();
   const [roughCanvas, setRoughCanvas] = useState<RoughCanvas | null>(null);
@@ -52,7 +51,6 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
       dragStart: { x: 0, y: 0 },
       initialPinchDistance: null,
       draggedElement: null,
-      elements: treeFromModel.elements,
       downPoint: { x: 0, y: 0 },
     };
   });
@@ -85,7 +83,7 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
     }
   }, []);
 
-  const nbOfBranches = treeFromModel?.nbOfBranches;
+  const nbOfBranches = elements.filter((el) => el.type === "category").length;
 
   useCanvas(
     "view",

@@ -10,6 +10,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import EditModelName from "./EditModelName";
 import InfoIcon from "./InfoIcon";
+import { generateCollaborationLink } from "../../utils/crypto";
 
 const LOADING_TIME = 1500;
 const excelToJSON = function (
@@ -114,6 +115,7 @@ const CreateModel: NextPage = () => {
     setLoading(false);
     setModelName("");
   }
+
   return (
     <ErrorBoundary
       FallbackComponent={ErrorFallback}
@@ -152,8 +154,8 @@ const CreateModel: NextPage = () => {
                 <InfoIcon />
               </div>
               <p>
-                Générer un nouvel arbre à partir d&apos;un fichier excel (⚠️ les en
-                tête ne doivent pas être modifié, référez vous à{" "}
+                Générer un nouvel arbre à partir d&apos;un fichier excel (⚠️ les
+                en tête ne doivent pas être modifié, référez vous à{" "}
                 <a download href="template.xlsx">
                   l&apos;exemple
                 </a>
@@ -184,7 +186,10 @@ const CreateModel: NextPage = () => {
                 {models.map((m) => (
                   <li key={m.id} className={styles.ModelItem}>
                     <EditModelName m={m} setLocalStorage={setLocalStorage} />
-                    <Link className={styles.Link} href={`/arbre/${m.id}`}>
+                    <Link
+                      className={styles.Link}
+                      href={generateCollaborationLink(`/arbre/${m.id}`)}
+                    >
                       Consulter
                     </Link>
                     <Link className={styles.Link} href={`/edition/${m.id}`}>
@@ -200,9 +205,7 @@ const CreateModel: NextPage = () => {
                     >
                       Supprimer
                     </button>
-                    <button>
-                      Historique (TODO)
-                    </button>
+                    <button>Historique (TODO)</button>
                   </li>
                 ))}
               </ul>
