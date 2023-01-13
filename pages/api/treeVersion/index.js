@@ -1,12 +1,14 @@
-export default async (req, res) => {
+const request = async (req, res) => {
   const { method } = req;
-
-  const { userId } = req.query;
+  console.log("handler tree");
 
   switch (method) {
     default:
+      console.log("DEFAULT");
       res.setHeader("Allow", ["GET", "POST"]);
       res.status(405).end(`Method ${method} Not Allowed`);
       break;
   }
 };
+
+export default request;

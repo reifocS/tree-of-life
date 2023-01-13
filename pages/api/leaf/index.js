@@ -1,5 +1,3 @@
-import { useRouter } from "next/router";
-import Link from "next/link";
 import { createLeaf } from "../../../prisma/leaf.mjs"; // only works in CJS
 
 export default async (req, res) => {
