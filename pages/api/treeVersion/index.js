@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router'
 import Link from 'next/link'
-import {createTreeVersion} from "./.../../../../../prisma/treeVersion.mjs"; // only works in CJS
+import {createTreeVersion} from "../../../prisma/treeVersion.mjs"; // only works in CJS
 
 export default async (req, res) => {
   const { method } = req;

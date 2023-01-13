@@ -1,10 +1,5 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
-import type { NextApiRequest, NextApiResponse } from 'next'
 import { getUsers,createUser} from "../../prisma/users.mjs"; // only works in CJS
-
-type Data = {
-  name: string
-}
 
 export default async (req, res) => {
   const { method } = req;

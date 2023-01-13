@@ -2,7 +2,7 @@ import { useRouter } from 'next/router'
 import Link from 'next/link'
 import { getBranches, createBranch} from "../../../prisma/branch.mjs"; // only works in CJS
 
-export default async (req, res) => {
+const request = async (req, res) => {
   const { method } = req;
   console.log("handler tree")
    const data = req.body
@@ -18,3 +18,5 @@ export default async (req, res) => {
       break;
   }
 }
+
+export default request;
