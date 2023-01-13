@@ -52,8 +52,6 @@ export async function createTreeVersion(treeMaster_idP, dataP) {
     const [key, element] = entry;
     switch (element.type) {
       case "leaf":
-        console.log("adding leaf to branch" + element.branch_fk);
-        console.log(branchMap.get(element.branch_fk));
         await addLeaf(branchMap.get(element.branch_fk), element);
 
         break;
@@ -70,7 +68,6 @@ async function setBranchIdMap(dataElements, treeVersion, branchMap) {
       case "category":
         const branch = await createBranch(treeVersion.id, element);
         if (!branchMap.has(branch.id)) {
-          console.log(element.id + "->" + branch.id);
           branchMap.set(element.id, branch.id);
         } else {
         }

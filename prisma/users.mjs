@@ -6,7 +6,6 @@ const { PrismaClient } = pkg;
 const prisma = new PrismaClient();
 
 export async function getUsers() {
-  console.log("getUsers");
   return prisma.user.findMany({
     include: {
       treeMasters: {
@@ -51,7 +50,6 @@ export async function getUser(idp) {
 }
 
 export function test() {
-  console.log("test");
   return "test";
 }
 

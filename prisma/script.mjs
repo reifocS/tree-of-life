@@ -19,7 +19,7 @@ async function main() {
       userType_fk: userType.id,
     },
   });
-  console.log("start");
+
   await myDisplay();
 }
 async function myReset() {
@@ -34,7 +34,6 @@ async function myReset() {
 
 async function myDisplay() {
   const users = await prisma.user.findMany();
-  console.log(users);
 }
 
 main()

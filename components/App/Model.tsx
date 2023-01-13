@@ -36,7 +36,7 @@ const excelToJSON = function (
 
     reader.onerror = function (ex) {
       setError(true);
-      console.log(ex);
+      
     };
 
     reader.readAsBinaryString(file);

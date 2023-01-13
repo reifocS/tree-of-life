@@ -10,7 +10,6 @@ const { PrismaClient } = pkg;
 const prisma = new PrismaClient();
 
 export async function getTreesMastersByUser(useridp) {
-  console.log(useridp);
   const treeMasters = await prisma.treeMaster.findMany({
     where: {
       user_fk: parseInt(useridp),
