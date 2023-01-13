@@ -1,0 +1,64 @@
+//// -- LEVEL 1
+//// -- Schemas, Tables and References
+
+// Creating tables
+// You can define the tables with full schema names
+table User as U {
+  id int
+  name string
+  type UserType
+}
+
+table TreeMaster as T {
+  id int 
+  user_id int
+  created_at datetime
+}
+
+table Leaf as L {
+  id int
+  branch_id int
+  icon string
+  fontColor string
+}
+
+table ElementInfo as EI {
+  id int
+  x float
+  y float
+  height int
+  label string
+  width int
+  angle float
+}
+
+table Branch as B {
+  id int
+  tree_id int
+  actualBoundingBoxAscent int
+  font string
+}
+
+table TreeVersion as TV {
+  id int
+  tree_id int
+  label string
+  version int
+}
+
+enum UserType {
+  patient
+  soignant
+}
+
+Ref: "Leaf"."branch_id" > "Branch"."id"
+
+Ref: "T"."id" < "TreeVersion"."tree_id"
+
+Ref: "Branch"."tree_id" < "TreeVersion"."id"
+
+Ref: "User"."id" < "TreeMaster"."user_id"
+
+Ref: "Branch"."id" - "ElementInfo"."id"
+
+Ref: "Leaf"."id" - "ElementInfo"."id"

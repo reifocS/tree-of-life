@@ -1,0 +1,81 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model ElementInfo {
+  id       Int     @id @default(autoincrement())
+  x Float
+  y Float 
+  height Float
+  label String
+  width Float
+  angle Float
+  leafs Leaf[]
+  branches Branch[]
+
+}
+
+model Leaf {
+  id       Int     @id @default(autoincrement())
+  branch_fk Int
+  branch  Branch   @relation(fields: [branch_fk], references: [id])
+
+  icon String
+  fontColor String
+  elementInfo_fk Int
+  elementInfo  ElementInfo   @relation(fields: [elementInfo_fk], references: [id])
+
+}
+
+model Branch {
+  id       Int     @id @default(autoincrement())
+  treeVersion_fk Int
+  tree  TreeVersion   @relation(fields: [treeVersion_fk], references: [id])
+  actualBoundingBoxAscent Int
+  font String
+  elementInfo_fk Int
+  elementInfo  ElementInfo   @relation(fields: [elementInfo_fk], references: [id])
+  leafs Leaf[]
+}
+
+model TreeVersion {
+  id       Int     @id @default(autoincrement())
+  treeMaster_fk Int
+  treeMaster  TreeMaster   @relation(fields: [treeMaster_fk], references: [id])
+  label String
+  created_at DateTime @default(now())
+  branches Branch[]
+
+}
+
+model TreeMaster {
+  id       Int     @id @default(autoincrement())
+  user_fk Int
+  user  User   @relation(fields: [user_fk], references: [id])
+  created_at DateTime @default(now())
+  treeVersions TreeVersion[]
+}
+
+model User {
+  id       Int     @id @default(autoincrement())
+  name String
+  userType_fk Int
+  userType  UserType   @relation(fields: [userType_fk], references: [id])
+  treeMasters TreeMaster[]
+}
+
+model UserType {
+    id       Int     @id @default(autoincrement())
+    label String 
+    users User[]
+}
+
+
+
+
+// npx prisma migrate dev --name init
