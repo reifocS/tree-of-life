@@ -7,13 +7,44 @@ const prisma = new PrismaClient();
 
 export async function getUsers() {
   console.log("getUsers");
-  return prisma.user.findMany();
+  return prisma.user.findMany({
+    include: {
+      treeMasters: {
+        include: {
+          treeVersions: {
+            include: {
+              branches: {
+                include: {
+                  leafs: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
 }
 
 export async function getUser(idp) {
   const user = await prisma.user.findUnique({
     where: {
       id: idp,
+    },
+    include: {
+      treeMasters: {
+        include: {
+          treeVersions: {
+            include: {
+              branches: {
+                include: {
+                  leafs: true,
+                },
+              },
+            },
+          },
+        },
+      },
     },
   });
   return user;

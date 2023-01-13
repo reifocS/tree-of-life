@@ -11,9 +11,9 @@ model ElementInfo {
   id       Int     @id @default(autoincrement())
   x Float
   y Float 
-  height Int
+  height Float
   label String
-  width Int
+  width Float
   angle Float
   leafs Leaf[]
   branches Branch[]
@@ -34,8 +34,8 @@ model Leaf {
 
 model Branch {
   id       Int     @id @default(autoincrement())
-  tree_fk Int
-  tree  TreeVersion   @relation(fields: [tree_fk], references: [id])
+  treeVersion_fk Int
+  tree  TreeVersion   @relation(fields: [treeVersion_fk], references: [id])
   actualBoundingBoxAscent Int
   font String
   elementInfo_fk Int
@@ -45,10 +45,10 @@ model Branch {
 
 model TreeVersion {
   id       Int     @id @default(autoincrement())
-  tree_fk Int
-  treeMaster  TreeMaster   @relation(fields: [tree_fk], references: [id])
+  treeMaster_fk Int
+  treeMaster  TreeMaster   @relation(fields: [treeMaster_fk], references: [id])
   label String
-  version Int
+  created_at DateTime @default(now())
   branches Branch[]
 
 }

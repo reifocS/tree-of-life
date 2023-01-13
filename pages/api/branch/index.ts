@@ -1,14 +1,16 @@
 import { useRouter } from 'next/router'
 import Link from 'next/link'
-import {createTreeVersion} from "./.../../../../../prisma/treeVersion.mjs"; // only works in CJS
+import { getBranches, createBranch} from "../../../prisma/branch.mjs"; // only works in CJS
 
 export default async (req, res) => {
   const { method } = req;
   console.log("handler tree")
-  const { userId } = req.query
+   const data = req.body
 
   switch (method) {
-    
+    case "POST":
+      res.status(200).json(await createBranch(data));
+      break;
     default:
       console.log("DEFAULT")
       res.setHeader("Allow", ["GET", "POST"]);
