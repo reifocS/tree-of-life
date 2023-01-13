@@ -1,5 +1,5 @@
 import { SetStateAction, useEffect } from "react";
-import { AppState } from "../components/App/App";
+import { AppState } from "../drawing";
 function isArrowKey(keyCode: string) {
   return (
     keyCode === KEYS.ARROW_LEFT ||
@@ -20,7 +20,13 @@ const KEYS = {
 };
 let STEP = 50;
 
-function useKeyboard(setAppState: (value: SetStateAction<AppState>) => void) {
+function useKeyboard(
+  setAppState: (
+    value: SetStateAction<
+      Omit<AppState, "mode" | "selectedElement" | "elements" | "draggedElement">
+    >
+  ) => void
+) {
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if (isArrowKey(e.code)) {

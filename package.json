@@ -12,12 +12,20 @@
     "@premieroctet/next-crud": "^2.3.1",
     "@prisma/client": "^3.9.2",
     "express": "^4.18.2",
+    "@liveblocks/client": "^0.19.4",
+    "@liveblocks/react": "^0.19.4",
+    "@next/font": "^13.1.1",
+    "@picmo/popup-picker": "^5.7.2",
+    "@use-gesture/react": "^10.2.22",
     "immer": "^9.0.15",
-    "next": "12.3.1",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
+    "next": "^13.1.1",
+    "picmo": "^5.7.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-error-boundary": "^3.1.4",
     "roughjs": "^4.5.2",
-    "use-immer": "^0.7.0"
+    "use-immer": "^0.7.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/node": "18.8.2",
@@ -26,6 +34,8 @@
     "eslint": "8.24.0",
     "eslint-config-next": "12.3.1",
     "prisma": "^3.9.2",
+    "eslint-config-next": "^13.1.1",
+    "eslint-config-prettier": "^8.5.0",
     "typescript": "4.8.4"
   }
 }
