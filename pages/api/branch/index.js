@@ -1,6 +1,4 @@
-import { useRouter } from 'next/router'
-import Link from 'next/link'
-import { getBranches, createBranch} from "../../../prisma/branch.mjs"; // only works in CJS
+import { createBranch} from "../../../prisma/branch.mjs"; // only works in CJS
 
 const request = async (req, res) => {
   const { method } = req;

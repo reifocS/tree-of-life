@@ -1,9 +1,7 @@
-import { useRouter } from 'next/router'
-import Link from 'next/link'
 import { getLastTreeVersionByTreeMaster,createTreeVersion} from "../../../../../prisma/treeVersion.mjs"; // only works in CJS
 
 
-export default async (req, res) => {
+const request = async (req, res) => {
   const { method } = req;
   console.log("handler tree")
    const data = req.query
@@ -13,7 +11,6 @@ export default async (req, res) => {
     case "GET":
       console.log("GET");
       return res.status(200).json(await getLastTreeVersionByTreeMaster(data.treeMasterId));
-      break;
     case "POST":
       console.log("POST")
       res.status(200).json(await createTreeVersion(data.treeMasterId,req.body));
@@ -25,3 +22,5 @@ export default async (req, res) => {
       break;
   }
 }
+
+export default request;
