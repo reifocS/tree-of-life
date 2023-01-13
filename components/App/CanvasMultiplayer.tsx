@@ -28,6 +28,7 @@ import {
 } from "../../liveblocks.config";
 import { useLeafImages } from "../../hooks/useLeafImages";
 import CopyIcon from "../CopyIcon";
+import Editor from "../Editor/Editor";
 
 export default function Canvas({}: {}) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -343,14 +344,14 @@ export default function Canvas({}: {}) {
           padding: "10px",
           left: "50%",
           transform: "translate(-50%, -50%)",
-          fontSize: "2rem",
+          fontSize: "1.4rem",
           userSelect: "none",
           pointerEvents: "none",
         }}
       >
         <button
           onClick={() => adjustZoom(-0.25, null)}
-          style={{ pointerEvents: "all", fontSize: "2rem" }}
+          style={{ pointerEvents: "all" }}
         >
           -
         </button>
@@ -359,12 +360,30 @@ export default function Canvas({}: {}) {
         </div>
         <button
           onClick={() => adjustZoom(0.25, null)}
-          style={{ pointerEvents: "all", fontSize: "2rem" }}
+          style={{ pointerEvents: "all" }}
         >
           +
         </button>
+        {Math.round(cameraOffset.x) !== 0 &&
+          Math.round(cameraOffset.y) !== 0 && (
+            <button
+              onClick={() => {
+                setAppState((prev) => ({
+                  ...prev,
+                  cameraOffset: {
+                    x: 0,
+                    y: 0,
+                  },
+                }));
+              }}
+              style={{ pointerEvents: "all" }}
+            >
+              Centrer l&apos;écran
+            </button>
+          )}
       </div>
       <CopyIcon />
+      <Editor />
     </>
   );
 }

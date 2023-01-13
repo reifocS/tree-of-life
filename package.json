@@ -9,12 +9,14 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@lexical/react": "^0.7.6",
     "@liveblocks/client": "^0.19.4",
     "@liveblocks/react": "^0.19.4",
     "@next/font": "^13.1.1",
     "@picmo/popup-picker": "^5.7.2",
-    "@use-gesture/react": "^10.2.22",
+    "@use-gesture/react": "^10.2.23",
     "immer": "^9.0.15",
+    "lexical": "^0.7.6",
     "next": "^13.1.1",
     "picmo": "^5.7.2",
     "react": "^18.2.0",
