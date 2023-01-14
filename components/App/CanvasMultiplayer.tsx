@@ -1,7 +1,6 @@
 import { PointerEvent, useCallback, useRef, useState } from "react";
 import rough from "roughjs/bin/rough";
 import { RoughCanvas } from "roughjs/bin/canvas";
-import useKeyboard from "../../hooks/useKeyboard";
 import { useCanvas } from "../../hooks/useCanvas";
 import {
   AppState,
@@ -74,7 +73,6 @@ export default function Canvas({}: {}) {
     }
   }
 
-  useKeyboard(setAppState);
   const { cameraZoom, cameraOffset, isDragging, sectors } = appState;
   const { x: cameraOffsetX, y: cameraOffsetY } = cameraOffset;
   const lastZoom = useRef(cameraZoom);

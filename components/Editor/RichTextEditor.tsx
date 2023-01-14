@@ -1,5 +1,11 @@
 import Theme from "./themes";
-import { LexicalComposer } from "@lexical/react/LexicalComposer";
+import { $getRoot, $getSelection } from "lexical";
+import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
+
+import {
+  InitialEditorStateType,
+  LexicalComposer,
+} from "@lexical/react/LexicalComposer";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
@@ -17,12 +23,14 @@ import { MarkdownShortcutPlugin } from "@lexical/react/LexicalMarkdownShortcutPl
 import { TRANSFORMERS } from "@lexical/markdown";
 
 import AutoLinkPlugin from "./plugins/AutoLinkPlugin";
+import useLocalStorage from "../../hooks/useLocalStorage";
+import { useState } from "react";
 
 function Placeholder() {
   return <div className="editor-placeholder">Mes prises de notes</div>;
 }
 
-const editorConfig = {
+const editorConfig: any = {
   // The editor theme
   theme: Theme,
   // Handling of errors during update
@@ -46,10 +54,43 @@ const editorConfig = {
   namespace: "tree-of-life",
 };
 
-export default function RichTextEditor() {
+export default function RichTextEditor({
+  shouldHide,
+  id,
+}: {
+  shouldHide: boolean;
+  id: string;
+}) {
+  // We keep all the editor states in a map with id of the room as key and editor state
+  // as value. The editor state for the current session is editorStates[roomId]
+  const [editorStates, setEditorState] = useLocalStorage<Record<string, any>>(
+    "tof-editor-state",
+    {}
+  );
+  const [config, setConfig] = useState(() => ({ ...editorConfig }));
+
+  if (editorStates[id] && !config["editorState"]) {
+    // Update the config with the state from local storage if it exists.
+    setConfig((prev: any) => ({
+      ...prev,
+      editorState: JSON.stringify(editorStates[id]),
+    }));
+  }
+
+  function onChange(editorState: any) {
+    //TODO debounce this
+    console.log("persisting editor state to local storage");
+    setEditorState((prev) => ({ ...prev, [id]: editorState }));
+  }
+
   return (
-    <LexicalComposer initialConfig={editorConfig}>
-      <div className="editor-container">
+    <LexicalComposer initialConfig={config}>
+      <div
+        className="editor-container"
+        style={{
+          display: shouldHide ? "none" : "block",
+        }}
+      >
         <ToolbarPlugin />
         <div className="editor-inner">
           <RichTextPlugin
@@ -62,6 +103,8 @@ export default function RichTextEditor() {
           <ListPlugin />
           <LinkPlugin />
           <AutoLinkPlugin />
+          <OnChangePlugin onChange={onChange} />
+
           <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
         </div>
       </div>
