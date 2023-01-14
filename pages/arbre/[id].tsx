@@ -54,7 +54,9 @@ const Arbre = () => {
           </div>
         }
       >
-        {() => <DynamicComponentWithNoSSR />}
+        {() => (
+          <DynamicComponentWithNoSSR isOwner={treeFromModel !== undefined} />
+        )}
       </ClientSideSuspense>
     </RoomProvider>
   );

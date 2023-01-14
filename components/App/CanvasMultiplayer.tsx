@@ -16,7 +16,6 @@ import {
 } from "../../drawing";
 import useDisableScrollBounce from "../../hooks/useDisableScrollBounce";
 import useDisablePinchZoom from "../../hooks/useDisablePinchZoom";
-import Legend from "./Legend";
 import { normalizeWheelEvent } from "../../utils/normalizeWheelEvent";
 import useDeviceSize from "../../hooks/useDeviceSize";
 import {
@@ -29,7 +28,7 @@ import { useLeafImages } from "../../hooks/useLeafImages";
 import CopyIcon from "../CopyIcon";
 import Editor from "../Editor/Editor";
 
-export default function Canvas({}: {}) {
+export default function Canvas({isOwner}: {isOwner: boolean}) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [width, height /*devicePixelRatio*/] = useDeviceSize();
   const [roughCanvas, setRoughCanvas] = useState<RoughCanvas | null>(null);
@@ -381,7 +380,7 @@ export default function Canvas({}: {}) {
           )}
       </div>
       <CopyIcon />
-      <Editor />
+      {isOwner && <Editor />}
     </>
   );
 }
