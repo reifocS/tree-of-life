@@ -1,7 +1,6 @@
 import {
   PointerEvent,
   useCallback,
-  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -13,7 +12,6 @@ import {
   BASE_TREE_Y,
   colors,
   getBranchEndpoint,
-  draw,
   mousePosToCanvasPos,
   hitTest,
   hitTestButton,
@@ -23,7 +21,6 @@ import {
   getRandomArbitrary,
   guidGenerator,
   SCROLL_SENSITIVITY,
-  adjust,
   LEAF_WIDTH,
   LEAF_HEIGHT,
   SCROLL_SENSITIVITY_TOUCHPAD,
@@ -33,7 +30,6 @@ import useDisableScrollBounce from "../../hooks/useDisableScrollBounce";
 import { Model } from "./Model";
 import useLocalStorage from "../../hooks/useLocalStorage";
 import useDisablePinchZoom from "../../hooks/useDisablePinchZoom";
-import Legend from "./Legend";
 import { normalizeWheelEvent } from "../../utils/normalizeWheelEvent";
 import useDeviceSize from "../../hooks/useDeviceSize";
 import { useLeafImages } from "../../hooks/useLeafImages";
@@ -265,7 +261,6 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
   return (
     <>
       <div className="container">
-        <Legend />
         {selectedElement && (
           <SidePanel
             setAppState={setAppState}
