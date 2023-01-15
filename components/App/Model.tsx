@@ -1,5 +1,4 @@
 import type { NextPage } from "next";
-import Image from "next/image";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { read, utils } from "xlsx";
 import { ErrorBoundary } from "react-error-boundary";
@@ -180,9 +179,12 @@ const CreateModel: NextPage = () => {
                         >
                           Supprimer
                         </button>
-                        <button disabled className={styles.Link}>
+                        <Link
+                          className={styles.Link}
+                          href={`/historique/${m.id}`}
+                        >
                           Historique
-                        </button>
+                        </Link>
                       </div>
                     </div>
                   </li>

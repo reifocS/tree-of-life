@@ -49,11 +49,6 @@ select {
   font: inherit;
 }
 
-html,
-body {
-  overflow: hidden;
-}
-
 canvas {
   background-color: #87ceeb;
   touch-action: none;
@@ -218,6 +213,7 @@ h1 {
 .editor-container {
   border-radius: 2px;
   max-width: 400px;
+  margin: auto;
   color: #000;
   position: relative;
   line-height: 20px;

@@ -51,15 +51,16 @@ const editorConfig: any = {
     AutoLinkNode,
     LinkNode,
   ],
-  namespace: "tree-of-life",
 };
 
 export default function RichTextEditor({
   shouldHide,
   id,
+  maxWidth = 400,
 }: {
   shouldHide: boolean;
   id: string;
+  maxWidth?: number;
 }) {
   // We keep all the editor states in a map with id of the room as key and editor state
   // as value. The editor state for the current session is editorStates[roomId]
@@ -67,7 +68,10 @@ export default function RichTextEditor({
     "tof-editor-state",
     {}
   );
-  const [config, setConfig] = useState(() => ({ ...editorConfig }));
+  const [config, setConfig] = useState(() => ({
+    ...editorConfig,
+    namespace: "tree-of-life-" + id,
+  }));
 
   if (editorStates[id] && !config["editorState"]) {
     // Update the config with the state from local storage if it exists.
@@ -89,6 +93,7 @@ export default function RichTextEditor({
         className="editor-container"
         style={{
           display: shouldHide ? "none" : "block",
+          maxWidth: maxWidth,
         }}
       >
         <ToolbarPlugin />

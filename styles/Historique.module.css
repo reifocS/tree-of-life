@@ -1,0 +1,28 @@
+.Historique {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 30px;
+  background-color: #121212;
+  justify-content: center;
+  align-items: center;
+  color: white;
+}
+
+.Wrapper {
+  max-width: 980px;
+}
+.SeanceActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.LeafValue {
+  display: flex;
+}
+
+
+.Label {
+    font-weight: 600;
+}

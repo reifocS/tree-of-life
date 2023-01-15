@@ -1,4 +1,4 @@
-import { PointerEvent, useCallback, useRef, useState } from "react";
+import { PointerEvent, useCallback, useEffect, useRef, useState } from "react";
 import rough from "roughjs/bin/rough";
 import { RoughCanvas } from "roughjs/bin/canvas";
 import { useCanvas } from "../../hooks/useCanvas";
@@ -13,6 +13,7 @@ import {
   SCROLL_SENSITIVITY,
   SCROLL_SENSITIVITY_TOUCHPAD,
   Element,
+  white,
 } from "../../drawing";
 import useDisableScrollBounce from "../../hooks/useDisableScrollBounce";
 import useDisablePinchZoom from "../../hooks/useDisablePinchZoom";
@@ -27,14 +28,49 @@ import {
 import { useLeafImages } from "../../hooks/useLeafImages";
 import CopyIcon from "../CopyIcon";
 import Editor from "../Editor/Editor";
+import { useRouter } from "next/router";
+import useLocalStorage from "../../hooks/useLocalStorage";
 
-export default function Canvas({isOwner}: {isOwner: boolean}) {
+export type Seance = {
+  [roomId: string]: {
+    date: string;
+    treeId: string;
+    actions: { leafId: string; leafTitle: string; color: string }[];
+  };
+};
+
+export default function Canvas({ isOwner }: { isOwner: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [width, height /*devicePixelRatio*/] = useDeviceSize();
   const [roughCanvas, setRoughCanvas] = useState<RoughCanvas | null>(null);
   // Hack used to make sure we wait for image to load, needed for firefox
   const [dummyUpdate, forceUpdate] = useState({});
   const elements = useStorage((root) => root.elements) as Element[];
+  const router = useRouter();
+  const [seances, setSeances] = useLocalStorage<Seance>("tof-seance", {});
+  const { room, id } = router.query;
+
+  // Synchronize with elements
+  useEffect(() => {
+    const actions = elements
+      .filter((el) => el.color !== white && el.type === "leaf")
+      .map((el) => {
+        return {
+          leafId: el.id,
+          leafTitle: el.text,
+          color: el.color,
+        };
+      });
+
+    setSeances((prev) => ({
+      ...prev,
+      [room as string]: {
+        date: new Date().toISOString(),
+        actions,
+        treeId: id as string,
+      },
+    }));
+  }, [elements, room, setSeances, id]);
 
   //const centerPointerZoom = useRef({ x: width / 2, y: height / 2 });
   useDisableScrollBounce();
