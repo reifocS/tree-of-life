@@ -43,7 +43,7 @@ const excelToJSON = function (
   return parseExcel;
 };
 
-function groupBy<T>(xs: Array<T>, key: keyof T) {
+export function groupBy<T>(xs: Array<T>, key: keyof T): Record<string, any> {
   return xs.reduce(function (rv, x) {
     (rv[x[key]] = rv[x[key]] || []).push(x);
     return rv;

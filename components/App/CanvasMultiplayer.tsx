@@ -31,11 +31,18 @@ import Editor from "../Editor/Editor";
 import { useRouter } from "next/router";
 import useLocalStorage from "../../hooks/useLocalStorage";
 
+export type Action = {
+  leafId: string;
+  leafTitle: string;
+  color: string;
+  categoryTitle?: string | undefined;
+};
+
 export type Seance = {
   [roomId: string]: {
     date: string;
     treeId: string;
-    actions: { leafId: string; leafTitle: string; color: string }[];
+    actions: Action[];
   };
 };
 
@@ -47,7 +54,7 @@ export default function Canvas({ isOwner }: { isOwner: boolean }) {
   const [dummyUpdate, forceUpdate] = useState({});
   const elements = useStorage((root) => root.elements) as Element[];
   const router = useRouter();
-  const [seances, setSeances] = useLocalStorage<Seance>("tof-seance", {});
+  const [, setSeances] = useLocalStorage<Seance>("tof-seance", {});
   const { room, id } = router.query;
 
   // Synchronize with elements
@@ -59,6 +66,7 @@ export default function Canvas({ isOwner }: { isOwner: boolean }) {
           leafId: el.id,
           leafTitle: el.text,
           color: el.color,
+          categoryTitle: elements.find((el2) => el2.id === el.categoryId)?.text,
         };
       });
 

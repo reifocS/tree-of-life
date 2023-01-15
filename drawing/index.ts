@@ -502,7 +502,7 @@ export function draw(
   images: { color: string; image: HTMLImageElement }[],
   selectedId?: string,
   mode?: string,
-  nbOfBranches = NUMBER_OF_BRANCHES,
+  nbOfBranches = NUMBER_OF_BRANCHES
 ) {
   const ctx = canvas.getContext("2d")!;
   // Zooming and padding
@@ -553,8 +553,6 @@ export function draw(
       );
     }
   }
-
-  
 }
 
 export function mousePosToCanvasPos(context: CanvasRenderingContext2D, e: any) {
@@ -767,6 +765,7 @@ export function generateTreeFromModel(
           height: width,
           width,
           angle: getAngleForLeaf(j, isRight),
+          categoryId: textElements[i].id,
         };
       });
     })

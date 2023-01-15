@@ -25,8 +25,36 @@
 
 .Label {
     font-weight: 600;
+    font-size: 1.2rem;
 }
 
 .HistoriqueEntry {
     margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.ActionItem {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.Actions {
+    display: flex;
+    gap: 10px;
+    border: 1px solid;
+    justify-content: center;
+    padding: 10px;
+    font-weight: bold;
+}
+
+.Category {
+    font-weight: 600;
+}
+
+.HistoHeader {
+    display: flex;
+    justify-content: space-between;
 }
