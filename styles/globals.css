@@ -48,7 +48,21 @@ textarea,
 select {
   font: inherit;
 }
-
+a:link {
+  color: #eee;
+  text-decoration: underline;
+}
+a:visited {
+  color: #eee;
+}
+a:hover {
+  color: #ffffff;
+}
+a:active {
+  color: #ff4040;
+  text-decoration: none;
+  font-weight: normal;
+}
 canvas {
   background-color: #87ceeb;
   touch-action: none;

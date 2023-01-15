@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { Seance } from "../../components/App/CanvasMultiplayer";
 import { Model } from "../../components/App/Model";
@@ -22,7 +23,12 @@ const Historique = () => {
       <div className={styles.Wrapper}>
         {histo.map((h) => (
           <div key={h[0]} className={styles.HistoriqueEntry}>
-            <h1>Séance du {new Date(h[1].date).toLocaleDateString()}</h1>
+            <h3>Séance du {new Date(h[1].date).toLocaleDateString()}</h3>
+            <p>
+              <Link href={`/arbre/${h[1].treeId}?room=${h[0]}`}>
+                Voir l&apos;arbre
+              </Link>
+            </p>
             <label className={styles.Label}>Thèmes abordés</label>
             <ul role="list" className={styles.SeanceActions}>
               {h[1].actions.map((ac) => (

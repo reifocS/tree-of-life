@@ -38,7 +38,7 @@
   justify-content: center;
   align-items: center;
   height: 3.5rem;
-  text-decoration: none;
+  text-decoration: none !important;
   border-radius: 0.25rem;
 }
 
