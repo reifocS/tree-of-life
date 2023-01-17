@@ -102,7 +102,7 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
     }
   }, []);
 
-  const nbOfBranches = treeFromModel?.nbOfBranches;
+  const nbOfBranches = elements.filter((el) => el.type === "category").length;
 
   const buttonEndpoints = useMemo(
     () => getBranchEndpoint(BASE_TREE_Y, nbOfBranches),
@@ -283,6 +283,7 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
             const ctx = canvasRef.current!.getContext("2d")!;
             const { x, y } = mousePosToCanvasPos(ctx, e);
             if (hitTestButton(x, y, buttonEndpoints)) {
+              //Todo link to categoryId here
               setAppState((prev) => ({
                 ...prev,
                 elements: [
@@ -298,7 +299,7 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
                     type: "leaf",
                     width: LEAF_WIDTH,
                     height: LEAF_HEIGHT,
-                    fontColor: "#fff",
+                    fontColor: "black",
                   },
                 ],
               }));

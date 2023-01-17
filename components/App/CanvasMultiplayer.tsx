@@ -38,7 +38,6 @@ export type Action = {
   categoryTitle?: string | undefined;
 };
 
-
 //Table Séance qui lie une date et un treeVersion
 export type Seance = {
   [roomId: string]: {
@@ -57,7 +56,7 @@ export default function Canvas({ isOwner }: { isOwner: boolean }) {
   const elements = useStorage((root) => root.elements) as Element[];
   const router = useRouter();
   const [, setSeances] = useLocalStorage<Seance>("tof-seance", {});
-  const { room, id } = router.query;
+  const { room, id, readOnly } = router.query;
 
   // Synchronize with elements
   useEffect(() => {
@@ -336,7 +335,7 @@ export default function Canvas({ isOwner }: { isOwner: boolean }) {
           onClick={(e) => {
             const ctx = canvasRef.current!.getContext("2d")!;
             const { x, y } = mousePosToCanvasPos(ctx, e);
-
+            if (readOnly) return;
             for (const element of elements) {
               if (hitTest(x, y, element)) {
                 const newElems = elements.map((e) => {

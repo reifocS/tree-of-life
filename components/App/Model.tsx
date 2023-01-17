@@ -70,7 +70,6 @@ export type Model = {
   name: string;
   elements: Element[];
   id: string;
-  nbOfBranches: number;
 };
 
 const CreateModel: NextPage = () => {
@@ -94,7 +93,6 @@ const CreateModel: NextPage = () => {
         name: modelName,
         elements: treeModel,
         id,
-        nbOfBranches: branches.length,
       };
       setLocalStorage((prev) => [...prev, newModel]);
       router.push(`/edition/${id}`);

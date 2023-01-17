@@ -27,7 +27,9 @@ const Historique = () => {
             <div className={styles.HistoHeader}>
               <h3>Séance du {new Date(h[1].date).toLocaleDateString()}</h3>
               <p>
-                <Link href={`/arbre/${h[1].treeId}?room=${h[0]}`}>
+                <Link
+                  href={`/arbre/${h[1].treeId}?room=${h[0]}&readOnly=true`}
+                >
                   Voir l&apos;arbre
                 </Link>
               </p>
@@ -41,10 +43,12 @@ const Historique = () => {
                       <p className={styles.Category}>{k}</p>
                       <ul role="list">
                         {v.map((ac: Action) => (
-                          <li className={styles.ActionItem} key={ac.leafId}
-                          style={{
-                            color: ac.color
-                          }}
+                          <li
+                            className={styles.ActionItem}
+                            key={ac.leafId}
+                            style={{
+                              color: ac.color,
+                            }}
                           >
                             {ac.leafTitle}
                           </li>
