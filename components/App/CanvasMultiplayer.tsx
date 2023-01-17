@@ -38,6 +38,8 @@ export type Action = {
   categoryTitle?: string | undefined;
 };
 
+
+//Table Séance qui lie une date et un treeVersion
 export type Seance = {
   [roomId: string]: {
     date: string;
