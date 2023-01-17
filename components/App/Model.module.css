@@ -75,7 +75,6 @@
 
 .ModelItem {
   display: flex;
-  min-width: 450px;
   justify-content: center;
   gap: 5px;
   border: 1px solid #eee;
