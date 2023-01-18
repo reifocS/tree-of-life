@@ -30,22 +30,7 @@ import CopyIcon from "../CopyIcon";
 import Editor from "../Editor/Editor";
 import { useRouter } from "next/router";
 import useLocalStorage from "../../hooks/useLocalStorage";
-
-export type Action = {
-  leafId: string;
-  leafTitle: string;
-  color: string;
-  categoryTitle?: string | undefined;
-};
-
-//Table Séance qui lie une date et un treeVersion
-export type Seance = {
-  [roomId: string]: {
-    date: string;
-    treeId: string;
-    actions: Action[];
-  };
-};
+import { Seance } from "../../types";
 
 export default function Canvas({ isOwner }: { isOwner: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -117,7 +102,7 @@ export default function Canvas({ isOwner }: { isOwner: boolean }) {
     }
   }
 
-  const { cameraZoom, cameraOffset, isDragging, sectors } = appState;
+  const { cameraZoom, cameraOffset, isDragging } = appState;
   const { x: cameraOffsetX, y: cameraOffsetY } = cameraOffset;
   const lastZoom = useRef(cameraZoom);
   const ref = useCallback((node: HTMLCanvasElement) => {
@@ -142,7 +127,6 @@ export default function Canvas({ isOwner }: { isOwner: boolean }) {
     images,
     null,
     nbOfBranches,
-    sectors,
     dummyUpdate
   );
   const handlePointerDown = (e: PointerEvent<HTMLCanvasElement>) => {
@@ -420,7 +404,7 @@ export default function Canvas({ isOwner }: { isOwner: boolean }) {
               }}
               style={{ pointerEvents: "all" }}
             >
-              Centrer l&apos;écran
+              Centrer
             </button>
           )}
       </div>

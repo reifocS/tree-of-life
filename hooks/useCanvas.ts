@@ -2,7 +2,6 @@ import { Others, BaseUserMeta } from "@liveblocks/client";
 import { useLayoutEffect } from "react";
 import { RoughCanvas } from "roughjs/bin/canvas";
 import { draw, Element } from "../drawing";
-import { Presence } from "../liveblocks.config";
 
 export function useCanvas(
   mode: "view" | "edit",
@@ -20,7 +19,6 @@ export function useCanvas(
   }[],
   selectedElement: Element | null,
   nbOfBranches: number,
-  sectors: { color: string; text: string; id: string }[],
   dummyUpdate: {}
 ) {
   useLayoutEffect(() => {
@@ -51,7 +49,6 @@ export function useCanvas(
     roughCanvas,
     width,
     selectedElement,
-    sectors,
     images,
     dummyUpdate,
     nbOfBranches,

@@ -2,7 +2,7 @@ import type { NextPage } from "next";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { read, utils } from "xlsx";
 import { ErrorBoundary } from "react-error-boundary";
-import { Element, generateTreeFromModel, guidGenerator } from "../../drawing";
+import { generateTreeFromModel, guidGenerator } from "../../drawing";
 import useLocalStorage from "../../hooks/useLocalStorage";
 import styles from "./Model.module.css";
 import Link from "next/link";
@@ -10,6 +10,7 @@ import { useRouter } from "next/router";
 import EditModelName from "./EditModelName";
 import InfoIcon from "../InfoIcon";
 import { generateCollaborationLink } from "../../utils/crypto";
+import type { Model } from "../../types";
 
 const excelToJSON = function (
   setState: Dispatch<any>,
@@ -65,12 +66,6 @@ function ErrorFallback({
     </div>
   );
 }
-
-export type Model = {
-  name: string;
-  elements: Element[];
-  id: string;
-};
 
 const CreateModel: NextPage = () => {
   const [fileData, setFileData] = useState<any>();

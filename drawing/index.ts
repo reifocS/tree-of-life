@@ -1,13 +1,10 @@
-import { BaseUserMeta, Others } from "@liveblocks/client";
 import { RoughCanvas } from "roughjs/bin/canvas";
-import { Presence } from "../liveblocks.config";
 
 type MyPoint = {
   x: number;
   y: number;
 };
 
-type Sector = { color: string; text: string; id: string };
 export type AppState = {
   cameraZoom: number;
   scaleMultiplier: number;
@@ -19,7 +16,6 @@ export type AppState = {
   draggedElement: Element | null;
   downPoint?: MyPoint;
   selectedElement: Element | null;
-  sectors: Sector[];
 };
 
 //https://stackoverflow.com/a/6860916/14536535
@@ -62,7 +58,18 @@ export type Element = {
   weTalkedAboutIt?: boolean;
   iconSize?: number;
 };
-
+/**
+ * The rotate function takes in four coordinates (x1, y1, x2, y2) and an angle, 
+ * and returns an array of two rotated coordinates (x, y). 
+ * It uses a mathematical formula to perform the rotation of a point around another point (x2,y2) 
+ * by the given angle.
+ * @param x1 
+ * @param y1 
+ * @param x2 
+ * @param y2 
+ * @param angle 
+ * @returns 
+ */
 export function rotate(
   x1: number,
   y1: number,
@@ -93,7 +100,20 @@ export function hitTestButton(
     if (hit) return { x1, x2 };
   }
 }
-
+/*
+The hitTest function takes in a set of coordinates, 
+which represent a pointer (e.g. a cursor on a screen), 
+and an element object, which represents a shape on the screen. 
+The function needs to determine whether the pointer is within the bounds of the shape.
+One complication is that the shape may be rotated by some angle. 
+To correctly check if the pointer is within the bounds of the shape, 
+the function needs to reverse the rotation of the pointer so that it is 
+in the same frame of reference as the shape.
+The rotate function is used to perform this reverse rotation by passing in 
+the pointer's coordinates, the center of rotation (which is the center of the shape) 
+and the negation of the angle of rotation of the shape. 
+This gives the pointer's coordinates in the frame of reference of the unrotated shape.
+*/
 export function hitTest(x: number, y: number, element: Element) {
   if (element.type === "leaf") {
     let { x: x1, y: y1, angle = 0 } = element;
@@ -253,8 +273,6 @@ export const MIN_ZOOM = 0.1;
 export const SCROLL_SENSITIVITY = 0.0005;
 export const SCROLL_SENSITIVITY_TOUCHPAD = 0.003;
 
-let INITIAL_ZOOM = 1;
-
 function drawBranch(
   rc: RoughCanvas,
   startX: number,
@@ -311,10 +329,6 @@ function drawAddButton(canvas: HTMLCanvasElement, x: number, y: number) {
 
 export function getRandomArbitrary(min: number, max: number) {
   return Math.random() * (max - min) + min;
-}
-
-function translate(x: number, y: number, ctx: CanvasRenderingContext2D) {
-  ctx.translate(x, y);
 }
 
 export function addText(context: CanvasRenderingContext2D) {
@@ -429,10 +443,6 @@ function drawCategory(
   ctx.textAlign = align;
   ctx.textBaseline = baseLine;
   ctx.fillStyle = fillStyle;
-}
-
-function scale(x: number, y: number, ctx: CanvasRenderingContext2D) {
-  ctx.scale(x, y);
 }
 
 export function getBranchEndpoint(
@@ -555,6 +565,13 @@ export function draw(
   }
 }
 
+/**
+ * This gives the mouse position in the untransformed coordinate system 
+ * of the canvas and returns an object with the new x and y position.
+ * @param context 
+ * @param e 
+ * @returns 
+ */
 export function mousePosToCanvasPos(context: CanvasRenderingContext2D, e: any) {
   const x = getMousePos(context.canvas, e)!.x;
   const y = getMousePos(context.canvas, e)!.y;

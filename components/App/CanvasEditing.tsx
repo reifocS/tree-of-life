@@ -1,10 +1,4 @@
-import {
-  PointerEvent,
-  useCallback,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { PointerEvent, useCallback, useMemo, useRef, useState } from "react";
 import rough from "roughjs/bin/rough";
 import { RoughCanvas } from "roughjs/bin/canvas";
 import {
@@ -27,7 +21,6 @@ import {
 } from "../../drawing";
 import SidePanel from "./SidePanel";
 import useDisableScrollBounce from "../../hooks/useDisableScrollBounce";
-import { Model } from "./Model";
 import useLocalStorage from "../../hooks/useLocalStorage";
 import useDisablePinchZoom from "../../hooks/useDisablePinchZoom";
 import { normalizeWheelEvent } from "../../utils/normalizeWheelEvent";
@@ -35,6 +28,7 @@ import useDeviceSize from "../../hooks/useDeviceSize";
 import { useLeafImages } from "../../hooks/useLeafImages";
 import { useCanvas } from "../../hooks/useCanvas";
 import { useRouter } from "next/router";
+import { Model } from "../../types";
 
 //TODO
 //Merge CanvasEditing et CanvasMultiplayer
@@ -56,7 +50,6 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
   const [appState, setAppState] = useState<AppState>(() => {
     return {
       selectedElement: null,
-      sectors: [],
       cameraZoom: 1,
       scaleMultiplier: 0.8,
       cameraOffset: { x: 0, y: 0 },
@@ -85,14 +78,8 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
     }
   }
 
-  const {
-    cameraZoom,
-    elements,
-    cameraOffset,
-    isDragging,
-    sectors,
-    selectedElement,
-  } = appState;
+  const { cameraZoom, elements, cameraOffset, isDragging, selectedElement } =
+    appState;
   const { x: cameraOffsetX, y: cameraOffsetY } = cameraOffset;
   const lastZoom = useRef(cameraZoom);
   const ref = useCallback((node: HTMLCanvasElement) => {
@@ -122,7 +109,6 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
     images,
     selectedElement,
     nbOfBranches,
-    sectors,
     dummyUpdate
   );
 
