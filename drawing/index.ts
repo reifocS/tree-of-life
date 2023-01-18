@@ -332,20 +332,29 @@ function drawAddButton(canvas: HTMLCanvasElement, x: number, y: number) {
   ctx.font = font;
 }
 
-function drawDeleteButton(canvas: HTMLCanvasElement, x: number, y: number) {
+function drawDeleteButton(
+  canvas: HTMLCanvasElement,
+  rc: RoughCanvas,
+  x: number,
+  y: number
+) {
   const ctx = canvas.getContext("2d")!;
   const textAlign = ctx.textAlign;
   const textColor = ctx.fillStyle;
   const textBaseline = ctx.textBaseline;
   const font = ctx.font;
   ctx.fillStyle = "red";
-  ctx.fillRect(
+  rc.rectangle(
     x - DELETE_BUTTON_SIZE / 2,
     y - DELETE_BUTTON_HEIGHT / 2,
     DELETE_BUTTON_SIZE,
-    DELETE_BUTTON_HEIGHT
+    DELETE_BUTTON_HEIGHT,
+    {
+      seed: 1,
+      fill: "red",
+      fillStyle: "solid"
+    }
   );
-
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.fillStyle = "#eeee";
@@ -582,6 +591,7 @@ export function draw(
       drawAddButton(canvas, endX, endY);
       drawDeleteButton(
         canvas,
+        rc,
         endX + deleteButtonOffsetX(i),
         endY + deleteButtonOffsetY
       );
