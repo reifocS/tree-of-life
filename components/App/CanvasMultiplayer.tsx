@@ -14,6 +14,7 @@ import {
   SCROLL_SENSITIVITY_TOUCHPAD,
   Element,
   white,
+  canvasPosToScreenPos,
 } from "../../drawing";
 import useDisableScrollBounce from "../../hooks/useDisableScrollBounce";
 import useDisablePinchZoom from "../../hooks/useDisablePinchZoom";
@@ -41,7 +42,7 @@ export default function Canvas({ isOwner }: { isOwner: boolean }) {
   const elements = useStorage((root) => root.elements) as Element[];
   const router = useRouter();
   const [, setSeances] = useLocalStorage<Seance>("tof-seance", {});
-  const { room, id, readOnly } = router.query;
+  const { room, id } = router.query;
 
   // Synchronize with elements
   useEffect(() => {
@@ -252,11 +253,10 @@ export default function Canvas({ isOwner }: { isOwner: boolean }) {
             return;
           }
           const context = canvas.getContext("2d")!;
-          const transform = context.getTransform();
-          // Destructure to get the x and y values out of the transformed DOMPoint.
-          const { x, y } = transform.transformPoint(
-            new DOMPoint(presence.cursor.x, presence.cursor.y)
-          );
+          const { x, y } = canvasPosToScreenPos(context, {
+            x: presence.cursor.x,
+            y: presence.cursor.y,
+          });
           return (
             <svg
               key={connectionId}
@@ -319,7 +319,6 @@ export default function Canvas({ isOwner }: { isOwner: boolean }) {
           onClick={(e) => {
             const ctx = canvasRef.current!.getContext("2d")!;
             const { x, y } = mousePosToCanvasPos(ctx, e);
-            if (readOnly) return;
             for (const element of elements) {
               if (hitTest(x, y, element)) {
                 const newElems = elements.map((e) => {

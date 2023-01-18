@@ -11,6 +11,7 @@ import EditModelName from "./EditModelName";
 import InfoIcon from "../InfoIcon";
 import { generateCollaborationLink } from "../../utils/crypto";
 import type { Model } from "../../types";
+import getDefaultModel from "../../utils/defaultModel";
 
 const excelToJSON = function (
   setState: Dispatch<any>,
@@ -79,8 +80,13 @@ const CreateModel: NextPage = () => {
   useEffect(() => {
     if (fileData && ref.current) {
       const branches = Object.keys(fileData);
+      // We make sure leafs are in correct order for generateTreeModel
       const leafs = branches.map((k) =>
-        fileData[k].map((v: any) => ({ text: v["Texte"], icon: v["Icône"] }))
+        fileData[k].map((v: any) => ({
+          text: v["Texte"],
+          icon: v["Icône"],
+          categoryTitle: k,
+        }))
       );
       const treeModel = generateTreeFromModel(ref.current, branches, leafs);
       const id = guidGenerator();
@@ -141,6 +147,14 @@ const CreateModel: NextPage = () => {
                 type="file"
                 accept=".xlsx"
               />
+              <button
+                onClick={() => {
+                  const modelByDefault = getDefaultModel(ref.current!);
+                  setLocalStorage((prev) => [...prev, modelByDefault]);
+                }}
+              >
+                Générer l&apos;arbre de base
+              </button>
             </div>
 
             <div className={styles.ModelContainer}>

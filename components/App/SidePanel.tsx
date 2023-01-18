@@ -2,7 +2,6 @@ import { PopupPickerController, createPopup } from "@picmo/popup-picker";
 import { Dispatch, SetStateAction, useRef, useEffect } from "react";
 import {
   AppState,
-  addText,
   updateText,
   guidGenerator,
   Element,

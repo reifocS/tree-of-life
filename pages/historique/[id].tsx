@@ -1,12 +1,11 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { Action, Seance } from "../../components/App/CanvasMultiplayer";
-import { groupBy, Model } from "../../components/App/Model";
+import { groupBy } from "../../components/App/Model";
 import RichTextEditor from "../../components/Editor/RichTextEditor";
-import LeafIcon from "../../components/LeafIcon";
 import useLocalStorage from "../../hooks/useLocalStorage";
 import useReadLocalStorage from "../../hooks/useReadLocalStorage";
 import styles from "../../styles/Historique.module.css";
+import { Action, Model, Seance } from "../../types";
 const Historique = () => {
   const router = useRouter();
   // treeId
@@ -27,9 +26,7 @@ const Historique = () => {
             <div className={styles.HistoHeader}>
               <h3>Séance du {new Date(h[1].date).toLocaleDateString()}</h3>
               <p>
-                <Link
-                  href={`/arbre/${h[1].treeId}?room=${h[0]}&readOnly=true`}
-                >
+                <Link href={`/arbre/${h[1].treeId}?room=${h[0]}`}>
                   Voir l&apos;arbre
                 </Link>
               </p>

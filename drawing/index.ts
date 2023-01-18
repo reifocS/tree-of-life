@@ -59,16 +59,16 @@ export type Element = {
   iconSize?: number;
 };
 /**
- * The rotate function takes in four coordinates (x1, y1, x2, y2) and an angle, 
- * and returns an array of two rotated coordinates (x, y). 
- * It uses a mathematical formula to perform the rotation of a point around another point (x2,y2) 
+ * The rotate function takes in four coordinates (x1, y1, x2, y2) and an angle,
+ * and returns an array of two rotated coordinates (x, y).
+ * It uses a mathematical formula to perform the rotation of a point around another point (x2,y2)
  * by the given angle.
- * @param x1 
- * @param y1 
- * @param x2 
- * @param y2 
- * @param angle 
- * @returns 
+ * @param x1
+ * @param y1
+ * @param x2
+ * @param y2
+ * @param angle
+ * @returns
  */
 export function rotate(
   x1: number,
@@ -566,11 +566,11 @@ export function draw(
 }
 
 /**
- * This gives the mouse position in the untransformed coordinate system 
+ * This gives the mouse position in the untransformed coordinate system
  * of the canvas and returns an object with the new x and y position.
- * @param context 
- * @param e 
- * @returns 
+ * @param context
+ * @param e
+ * @returns
  */
 export function mousePosToCanvasPos(context: CanvasRenderingContext2D, e: any) {
   const x = getMousePos(context.canvas, e)!.x;
@@ -585,6 +585,24 @@ export function mousePosToCanvasPos(context: CanvasRenderingContext2D, e: any) {
     x: px,
     y: py,
   };
+}
+
+/**
+ * This function is useful to convert the coordinates of a point on the canvas
+ * to the corresponding coordinates on the screen, taking into account
+ * the current transformation matrix.
+ * @param ctx
+ * @param xy
+ * @returns
+ */
+export function canvasPosToScreenPos(
+  ctx: CanvasRenderingContext2D,
+  xy: MyPoint
+) {
+  const transform = ctx.getTransform();
+  // Destructure to get the x and y values out of the transformed DOMPoint.
+  const { x, y } = transform.transformPoint(new DOMPoint(xy.x, xy.y));
+  return { x, y };
 }
 
 //https://stackoverflow.com/a/4478894/14536535
@@ -702,10 +720,13 @@ function measureRequiredWidth(
 */
 
 // Need to run on client
+// Branches and leafs are associated by their index
+// Leafs for branches 0 are at leafs[0]
+// example: leafs[0][3] is the third leaf of branches[0]
 export function generateTreeFromModel(
   canvas: HTMLCanvasElement,
   branches: string[],
-  leafs: { text: string; icon: string }[][]
+  leafs: { text: string; icon: string; categoryTitle: string }[][]
 ) {
   const context = canvas.getContext("2d");
   const branchesStartPoints = getBranchEndpoint(BASE_TREE_Y, branches.length);
@@ -751,25 +772,12 @@ export function generateTreeFromModel(
     return 0;
   };
 
+  // coords is a 2D array, each array contains all the xy of the leafs.
+  // order needs to be preserved.
   let elements: Element[] = coords
     .map((arr, i) => {
       return arr.map(({ x, y, isRight }, j) => {
         let width = LEAF_WIDTH;
-        /*
-        const { needMoreSpace, neededSpace } = measureRequiredWidth(
-          context!,
-          width,
-          leafs[i][j].text,
-          FONT_TEXT_LEAF
-        );
-        if (needMoreSpace) {
-          width = neededSpace + 40;
-          //TODO recompute x and y, check also for height
-          x += LEAF_WIDTH - width;
-          const isUp = j % 2 === 0;
-          if (isUp) y += 0;
-          else y += 0;
-        }*/
         return {
           x,
           y,
@@ -782,7 +790,9 @@ export function generateTreeFromModel(
           height: width,
           width,
           angle: getAngleForLeaf(j, isRight),
-          categoryId: textElements[i].id,
+          categoryId: textElements.find(
+            (te) => te.text === leafs[i][j].categoryTitle
+          )?.id,
         };
       });
     })
@@ -790,4 +800,99 @@ export function generateTreeFromModel(
   elements = elements.concat(textElements);
 
   return elements;
+}
+
+// Todo
+// Factorise with generateTreeFromModel
+// dont have the time yet
+export function updateTreeFromModel(
+  canvas: HTMLCanvasElement,
+  branches: { text: string; id: string }[],
+  leafs: { text: string; icon: string; categoryId?: string; id: string }[][]
+) {
+  const context = canvas.getContext("2d");
+  const branchesStartPoints = getBranchEndpoint(BASE_TREE_Y, branches.length);
+  const coords = [];
+  const textElements: Element[] = [];
+  for (let i = 0; i < branchesStartPoints.length; ++i) {
+    const { startX, startY, endX, endY } = branchesStartPoints[i];
+    const nbOfLeaf = leafs[i].length;
+    coords.push(
+      computeBranchCoords(nbOfLeaf, startX, startY, getAngle(i), i % 2 === 0)
+    );
+    const isRight = i % 2 === 0;
+    const newTextElem = updateText(context!, branches[i].text, {
+      x: isRight ? endX + 20 : endX,
+      y: endY - 10,
+      type: "category",
+      text: branches[i].text,
+      id: branches[i].id,
+      seed: getRandomArbitrary(1, 100),
+      color: "#fff",
+      icon: "",
+      height: 0,
+      width: 0,
+      font: "40px comic sans ms",
+      angle: 0,
+    });
+    if (!isRight) {
+      newTextElem.x -= newTextElem.width! + 20;
+    }
+    textElements.push(newTextElem);
+  }
+
+  const getAngleForLeaf = (index: number, isRight: boolean) => {
+    if (!isRight) {
+      if (index % 2 !== 0) {
+        return 3.6;
+      }
+      return (3 * Math.PI) / 2;
+    }
+    if (index % 2 !== 0) {
+      return 1;
+    }
+    return 0;
+  };
+
+  // coords is a 2D array, each array contains all the xy of the leafs.
+  // order needs to be preserved.
+  let elements: Element[] = coords
+    .map((arr, i) => {
+      return arr.map(({ x, y, isRight }, j) => {
+        let width = LEAF_WIDTH;
+        return {
+          x,
+          y,
+          type: "leaf" as any,
+          text: leafs[i][j].text,
+          id: leafs[i][j].id,
+          seed: getRandomArbitrary(1, 100),
+          color: white,
+          icon: leafs[i][j].icon,
+          height: width,
+          width,
+          angle: getAngleForLeaf(j, isRight),
+          categoryId: leafs[i][j].categoryId,
+        };
+      });
+    })
+    .flat();
+  elements = elements.concat(textElements);
+
+  return elements;
+}
+
+export function getClosestPoint(points: Element[], pointer: MyPoint) {
+  let closestPoint;
+  let closestDistance = Infinity;
+  for (let point of points) {
+    let distance = Math.sqrt(
+      Math.pow(pointer.x - point.x, 2) + Math.pow(pointer.y - point.y, 2)
+    );
+    if (distance < closestDistance) {
+      closestDistance = distance;
+      closestPoint = point;
+    }
+  }
+  return closestPoint;
 }

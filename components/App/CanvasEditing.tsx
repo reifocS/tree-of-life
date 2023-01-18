@@ -18,6 +18,10 @@ import {
   LEAF_WIDTH,
   LEAF_HEIGHT,
   SCROLL_SENSITIVITY_TOUCHPAD,
+  generateTreeFromModel,
+  updateTreeFromModel,
+  getClosestPoint,
+  canvasPosToScreenPos,
 } from "../../drawing";
 import SidePanel from "./SidePanel";
 import useDisableScrollBounce from "../../hooks/useDisableScrollBounce";
@@ -31,12 +35,14 @@ import { useRouter } from "next/router";
 import { Model } from "../../types";
 
 //TODO
-//Merge CanvasEditing et CanvasMultiplayer
+//Undo Redo
+//Recalculer coordonnées feuilles lors de la suppression d'une branche
 //Changer la taille de font des feuille
-//Ajuster la position de l'émoji selon la taille de la feuille
+//Ajuster la position de l'émoji
 //Modifier la position du texte sur la feuille
-//Changer la taille de la feuille selon le texte
+//Changer la taille de la feuille automatiquement selon le texte
 //Zoomer sur le pointer et non le centre
+//Augmenter la taille de la branche si le nombre de feuille est trop grand
 export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [width, height /*devicePixelRatio*/] = useDeviceSize();
@@ -82,6 +88,7 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
     appState;
   const { x: cameraOffsetX, y: cameraOffsetY } = cameraOffset;
   const lastZoom = useRef(cameraZoom);
+
   const ref = useCallback((node: HTMLCanvasElement) => {
     if (node !== null) {
       setRoughCanvas(rough.canvas(node));
@@ -235,6 +242,34 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
     }
   }
 
+  function addBranchToTree() {
+    const branches: { text: string; id: string }[] = elements.filter(
+      (el) => el.type === "category"
+    );
+
+    branches.push({
+      id: guidGenerator(),
+      text: `Nouvelle branche ${branches.length}`,
+    });
+
+    const leafs = branches.map((b) =>
+      elements.filter((el) => el.categoryId === b.id)
+    );
+
+    leafs.push([]);
+
+    const newElements = updateTreeFromModel(
+      canvasRef.current!,
+      branches,
+      leafs
+    );
+
+    setAppState((prev) => ({
+      ...prev,
+      elements: newElements,
+    }));
+  }
+
   function resetMouseState() {
     setAppState((prev) => ({
       ...prev,
@@ -246,6 +281,42 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
   const ctx = canvasRef.current?.getContext("2d")!;
   return (
     <>
+      {buttonEndpoints.map((b) => {
+        // I'm lazy right now but we should draw the button on canvas instead
+        if (!ctx) return;
+
+        const { x, y } = canvasPosToScreenPos(ctx, { x: b.endX, y: b.endY });
+        return (
+          <button
+            onClick={(e) => {
+              const { x, y } = mousePosToCanvasPos(ctx, e);
+              const categories = elements.filter(
+                (el) => el.type === "category"
+              );
+              const closestCategory = getClosestPoint(categories, { x, y });
+              setAppState((prev) => ({
+                ...prev,
+                elements: prev.elements.filter(
+                  (el) =>
+                    el.id !== closestCategory?.id &&
+                    el.categoryId !== closestCategory?.id
+                ),
+              }));
+            }}
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              opacity: 0.7,
+              transition: "transform 60ms linear",
+              transform: `translateX(${x + 20}px) translateY(${y + 20}px)`,
+            }}
+            key={`${b.endX}-${b.endY}`}
+          >
+            Supprimer branche
+          </button>
+        );
+      })}
       <div className="container">
         {selectedElement && (
           <SidePanel
@@ -269,7 +340,10 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
             const ctx = canvasRef.current!.getContext("2d")!;
             const { x, y } = mousePosToCanvasPos(ctx, e);
             if (hitTestButton(x, y, buttonEndpoints)) {
-              //Todo link to categoryId here
+              const categories = elements.filter(
+                (el) => el.type === "category"
+              );
+              const closestCategory = getClosestPoint(categories, { x, y });
               setAppState((prev) => ({
                 ...prev,
                 elements: [
@@ -286,6 +360,7 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
                     width: LEAF_WIDTH,
                     height: LEAF_HEIGHT,
                     fontColor: "black",
+                    categoryId: closestCategory?.id,
                   },
                 ],
               }));
@@ -340,6 +415,14 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
           style={{ pointerEvents: "all", fontSize: "2rem" }}
         >
           +
+        </button>
+        <button
+          style={{ pointerEvents: "all", fontSize: "1rem" }}
+          onClick={() => {
+            addBranchToTree();
+          }}
+        >
+          Ajouter une branche
         </button>
       </div>
       <div

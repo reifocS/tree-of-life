@@ -1,5 +1,4 @@
-import { Others, BaseUserMeta } from "@liveblocks/client";
-import { useLayoutEffect } from "react";
+import { useEffect } from "react";
 import { RoughCanvas } from "roughjs/bin/canvas";
 import { draw, Element } from "../drawing";
 
@@ -21,7 +20,7 @@ export function useCanvas(
   nbOfBranches: number,
   dummyUpdate: {}
 ) {
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (!roughCanvas) return;
     const canvas = canvasRef.current!;
 
