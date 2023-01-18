@@ -22,6 +22,10 @@ import {
   updateTreeFromModel,
   getClosestPoint,
   canvasPosToScreenPos,
+  deleteButtonOffsetX,
+  deleteButtonOffsetY,
+  DELETE_BUTTON_SIZE,
+  DELETE_BUTTON_HEIGHT,
 } from "../../drawing";
 import SidePanel from "./SidePanel";
 import useDisableScrollBounce from "../../hooks/useDisableScrollBounce";
@@ -102,6 +106,11 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
     () => getBranchEndpoint(BASE_TREE_Y, nbOfBranches),
     [nbOfBranches]
   );
+
+  const deleteButtonPositions = buttonEndpoints.map(({ endX, endY }, i) => ({
+    endX: endX + deleteButtonOffsetX(i),
+    endY: endY + deleteButtonOffsetY,
+  }));
 
   useCanvas(
     "edit",
@@ -206,6 +215,13 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
     }
     if (
       hitTestButton(x, y, buttonEndpoints) ||
+      hitTestButton(
+        x,
+        y,
+        deleteButtonPositions,
+        DELETE_BUTTON_SIZE,
+        DELETE_BUTTON_HEIGHT
+      ) ||
       elements.find((el) => hitTest(x, y, el))
     ) {
       document.documentElement.style.cursor = "pointer";
@@ -240,6 +256,40 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
       cameraZoom = Math.max(cameraZoom, MIN_ZOOM);
       setAppState((prev) => ({ ...prev, cameraZoom }));
     }
+  }
+
+  function removeBranchFromTree(branchId?: string) {
+    if (!branchId) return;
+    const branches: { text: string; id: string }[] = elements.filter(
+      (el) => el.type === "category" && el.id !== branchId
+    );
+
+    const leafs = branches.map((b) =>
+      elements.filter((el) => el.categoryId === b.id)
+    );
+
+    const newElements = updateTreeFromModel(
+      canvasRef.current!,
+      branches,
+      leafs
+    );
+
+    setAppState((prev) => ({
+      ...prev,
+      elements: newElements,
+    }));
+  }
+
+  function onBranchDelete({ x, y }: { x: number; y: number }) {
+    if (
+      !window.confirm(
+        "Attention, cela va redisposer toutes les positions des feuilles automatiquement, êtes vous sûre ?"
+      )
+    )
+      return;
+    const categories = elements.filter((el) => el.type === "category");
+    const closestCategory = getClosestPoint(categories, { x, y });
+    removeBranchFromTree(closestCategory?.id);
   }
 
   function addBranchToTree() {
@@ -281,42 +331,6 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
   const ctx = canvasRef.current?.getContext("2d")!;
   return (
     <>
-      {buttonEndpoints.map((b) => {
-        // I'm lazy right now but we should draw the button on canvas instead
-        if (!ctx) return;
-
-        const { x, y } = canvasPosToScreenPos(ctx, { x: b.endX, y: b.endY });
-        return (
-          <button
-            onClick={(e) => {
-              const { x, y } = mousePosToCanvasPos(ctx, e);
-              const categories = elements.filter(
-                (el) => el.type === "category"
-              );
-              const closestCategory = getClosestPoint(categories, { x, y });
-              setAppState((prev) => ({
-                ...prev,
-                elements: prev.elements.filter(
-                  (el) =>
-                    el.id !== closestCategory?.id &&
-                    el.categoryId !== closestCategory?.id
-                ),
-              }));
-            }}
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              opacity: 0.7,
-              transition: "transform 60ms linear",
-              transform: `translateX(${x + 20}px) translateY(${y + 20}px)`,
-            }}
-            key={`${b.endX}-${b.endY}`}
-          >
-            Supprimer branche
-          </button>
-        );
-      })}
       <div className="container">
         {selectedElement && (
           <SidePanel
@@ -364,6 +378,16 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
                   },
                 ],
               }));
+            } else if (
+              hitTestButton(
+                x,
+                y,
+                deleteButtonPositions,
+                DELETE_BUTTON_SIZE,
+                DELETE_BUTTON_HEIGHT
+              )
+            ) {
+              onBranchDelete({ x, y });
             }
           }}
           onMouseDown={handlePointerDown}
@@ -419,7 +443,13 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
         <button
           style={{ pointerEvents: "all", fontSize: "1rem" }}
           onClick={() => {
-            addBranchToTree();
+            if (
+              window.confirm(
+                "Attention, cela va redisposer toutes les positions des feuilles automatiquement, êtes vous sûre ?"
+              )
+            ) {
+              addBranchToTree();
+            }
           }}
         >
           Ajouter une branche

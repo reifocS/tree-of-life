@@ -89,13 +89,15 @@ export function rotate(
 export function hitTestButton(
   x: number,
   y: number,
-  buttons: { endX: number; endY: number }[]
+  buttons: { endX: number; endY: number }[],
+  buttonWidth = BUTTON_SIZE,
+  buttonHeight = BUTTON_SIZE
 ) {
   for (let { endX: x1, endY: y1 } of buttons) {
-    x1 -= BUTTON_SIZE / 2;
-    y1 -= BUTTON_SIZE / 2;
-    let x2 = x1 + BUTTON_SIZE;
-    let y2 = y1 + BUTTON_SIZE;
+    x1 -= buttonWidth / 2;
+    y1 -= buttonHeight / 2;
+    let x2 = x1 + buttonWidth;
+    let y2 = y1 + buttonHeight;
     let hit = x > x1 && x < x2 && y > y1 && y < y2;
     if (hit) return { x1, x2 };
   }
@@ -259,6 +261,9 @@ const branchColors = Array(10)
   .map((_) => "rgb(" + ((Math.random() * 64 + 64) >> 0) + ",50,25)");
 const BRANCH_WIDTH = 25;
 const BUTTON_SIZE = 30;
+export const DELETE_BUTTON_SIZE = 280;
+export const DELETE_BUTTON_HEIGHT = 100;
+
 const SPACE_BETWEEN_LINES = 3;
 export const NUMBER_OF_BRANCHES = 4;
 //const leafNumbers = getLeafNumbers(NUMBER_OF_BRANCHES);
@@ -321,6 +326,31 @@ function drawAddButton(canvas: HTMLCanvasElement, x: number, y: number) {
   ctx.fillStyle = "#eeee";
   ctx.font = "30px comic sans ms";
   ctx.fillText("+", x, y);
+  ctx.textAlign = textAlign;
+  ctx.textBaseline = textBaseline;
+  ctx.fillStyle = textColor;
+  ctx.font = font;
+}
+
+function drawDeleteButton(canvas: HTMLCanvasElement, x: number, y: number) {
+  const ctx = canvas.getContext("2d")!;
+  const textAlign = ctx.textAlign;
+  const textColor = ctx.fillStyle;
+  const textBaseline = ctx.textBaseline;
+  const font = ctx.font;
+  ctx.fillStyle = "red";
+  ctx.fillRect(
+    x - DELETE_BUTTON_SIZE / 2,
+    y - DELETE_BUTTON_HEIGHT / 2,
+    DELETE_BUTTON_SIZE,
+    DELETE_BUTTON_HEIGHT
+  );
+
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillStyle = "#eeee";
+  ctx.font = "30px comic sans ms";
+  ctx.fillText("Supprimer branche", x, y);
   ctx.textAlign = textAlign;
   ctx.textBaseline = textBaseline;
   ctx.fillStyle = textColor;
@@ -503,6 +533,9 @@ function computeBranchCoords(
   return endPoints;
 }
 
+export const deleteButtonOffsetX = (i: number) => (i % 2 === 0 ? 200 : -200);
+export const deleteButtonOffsetY = 200;
+
 export function draw(
   canvas: HTMLCanvasElement,
   cameraZoom: number,
@@ -544,8 +577,15 @@ export function draw(
   }
 
   if (mode === "edit") {
+    let i = 0;
     for (const { endX, endY } of branchesEndpoint) {
       drawAddButton(canvas, endX, endY);
+      drawDeleteButton(
+        canvas,
+        endX + deleteButtonOffsetX(i),
+        endY + deleteButtonOffsetY
+      );
+      i++;
     }
   }
   ctx.fillStyle = "black";

@@ -77,6 +77,15 @@ const CreateModel: NextPage = () => {
   const router = useRouter();
 
   const ref = useRef<HTMLCanvasElement>(null);
+
+  // Create a default tree when there is none
+  useEffect(() => {
+    if (models.length === 0) {
+      const modelByDefault = getDefaultModel(ref.current!);
+      setLocalStorage((prev) => [...prev, modelByDefault]);
+    }
+  }, [models, setLocalStorage]);
+
   useEffect(() => {
     if (fileData && ref.current) {
       const branches = Object.keys(fileData);

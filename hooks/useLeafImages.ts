@@ -1,8 +1,8 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { adjust, colors, white } from "../drawing";
 
 export function useLeafImages(forceUpdate: ({}) => void) {
-  return useMemo(() => {
+  const leafImages = useMemo(() => {
     return colors.map((c) => {
       const image = new Image();
       // Need to set fix height and width for firefox, it's a known bug https://bugzilla.mozilla.org/show_bug.cgi?id=700533
@@ -16,9 +16,17 @@ export function useLeafImages(forceUpdate: ({}) => void) {
             c === white ? "lightgray" : adjust(c, -20)
           }" d="M300.125 211.728c-4.154-4.17-10.918-4.17-15.074 0L3.122 493.635c-4.163 4.186-4.163 10.934 0 15.09 4.163 4.154 10.911 4.154 15.081 0l281.922-281.923c4.17-4.171 4.17-10.919 0-15.074z"/></svg>`;
       image.src = `data:image/svg+xml;base64,${window.btoa(svg)}`;
-      // we make sure we redraw on image load, otherwise firefox wont wait for it.
-      image.onload = () => forceUpdate({});
       return { color: c, image };
     });
-  }, [forceUpdate]);
+  }, []);
+
+  useEffect(() => {
+    leafImages.forEach(({ image }) => {
+      image.onload = () => {
+        forceUpdate({});
+      };
+    });
+  }, [forceUpdate, leafImages]);
+
+  return leafImages;
 }
