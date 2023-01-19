@@ -261,8 +261,8 @@ const branchColors = Array(10)
   .map((_) => "rgb(" + ((Math.random() * 64 + 64) >> 0) + ",50,25)");
 const BRANCH_WIDTH = 25;
 const BUTTON_SIZE = 30;
-export const DELETE_BUTTON_SIZE = 280;
-export const DELETE_BUTTON_HEIGHT = 100;
+export const DELETE_BUTTON_SIZE = 190;
+export const DELETE_BUTTON_HEIGHT = 80;
 
 const SPACE_BETWEEN_LINES = 3;
 export const NUMBER_OF_BRANCHES = 4;
@@ -343,22 +343,18 @@ function drawDeleteButton(
   const textColor = ctx.fillStyle;
   const textBaseline = ctx.textBaseline;
   const font = ctx.font;
-  ctx.fillStyle = "red";
-  rc.rectangle(
-    x - DELETE_BUTTON_SIZE / 2,
-    y - DELETE_BUTTON_HEIGHT / 2,
-    DELETE_BUTTON_SIZE,
-    DELETE_BUTTON_HEIGHT,
-    {
-      seed: 1,
-      fill: "red",
-      fillStyle: "solid"
-    }
-  );
+  ctx.fillStyle = "#E53E3E";
+  ctx.beginPath();
+  ctx.roundRect(x - DELETE_BUTTON_SIZE / 2,
+  y - DELETE_BUTTON_HEIGHT / 2,
+  DELETE_BUTTON_SIZE,
+  DELETE_BUTTON_HEIGHT, 12)
+  ctx.fill();
+  ctx.closePath();
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.fillStyle = "#eeee";
-  ctx.font = "30px comic sans ms";
+  ctx.font = "20px comic sans ms";
   ctx.fillText("Supprimer branche", x, y);
   ctx.textAlign = textAlign;
   ctx.textBaseline = textBaseline;
