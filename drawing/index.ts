@@ -539,7 +539,7 @@ function computeBranchCoords(
 }
 
 export const deleteButtonOffsetX = (i: number) => (i % 2 === 0 ? 200 : -200);
-export const deleteButtonOffsetY = 200;
+export const deleteButtonOffsetY = 100;
 
 export function draw(
   canvas: HTMLCanvasElement,
