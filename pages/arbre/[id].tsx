@@ -2,9 +2,9 @@ import { LiveList } from "@liveblocks/client";
 import { ClientSideSuspense } from "@liveblocks/react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
-import { Model } from "../../components/App/Model";
 import useLocalStorage from "../../hooks/useLocalStorage";
 import { RoomProvider } from "../../liveblocks.config";
+import { Model } from "../../types";
 
 const DynamicComponentWithNoSSR = dynamic(
   import("../../components/App/CanvasMultiplayer"),
