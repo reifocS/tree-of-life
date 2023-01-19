@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
+import { Model } from "../../types";
 import EditIcon from "../EditIcon";
-import { Model } from "./Model";
 
 interface Props {
   m: Model;

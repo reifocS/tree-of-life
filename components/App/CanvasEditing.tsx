@@ -47,11 +47,12 @@ import { Model } from "../../types";
 //Changer la taille de la feuille automatiquement selon le texte
 //Zoomer sur le pointer et non le centre
 //Augmenter la taille de la branche si le nombre de feuille est trop grand
+//Refacto le dummyUpdate, mettre à la place un async await
 export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [width, height /*devicePixelRatio*/] = useDeviceSize();
   const [roughCanvas, setRoughCanvas] = useState<RoughCanvas | null>(null);
-  // Hack used to make sure we wait for image to load, needed for firefox
+  // Once that all images have been pre-loaded, re-render and draw them to the Canvas.
   const [dummyUpdate, forceUpdate] = useState({});
   //const centerPointerZoom = useRef({ x: width / 2, y: height / 2 });
   const [, setModels] = useLocalStorage<Model[]>("models", []);
