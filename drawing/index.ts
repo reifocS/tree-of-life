@@ -344,13 +344,12 @@ function drawDeleteButton(
   const textBaseline = ctx.textBaseline;
   const font = ctx.font;
   ctx.fillStyle = "#E53E3E";
-  ctx.beginPath();
-  ctx.roundRect(x - DELETE_BUTTON_SIZE / 2,
-  y - DELETE_BUTTON_HEIGHT / 2,
-  DELETE_BUTTON_SIZE,
-  DELETE_BUTTON_HEIGHT, 12)
-  ctx.fill();
-  ctx.closePath();
+  ctx.fillRect(
+    x - DELETE_BUTTON_SIZE / 2,
+    y - DELETE_BUTTON_HEIGHT / 2,
+    DELETE_BUTTON_SIZE,
+    DELETE_BUTTON_HEIGHT
+  );
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.fillStyle = "#eeee";
