@@ -1,4 +1,11 @@
-import { PointerEvent, useCallback, useMemo, useRef, useState } from "react";
+import {
+  PointerEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import rough from "roughjs/bin/rough";
 import { RoughCanvas } from "roughjs/bin/canvas";
 import {
@@ -18,14 +25,13 @@ import {
   LEAF_WIDTH,
   LEAF_HEIGHT,
   SCROLL_SENSITIVITY_TOUCHPAD,
-  generateTreeFromModel,
   updateTreeFromModel,
   getClosestPoint,
-  canvasPosToScreenPos,
   deleteButtonOffsetX,
   deleteButtonOffsetY,
   DELETE_BUTTON_SIZE,
   DELETE_BUTTON_HEIGHT,
+  Element,
 } from "../../drawing";
 import SidePanel from "./SidePanel";
 import useDisableScrollBounce from "../../hooks/useDisableScrollBounce";
@@ -37,6 +43,7 @@ import { useLeafImages } from "../../hooks/useLeafImages";
 import { useCanvas } from "../../hooks/useCanvas";
 import { useRouter } from "next/router";
 import { Model } from "../../types";
+import useHistory from "../../hooks/useHistory";
 
 //TODO
 //Undo Redo
@@ -57,6 +64,9 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
   //const centerPointerZoom = useRef({ x: width / 2, y: height / 2 });
   const [, setModels] = useLocalStorage<Model[]>("models", []);
   useDisableScrollBounce();
+  //To make sure we push to history only when drag has been done
+  const mouseMoved = useRef(false);
+
   const router = useRouter();
   const [appState, setAppState] = useState<AppState>(() => {
     return {
@@ -72,11 +82,16 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
       downPoint: { x: 0, y: 0 },
     };
   });
-
   useDisablePinchZoom();
 
   const images = useLeafImages(forceUpdate);
 
+  const { cameraZoom, elements, cameraOffset, isDragging, selectedElement } =
+    appState;
+  const { x: cameraOffsetX, y: cameraOffsetY } = cameraOffset;
+  const lastZoom = useRef(cameraZoom);
+  const { synchronize, redoOnce, undoOnce, historyState } =
+    useHistory<Element[]>(elements);
   function handleTouch(e: any, singleTouchHandler: any) {
     if (e.touches.length <= 1) {
       singleTouchHandler(e);
@@ -88,11 +103,6 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
       handlePinch(e);
     }
   }
-
-  const { cameraZoom, elements, cameraOffset, isDragging, selectedElement } =
-    appState;
-  const { x: cameraOffsetX, y: cameraOffsetY } = cameraOffset;
-  const lastZoom = useRef(cameraZoom);
 
   const ref = useCallback((node: HTMLCanvasElement) => {
     if (node !== null) {
@@ -166,6 +176,9 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
       e
     );
     const el = elements.find((el) => hitTest(x, y, el));
+    if (appState.draggedElement && mouseMoved.current) {
+      synchronize(elements);
+    }
     resetMouseState();
     lastZoom.current = cameraZoom;
     if (!el) document.documentElement.style.cursor = "default";
@@ -198,6 +211,8 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
       return;
     }
     if (appState.draggedElement) {
+      mouseMoved.current = true;
+
       let { x: startX, y: startY } = appState.draggedElement;
       let dragTarget = {
         ...appState.draggedElement,
@@ -279,6 +294,8 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
       ...prev,
       elements: newElements,
     }));
+
+    synchronize(newElements);
   }
 
   function onBranchDelete({ x, y }: { x: number; y: number }) {
@@ -319,9 +336,12 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
       ...prev,
       elements: newElements,
     }));
+
+    synchronize(newElements);
   }
 
   function resetMouseState() {
+    mouseMoved.current = false;
     setAppState((prev) => ({
       ...prev,
       isDragging: false,
@@ -330,16 +350,18 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
     }));
   }
   const ctx = canvasRef.current?.getContext("2d")!;
+
   return (
     <>
       <div className="container">
         {selectedElement && (
           <SidePanel
             setAppState={setAppState}
+            appState={appState}
             selectedElement={selectedElement}
             elements={elements}
-            appState={appState}
             ctx={ctx}
+            synchronize={synchronize}
           ></SidePanel>
         )}
         <canvas
@@ -455,6 +477,43 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
         >
           Ajouter une branche
         </button>
+        <div
+          className="toolbar"
+          style={{
+            pointerEvents: "all",
+          }}
+        >
+          <button
+            className="toolbar-item spaced"
+            aria-label="Undo"
+            disabled={historyState.history.length <= 1}
+            onClick={() => {
+              const elToRestore = undoOnce();
+              if (!elToRestore) return;
+              setAppState((prev) => ({
+                ...prev,
+                elements: elToRestore,
+              }));
+            }}
+          >
+            <i className="format undo" />
+          </button>
+          {/*<button
+            className="toolbar-item"
+            aria-label="Redo"
+            onClick={() => {
+              const elToRestore = redoOnce(elements);
+              if (!elToRestore) return;
+              skipRecording.current = true;
+              setAppState((prev) => ({
+                ...prev,
+                elements: elToRestore,
+              }));
+            }}
+          >
+            <i className="format redo" />
+          </button>*/}
+        </div>
       </div>
       <div
         style={{

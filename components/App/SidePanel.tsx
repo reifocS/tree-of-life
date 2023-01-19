@@ -1,24 +1,21 @@
 import { PopupPickerController, createPopup } from "@picmo/popup-picker";
 import { Dispatch, SetStateAction, useRef, useEffect } from "react";
-import {
-  AppState,
-  updateText,
-  guidGenerator,
-  Element,
-} from "../../drawing";
+import { AppState, updateText, guidGenerator, Element } from "../../drawing";
 
 export default function SidePanel({
   selectedElement,
   elements,
-  appState,
   ctx,
   setAppState,
+  synchronize,
+  appState,
 }: {
   setAppState: Dispatch<SetStateAction<AppState>>;
   selectedElement: Element;
   elements: Element[];
-  appState: AppState;
   ctx: CanvasRenderingContext2D;
+  synchronize: (entry: Element[]) => void;
+  appState: AppState;
 }) {
   const emojiRef = useRef<HTMLButtonElement>(null);
   const emojiPickerRef = useRef<PopupPickerController | null>(null);
@@ -67,7 +64,7 @@ export default function SidePanel({
                         return {
                           ...el,
                           width: +e.target.value,
-                          height: +e.target.value
+                          height: +e.target.value,
                         };
                       }
                       return el;
@@ -208,6 +205,9 @@ export default function SidePanel({
                 selectedElement: null,
                 draggedElement: null,
               }));
+              synchronize(
+                appState.elements.filter((e) => e.id !== selectedElement.id)
+              );
             }}
           >
             delete
