@@ -1,7 +1,7 @@
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
-import { Model } from "../../components/App/Model";
 import useLocalStorage from "../../hooks/useLocalStorage";
+import { Model } from "../../types";
 
 const DynamicComponentWithNoSSR = dynamic(
   import("../../components/App/CanvasEditing"),
