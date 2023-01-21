@@ -1,5 +1,6 @@
 import { PopupPickerController, createPopup } from "@picmo/popup-picker";
 import { Dispatch, SetStateAction, useRef, useEffect } from "react";
+import { start } from "repl";
 import { AppState, updateText, guidGenerator, Element } from "../../drawing";
 
 export default function SidePanel({
@@ -7,15 +8,17 @@ export default function SidePanel({
   elements,
   ctx,
   setAppState,
-  synchronize,
   appState,
+  startRecording,
+  stopRecording,
 }: {
   setAppState: Dispatch<SetStateAction<AppState>>;
   selectedElement: Element;
   elements: Element[];
   ctx: CanvasRenderingContext2D;
-  synchronize: (entry: Element[]) => void;
   appState: AppState;
+  stopRecording: () => boolean;
+  startRecording: () => boolean;
 }) {
   const emojiRef = useRef<HTMLButtonElement>(null);
   const emojiPickerRef = useRef<PopupPickerController | null>(null);
@@ -197,6 +200,7 @@ export default function SidePanel({
           <button
             style={{ backgroundColor: "red" }}
             onClick={() => {
+              startRecording();
               setAppState((prev) => ({
                 ...prev,
                 elements: prev.elements.filter(
@@ -205,9 +209,6 @@ export default function SidePanel({
                 selectedElement: null,
                 draggedElement: null,
               }));
-              synchronize(
-                appState.elements.filter((e) => e.id !== selectedElement.id)
-              );
             }}
           >
             delete
@@ -215,6 +216,7 @@ export default function SidePanel({
           <button
             style={{ backgroundColor: "gray" }}
             onClick={() => {
+              startRecording();
               setAppState((prev) => ({
                 ...prev,
                 elements: [

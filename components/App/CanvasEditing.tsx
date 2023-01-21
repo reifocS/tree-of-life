@@ -64,8 +64,6 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
   //const centerPointerZoom = useRef({ x: width / 2, y: height / 2 });
   const [, setModels] = useLocalStorage<Model[]>("models", []);
   useDisableScrollBounce();
-  //To make sure we push to history only when drag has been done
-  const mouseMoved = useRef(false);
 
   const router = useRouter();
   const [appState, setAppState] = useState<AppState>(() => {
@@ -90,8 +88,15 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
     appState;
   const { x: cameraOffsetX, y: cameraOffsetY } = cameraOffset;
   const lastZoom = useRef(cameraZoom);
-  const { synchronize, redoOnce, undoOnce, historyState } =
-    useHistory<Element[]>(elements);
+  const {
+    synchronize,
+    redoOnce,
+    undoOnce,
+    historyState,
+    skipRecording,
+    startRecording,
+    stopRecording,
+  } = useHistory<Element[]>(elements);
   function handleTouch(e: any, singleTouchHandler: any) {
     if (e.touches.length <= 1) {
       singleTouchHandler(e);
@@ -139,6 +144,18 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
     dummyUpdate
   );
 
+  /**
+   * When we are recording, we persist each update to history
+   */
+  useEffect(() => {
+    console.log("skip record?", skipRecording.current);
+
+    if (!skipRecording.current) {
+      synchronize(elements);
+      skipRecording.current = true;
+    }
+  }, [skipRecording, elements, synchronize]);
+
   const handlePointerDown = (e: PointerEvent<HTMLCanvasElement>) => {
     const ctx = canvasRef.current!.getContext("2d")!;
     const { x, y } = mousePosToCanvasPos(ctx, e);
@@ -176,8 +193,15 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
       e
     );
     const el = elements.find((el) => hitTest(x, y, el));
-    if (appState.draggedElement && mouseMoved.current) {
-      synchronize(elements);
+    console.log("pointerup");
+
+    startRecording();
+    if (appState.draggedElement) {
+      //trigger a sync with history
+      setAppState((prev) => ({
+        ...prev,
+        elements: [...prev.elements],
+      }));
     }
     resetMouseState();
     lastZoom.current = cameraZoom;
@@ -211,8 +235,6 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
       return;
     }
     if (appState.draggedElement) {
-      mouseMoved.current = true;
-
       let { x: startX, y: startY } = appState.draggedElement;
       let dragTarget = {
         ...appState.draggedElement,
@@ -276,6 +298,7 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
 
   function removeBranchFromTree(branchId?: string) {
     if (!branchId) return;
+    startRecording();
     const branches: { text: string; id: string }[] = elements.filter(
       (el) => el.type === "category" && el.id !== branchId
     );
@@ -294,8 +317,6 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
       ...prev,
       elements: newElements,
     }));
-
-    synchronize(newElements);
   }
 
   function onBranchDelete({ x, y }: { x: number; y: number }) {
@@ -336,12 +357,9 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
       ...prev,
       elements: newElements,
     }));
-
-    synchronize(newElements);
   }
 
   function resetMouseState() {
-    mouseMoved.current = false;
     setAppState((prev) => ({
       ...prev,
       isDragging: false,
@@ -361,7 +379,8 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
             selectedElement={selectedElement}
             elements={elements}
             ctx={ctx}
-            synchronize={synchronize}
+            startRecording={startRecording}
+            stopRecording={stopRecording}
           ></SidePanel>
         )}
         <canvas
@@ -432,10 +451,6 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
       <div
         style={{
           position: "absolute",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: 5,
           bottom: 10,
           boxShadow: "0 0 0 1px rgba(0, 0, 0, 0.01)",
           backgroundColor: "#fff",
@@ -443,46 +458,51 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
           padding: "10px",
           left: "50%",
           transform: "translate(-50%, -50%)",
-          fontSize: "2rem",
           userSelect: "none",
           pointerEvents: "none",
         }}
       >
-        <button
-          onClick={() => adjustZoom(-0.25, null)}
-          style={{ pointerEvents: "all", fontSize: "2rem" }}
-        >
-          -
-        </button>
-        <div style={{ whiteSpace: "nowrap" }}>
-          {Math.floor(cameraZoom * 100)}% 🔍
-        </div>
-        <button
-          onClick={() => adjustZoom(0.25, null)}
-          style={{ pointerEvents: "all", fontSize: "2rem" }}
-        >
-          +
-        </button>
-        <button
-          style={{ pointerEvents: "all", fontSize: "1rem" }}
-          onClick={() => {
-            if (
-              window.confirm(
-                "Attention, cela va redisposer toutes les positions des feuilles automatiquement, êtes vous sûre ?"
-              )
-            ) {
-              addBranchToTree();
-            }
-          }}
-        >
-          Ajouter une branche
-        </button>
         <div
           className="toolbar"
           style={{
             pointerEvents: "all",
+            gap: 5,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
         >
+          <button
+            className="toolbar-item spaced"
+            onClick={() => adjustZoom(-0.25, null)}
+          >
+            -
+          </button>
+          <div style={{ whiteSpace: "nowrap" }}>
+            {Math.floor(cameraZoom * 100)}% 🔍
+          </div>
+          <button
+            className="toolbar-item spaced"
+            onClick={() => adjustZoom(0.25, null)}
+          >
+            +
+          </button>
+          <button
+            className="toolbar-item spaced"
+            onClick={() => {
+              if (
+                window.confirm(
+                  "Attention, cela va redisposer toutes les positions des feuilles automatiquement, êtes vous sûre ?"
+                )
+              ) {
+                startRecording();
+                addBranchToTree();
+              }
+            }}
+          >
+            Ajouter une branche
+          </button>
+
           <button
             className="toolbar-item spaced"
             aria-label="Undo"
@@ -490,29 +510,33 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
             onClick={() => {
               const elToRestore = undoOnce();
               if (!elToRestore) return;
+              stopRecording();
               setAppState((prev) => ({
                 ...prev,
                 elements: elToRestore,
+                selectedElement: null,
               }));
             }}
           >
             <i className="format undo" />
           </button>
-          {/*<button
+          <button
             className="toolbar-item"
             aria-label="Redo"
+            disabled={historyState.redoStack.length === 0}
             onClick={() => {
-              const elToRestore = redoOnce(elements);
+              const elToRestore = redoOnce();
               if (!elToRestore) return;
-              skipRecording.current = true;
+              stopRecording();
               setAppState((prev) => ({
                 ...prev,
                 elements: elToRestore,
+                selectedElement: null,
               }));
             }}
           >
             <i className="format redo" />
-          </button>*/}
+          </button>
         </div>
       </div>
       <div

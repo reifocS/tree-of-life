@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 
 export default function useHistory<T>(initialState: T) {
   const [historyState, setHistory] = useState<{
@@ -8,6 +8,10 @@ export default function useHistory<T>(initialState: T) {
     history: [initialState],
     redoStack: [],
   });
+  const skipRecording = useRef(true);
+
+  const stopRecording = () => (skipRecording.current = true);
+  const startRecording = () => (skipRecording.current = false);
 
   const addToRedoStack = (entry: T) => {
     setHistory((prev) => ({
@@ -37,13 +41,14 @@ export default function useHistory<T>(initialState: T) {
     [clearRedoStack, pushEntry]
   );
 
-  const redoOnce = (state: T) => {
+  const redoOnce = () => {
     const redoStack = [...historyState.redoStack];
     const entryToRestore = redoStack.pop();
     if (entryToRestore !== undefined) {
       setHistory((prev) => ({
         ...prev,
-        history: [...prev.history, state],
+        history: [...prev.history, entryToRestore],
+        redoStack,
       }));
       return entryToRestore;
     }
@@ -77,5 +82,8 @@ export default function useHistory<T>(initialState: T) {
     clearRedoStack,
     pushEntry,
     synchronize,
+    stopRecording,
+    startRecording,
+    skipRecording,
   };
 }
