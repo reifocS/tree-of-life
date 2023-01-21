@@ -148,7 +148,6 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
    * When we are recording, we persist each update to history
    */
   useEffect(() => {
-    console.log("skip record?", skipRecording.current);
 
     if (!skipRecording.current) {
       synchronize(elements);
@@ -193,7 +192,6 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
       e
     );
     const el = elements.find((el) => hitTest(x, y, el));
-    console.log("pointerup");
 
     startRecording();
     if (appState.draggedElement) {
