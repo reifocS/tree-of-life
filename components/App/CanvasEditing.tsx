@@ -97,6 +97,57 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
     startRecording,
     stopRecording,
   } = useHistory<Element[]>(elements);
+
+  const onUndo = useCallback(() => {
+    const elToRestore = undoOnce();
+    if (!elToRestore) return;
+    skipRecording.current = true;
+    setAppState((prev) => ({
+      ...prev,
+      elements: elToRestore,
+      selectedElement: null,
+    }));
+  }, [skipRecording, undoOnce]);
+
+  const onRedo = useCallback(() => {
+    const elToRestore = redoOnce();
+    if (!elToRestore) return;
+    skipRecording.current = true;
+    setAppState((prev) => ({
+      ...prev,
+      elements: elToRestore,
+      selectedElement: null,
+    }));
+  }, [redoOnce, skipRecording]);
+
+  //Listen for ctrl-z ctrl-y
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (
+        event.ctrlKey &&
+        event.code === "KeyW" &&
+        historyState.history.length > 1
+      ) {
+        onUndo();
+      } else if (
+        event.ctrlKey &&
+        event.code === "KeyY" &&
+        historyState.redoStack.length > 0
+      ) {
+        onRedo();
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown, false);
+
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [
+    historyState.history.length,
+    historyState.redoStack.length,
+    onRedo,
+    onUndo,
+  ]);
+
   function handleTouch(e: any, singleTouchHandler: any) {
     if (e.touches.length <= 1) {
       singleTouchHandler(e);
@@ -148,7 +199,6 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
    * When we are recording, we persist each update to history
    */
   useEffect(() => {
-
     if (!skipRecording.current) {
       synchronize(elements);
       skipRecording.current = true;
@@ -506,14 +556,7 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
             aria-label="Undo"
             disabled={historyState.history.length <= 1}
             onClick={() => {
-              const elToRestore = undoOnce();
-              if (!elToRestore) return;
-              stopRecording();
-              setAppState((prev) => ({
-                ...prev,
-                elements: elToRestore,
-                selectedElement: null,
-              }));
+              onUndo();
             }}
           >
             <i className="format undo" />
@@ -523,14 +566,7 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
             aria-label="Redo"
             disabled={historyState.redoStack.length === 0}
             onClick={() => {
-              const elToRestore = redoOnce();
-              if (!elToRestore) return;
-              stopRecording();
-              setAppState((prev) => ({
-                ...prev,
-                elements: elToRestore,
-                selectedElement: null,
-              }));
+              onRedo();
             }}
           >
             <i className="format redo" />
