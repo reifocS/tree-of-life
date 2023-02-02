@@ -104,7 +104,7 @@ export default function PatientPage() {
             </Link>
           </div>
           <h1 className="font-extrabold text-3xl text-center">
-            Arbre de vie des reins
+            Mes patients
           </h1>
         </div>
 
@@ -131,7 +131,6 @@ export default function PatientPage() {
           Nouveau patient
         </button>
         <hr className="w-full"></hr>
-        <h2 className="font-extrabold text-2xl">Mes patients</h2>
         <div className="grid lg:grid-cols-2 sm:grid-cols-1 gap-4 mb-4">
           <Patients />
         </div>
