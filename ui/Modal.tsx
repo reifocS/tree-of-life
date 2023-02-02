@@ -58,10 +58,10 @@ function PortalImpl({
 
   return (
     <div className="Modal__overlay" role="dialog">
-      <div className="Modal__modal" tabIndex={-1} ref={modalRef}>
+      <div className="Modal__modal bg-black" tabIndex={-1} ref={modalRef}>
         <h2 className="Modal__title">{title}</h2>
         <button
-          className="Modal__closeButton"
+          className="absolute rounded-full inline-flex items-center justify-center right-[20px] bg-gray-500 hover:bg-gray-600 w-[30px] h-[30px]"
           aria-label="Close modal"
           type="button"
           onClick={onClose}

@@ -5,28 +5,34 @@ import RichTextEditor from "../../components/Editor/RichTextEditor";
 import useLocalStorage from "../../hooks/useLocalStorage";
 import useReadLocalStorage from "../../hooks/useReadLocalStorage";
 import styles from "../../styles/Historique.module.css";
-import { Action, Model, Seance } from "../../types";
+import { Action, Model, Seance, User } from "../../types";
 const Historique = () => {
   const router = useRouter();
-  // treeId
-  const { id } = router.query;
+  // userId
+  const { id: userId } = router.query;
   const [seances] = useLocalStorage<Seance>("tof-seance", {});
-  const models = useReadLocalStorage<Model[]>("models");
+  const users = useReadLocalStorage<User[]>("users");
+  const currentUser = users?.find((u) => u.id === userId);
   const histo = Object.entries(seances).filter(([, v]) => {
-    return v.treeId === id;
+    return v.userId === userId;
   });
-  const currentModel = models?.find((m) => m.id === id);
-
+  histo.sort(function (a, b) {
+    // Turn your strings into dates, and then subtract them
+    // to get a value that is either negative, positive, or zero.
+    const dateA = new Date(a[1].date).getTime();
+    const dateB = new Date(b[1].date).getTime();
+    return dateA < dateB ? 1 : -1;
+  });
   return (
     <div className={styles.Historique}>
-      <h1>Historique de l&apos;arbre {currentModel?.name}</h1>
+      <h1>Historique de l&apos;utilisateur {currentUser?.name}</h1>
       <div className={styles.Wrapper}>
         {histo.map((h) => (
           <div key={h[0]} className={styles.HistoriqueEntry}>
             <div className={styles.HistoHeader}>
               <h3>Séance du {new Date(h[1].date).toLocaleDateString()}</h3>
               <p>
-                <Link href={`/arbre/${h[1].treeId}?room=${h[0]}`}>
+                <Link href={`/arbre/${h[1].userId}?room=${h[0]}`}>
                   Voir l&apos;arbre
                 </Link>
               </p>

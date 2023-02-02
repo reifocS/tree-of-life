@@ -19,12 +19,12 @@ export type Action = {
   categoryTitle?: string | undefined;
 };
 
-//Table Séance qui lie une date et un treeVersion
+//Map de Séances qui lient une date et un user
 export type Seance = {
   [roomId: string]: {
     date: string;
     treeId: string;
-    //userId: string;
+    userId: string;
     actions: Action[];
   };
 };

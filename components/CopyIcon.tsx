@@ -31,6 +31,7 @@ export default function CopyIcon() {
         fontSize: "small",
         userSelect: "none",
         cursor: "pointer",
+        color: "black"
       }}
     >
       Copier le lien dans le presse papier

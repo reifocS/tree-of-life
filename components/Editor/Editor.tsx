@@ -21,13 +21,15 @@ export default function Editor() {
         position: "absolute",
         top: 0,
         userSelect: "none",
-        width: "400px",
+        minWidth: "200px",
+        height: 40,
         right: 0,
         padding: 10,
         transform: `translate(${offset.x}px, ${offset.y}px)`,
       }}
     >
       <div
+        {...bind()}
         style={{
           backgroundColor: "#eee",
           textAlign: "center",
@@ -36,30 +38,12 @@ export default function Editor() {
           fontWeight: "600",
           display: "flex",
           alignItems: "center",
+          padding: 10,
+          touchAction: "none",
         }}
       >
         <div
-          {...bind()}
-          style={{
-            width: "85%",
-            touchAction: "none",
-          }}
-        >
-          <svg
-            width="20"
-            height="10"
-            viewBox="0 0 28 14"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <circle cx="2" cy="2" r="2"></circle>
-            <circle cx="14" cy="2" r="2"></circle>
-            <circle cx="26" cy="2" r="2"></circle>
-            <circle cx="2" cy="12" r="2"></circle>
-            <circle cx="14" cy="12" r="2"></circle>
-            <circle cx="26" cy="12" r="2"></circle>
-          </svg>
-        </div>
-        <div
+          className="ml-auto"
           onClick={() => {
             setHide((prev) => !prev);
           }}
@@ -69,7 +53,6 @@ export default function Editor() {
             touchAction: "none",
             fontSize: "1rem",
             fontWeight: "600",
-            width: "15%",
           }}
         >
           <svg

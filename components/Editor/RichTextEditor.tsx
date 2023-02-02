@@ -1,15 +1,12 @@
 import Theme from "./themes";
-import { $getRoot, $getSelection } from "lexical";
 import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 
 import {
-  InitialEditorStateType,
   LexicalComposer,
 } from "@lexical/react/LexicalComposer";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
-import { AutoFocusPlugin } from "@lexical/react/LexicalAutoFocusPlugin";
 import LexicalErrorBoundary from "@lexical/react/LexicalErrorBoundary";
 import ToolbarPlugin from "./plugins/ToolbarPlugin";
 import { HeadingNode, QuoteNode } from "@lexical/rich-text";
@@ -104,7 +101,6 @@ export default function RichTextEditor({
             ErrorBoundary={LexicalErrorBoundary}
           />
           <HistoryPlugin />
-          <AutoFocusPlugin />
           <ListPlugin />
           <LinkPlugin />
           <AutoLinkPlugin />

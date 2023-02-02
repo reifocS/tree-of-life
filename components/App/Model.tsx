@@ -9,9 +9,9 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import EditModelName from "./EditModelName";
 import InfoIcon from "../InfoIcon";
-import { generateCollaborationLink } from "../../utils/crypto";
-import type { Model } from "../../types";
+import type { Model, User } from "../../types";
 import getDefaultModel from "../../utils/defaultModel";
+import useReadLocalStorage from "../../hooks/useReadLocalStorage";
 
 const excelToJSON = function (
   setState: Dispatch<any>,
@@ -73,7 +73,7 @@ const CreateModel: NextPage = () => {
   const [error, setError] = useState(false);
   const [modelName, setModelName] = useState("");
   const [models, setLocalStorage] = useLocalStorage<Model[]>("models", []);
-
+  const users = useReadLocalStorage<User[]>("users");
   const router = useRouter();
 
   const ref = useRef<HTMLCanvasElement>(null);
@@ -122,93 +122,93 @@ const CreateModel: NextPage = () => {
         reset();
       }}
     >
-      <div className={styles.Background}>
-        <section className={styles.Wrapper}>
-          <h1 className={styles.h1}>L&apos;arbre de vie des reins</h1>
+      <div className="flex flex-col flex-1 h-full">
+        <div className="h-8"></div>
+        <div className="px-6 sm:px-8 flex flex-col w-full items-center justify-center gap-8">
+          <Link
+            href="/patients"
+            className="mr-auto mb-2 inline-flex items-center justify-center xl:text-xl h-14 t box-border px-8 rounded bg-transparent text-white border-current hover:border-blue-brand focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent focus:ring-blue-200 focus:ring-opacity-80 font-semibold border-2"
+          >
+            Gérer mes patients
+          </Link>
+          <h1 className="font-extrabold text-3xl mb-2 text-center">
+            Mes arbres
+          </h1>
           {error && <p>Could not read file</p>}
           <canvas ref={ref} style={{ display: "none" }} />
-          <div className={styles.Gen}>
-            <div className={styles.DownloadBanner}>
-              <div className={styles.InfoIcon}>
-                <InfoIcon />
-              </div>
-              <p>
-                Générer un nouvel arbre à partir d&apos;un fichier excel (⚠️ les
-                en-têtes ne doivent pas être modifié, référez vous à{" "}
-                <a download href="template.xlsx">
-                  l&apos;exemple
-                </a>
-                )
-              </p>
-              <input
-                onChange={(evt) => {
-                  const files = evt.target.files;
-                  if (files && files.length > 0) {
-                    //Todo faire le parsing de fichier côté serveur
-                    const parseExcel = excelToJSON(
-                      setFileData,
-                      setError,
-                      setModelName
-                    );
-                    parseExcel(files[0]);
-                  }
-                }}
-                type="file"
-                accept=".xlsx"
-              />
-              <button
-                onClick={() => {
-                  const modelByDefault = getDefaultModel(ref.current!);
-                  setLocalStorage((prev) => [...prev, modelByDefault]);
-                }}
-              >
-                Générer l&apos;arbre de base
-              </button>
-            </div>
-
-            <div className={styles.ModelContainer}>
-              <h2>Mes arbres</h2>
-              <ul className={styles.ModelList}>
-                {models.map((m) => (
-                  <li key={m.id} className={styles.ModelItem}>
-                    <EditModelName m={m} setLocalStorage={setLocalStorage} />
-                    <div className={styles.ModelButtonContainer}>
-                      <div className={styles.ButtonWrapper}>
-                        <Link
-                          className={styles.Link}
-                          href={generateCollaborationLink(`/arbre/${m.id}`)}
-                        >
-                          Consulter
-                        </Link>
-                        <Link className={styles.Link} href={`/edition/${m.id}`}>
-                          Editer
-                        </Link>
-                      </div>
-                      <div className={styles.ButtonWrapper}>
-                        <button
-                          className={styles.ButtonDelete}
-                          onClick={() => {
-                            setLocalStorage((prev) =>
-                              prev?.filter((mod) => mod.id !== m.id)
-                            );
-                          }}
-                        >
-                          Supprimer
-                        </button>
-                        <Link
-                          className={styles.Link}
-                          href={`/historique/${m.id}`}
-                        >
-                          Historique
-                        </Link>
-                      </div>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
+          <div
+            className="p-4 mb-4 text-center text-sm text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400"
+            role="alert"
+          >
+            Générer un nouvel arbre à partir d&apos;un fichier excel (⚠️ les
+            en-têtes ne doivent pas être modifié, référez vous à{" "}
+            <a download className="underline" href="template.xlsx">
+              l&apos;exemple
+            </a>
+            )
+            <br />
+            <input
+              onChange={(evt) => {
+                const files = evt.target.files;
+                if (files && files.length > 0) {
+                  //Todo faire le parsing de fichier côté serveur
+                  const parseExcel = excelToJSON(
+                    setFileData,
+                    setError,
+                    setModelName
+                  );
+                  parseExcel(files[0]);
+                }
+              }}
+              type="file"
+              accept=".xlsx"
+            />
           </div>
-        </section>
+          <button
+            onClick={() => {
+              const modelByDefault = getDefaultModel(ref.current!);
+              setLocalStorage((prev) => [...prev, modelByDefault]);
+            }}
+            className="w-full lg:w-[400px] text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+          >
+            Générer l&apos;arbre de base
+          </button>
+          <hr className="w-full mb-2"></hr>
+
+          <div className="grid lg:grid-cols-3 sm:grid-cols-1 gap-4 mb-4">
+            {models.map((m) => (
+              <div
+                key={m.id}
+                className="flex flex-col flex-1 gap-3 p-3 items-center justify-center bg-gray-800 rounded"
+              >
+                <EditModelName m={m} setLocalStorage={setLocalStorage} />
+                <div className="grid grid-cols-2 gap-4">
+                  <Link
+                    className="inline-flex items-center justify-center h-14 box-border px-8 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent font-semibold bg-indigo-brand text-white bg-indigo-500 hover:bg-indigo-600 focus:ring-indigo-200 transition-colors duration-200 w-full"
+                    href={`/edition/${m.id}`}
+                  >
+                    Editer
+                  </Link>
+                  <button
+                    className="inline-flex items-center justify-center h-14 box-border px-8 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent font-semibold bg-indigo-brand text-white bg-red-500 hover:bg-red-600 focus:ring-red-200 transition-colors duration-200 w-full"
+                    onClick={() => {
+                      if (users?.find((u) => u.modelId === m.id)) {
+                        alert(
+                          "Cet arbre est lié à un utilisateur, vous ne pouvez pas le supprimer"
+                        );
+                      } else
+                        setLocalStorage((prev) =>
+                          prev?.filter((mod) => mod.id !== m.id)
+                        );
+                    }}
+                  >
+                    Supprimer
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </ErrorBoundary>
   );

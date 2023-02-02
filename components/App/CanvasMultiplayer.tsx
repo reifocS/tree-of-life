@@ -33,7 +33,13 @@ import { useRouter } from "next/router";
 import useLocalStorage from "../../hooks/useLocalStorage";
 import { Seance } from "../../types";
 
-export default function Canvas({ isOwner }: { isOwner: boolean }) {
+export default function Canvas({
+  isOwner,
+  treeId,
+}: {
+  isOwner: boolean;
+  treeId?: string;
+}) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [width, height /*devicePixelRatio*/] = useDeviceSize();
   const [roughCanvas, setRoughCanvas] = useState<RoughCanvas | null>(null);
@@ -42,10 +48,12 @@ export default function Canvas({ isOwner }: { isOwner: boolean }) {
   const elements = useStorage((root) => root.elements) as Element[];
   const router = useRouter();
   const [, setSeances] = useLocalStorage<Seance>("tof-seance", {});
-  const { room, id } = router.query;
+  const { room, id: userId } = router.query;
 
   // Synchronize with elements
   useEffect(() => {
+    // we don't want to keep track on the patient computer
+    if (!isOwner) return;
     const actions = elements
       .filter((el) => el.color !== white && el.type === "leaf")
       .map((el) => {
@@ -62,10 +70,11 @@ export default function Canvas({ isOwner }: { isOwner: boolean }) {
       [room as string]: {
         date: new Date().toISOString(),
         actions,
-        treeId: id as string,
+        treeId: treeId as string,
+        userId: userId as string,
       },
     }));
-  }, [elements, room, setSeances, id]);
+  }, [elements, room, setSeances, treeId, userId, isOwner]);
 
   //const centerPointerZoom = useRef({ x: width / 2, y: height / 2 });
   useDisableScrollBounce();
@@ -372,42 +381,29 @@ export default function Canvas({ isOwner }: { isOwner: boolean }) {
           fontSize: "1.4rem",
           userSelect: "none",
           pointerEvents: "none",
+          width: 250,
+          color: "black",
         }}
       >
         <button
+          className="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-full text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-gray-600 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"
           onClick={() => adjustZoom(-0.25, null)}
           style={{ pointerEvents: "all" }}
         >
           -
         </button>
-        <div style={{ whiteSpace: "nowrap" }}>
+        <div style={{ whiteSpace: "nowrap", width: 100 }}>
           {Math.floor(cameraZoom * 100)}% 🔍
         </div>
         <button
+          className="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-full text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-gray-600 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"
           onClick={() => adjustZoom(0.25, null)}
           style={{ pointerEvents: "all" }}
         >
           +
         </button>
-        {Math.round(cameraOffset.x) !== 0 &&
-          Math.round(cameraOffset.y) !== 0 && (
-            <button
-              onClick={() => {
-                setAppState((prev) => ({
-                  ...prev,
-                  cameraOffset: {
-                    x: 0,
-                    y: 0,
-                  },
-                }));
-              }}
-              style={{ pointerEvents: "all" }}
-            >
-              Centrer
-            </button>
-          )}
       </div>
-      <CopyIcon />
+      {isOwner && <CopyIcon />}
       {isOwner && <Editor />}
     </>
   );

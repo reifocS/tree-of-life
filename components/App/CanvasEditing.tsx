@@ -518,6 +518,7 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            color: "black"
           }}
         >
           <button
