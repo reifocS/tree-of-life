@@ -4,11 +4,9 @@ import { read, utils } from "xlsx";
 import { ErrorBoundary } from "react-error-boundary";
 import { generateTreeFromModel, guidGenerator } from "../../drawing";
 import useLocalStorage from "../../hooks/useLocalStorage";
-import styles from "./Model.module.css";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import EditModelName from "./EditModelName";
-import InfoIcon from "../InfoIcon";
 import type { Model, User } from "../../types";
 import getDefaultModel from "../../utils/defaultModel";
 import useReadLocalStorage from "../../hooks/useReadLocalStorage";
@@ -190,7 +188,8 @@ const CreateModel: NextPage = () => {
                     Editer
                   </Link>
                   <button
-                    className="inline-flex items-center justify-center h-14 box-border px-8 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent font-semibold bg-indigo-brand text-white bg-red-500 hover:bg-red-600 focus:ring-red-200 transition-colors duration-200 w-full"
+                    disabled={models.length === 1}
+                    className="inline-flex disabled:opacity-70 items-center justify-center h-14 box-border px-8 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent font-semibold bg-indigo-brand text-white bg-red-500 hover:bg-red-600 focus:ring-red-200 transition-colors duration-200 w-full"
                     onClick={() => {
                       if (users?.find((u) => u.modelId === m.id)) {
                         alert(
