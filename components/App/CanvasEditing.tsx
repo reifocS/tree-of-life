@@ -518,7 +518,7 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            color: "black"
+            color: "black",
           }}
         >
           <button
@@ -578,7 +578,7 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
         style={{
           position: "absolute",
           left: "50%",
-          top: 20,
+          top: 40,
           transform: "translate(-50%, -50%)",
           borderRadius: 6,
           padding: 6,
@@ -587,6 +587,7 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
       >
         <>
           <button
+            className="text-white inline-flex justify-center items-center gap-2 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
             disabled={!treeFromModel}
             onClick={() => {
               if (!treeFromModel) return;
@@ -602,10 +603,10 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
                   return m;
                 })
               );
-              router.push("/");
+              router.push("/arbre/edit");
             }}
           >
-            save
+            Save
           </button>
         </>
       </div>
