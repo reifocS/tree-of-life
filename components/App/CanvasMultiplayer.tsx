@@ -266,6 +266,10 @@ export default function Canvas({
             x: presence.cursor.x,
             y: presence.cursor.y,
           });
+          //Dont show if its oustside of the screen
+          //This would be better if we just draw the cursors to the canvas directly
+          //and interpolate the points to avoid the 'laggy' feeling
+          if (x > width - 40 || x < 40 || y > height - 40 || y < 40) return;
           return (
             <svg
               key={connectionId}
