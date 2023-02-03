@@ -126,7 +126,7 @@ export default function PatientPage() {
               />
             ));
           }}
-          className="inline-flex items-center justify-center xl:text-xl h-14 xl:h-16 box-border px-8 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent font-semibold bg-blue-brand text-white bg-blue-500 hover:bg-blue-600 focus:ring-blue-200 transition-colors duration-200 w-full xl:w-60"
+          className="inline-flex items-center justify-center xl:text-xl h-14 xl:h-16 box-border px-8 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent font-semibold bg-blue-brand text-white bg-indigo-500 hover:bg-indigo-600 focus:ring-indigo-200 transition-colors duration-200 w-full xl:w-60"
         >
           Nouveau patient
         </button>

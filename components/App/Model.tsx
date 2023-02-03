@@ -145,6 +145,12 @@ const CreateModel: NextPage = () => {
             </a>
             )
             <br />
+            <label
+              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+              htmlFor="file_input"
+            >
+              Générer depuis un fichier excel
+            </label>
             <input
               onChange={(evt) => {
                 const files = evt.target.files;
@@ -160,14 +166,16 @@ const CreateModel: NextPage = () => {
               }}
               type="file"
               accept=".xlsx"
-            />
+              className="text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
+              id="file_input"
+            ></input>
           </div>
           <button
             onClick={() => {
               const modelByDefault = getDefaultModel(ref.current!);
               setLocalStorage((prev) => [...prev, modelByDefault]);
             }}
-            className="w-full lg:w-[400px] text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+            className="w-full lg:w-[300px] font-extrabold text-white bg-indigo-700 hover:bg-indigo-800 focus:ring-4 focus:ring-indigo-300 rounded-lg text-xl px-5 py-2.5 mr-2 mb-2 dark:bg-indigo-600 dark:hover:bg-indigo-700 focus:outline-none dark:focus:ring-indigo-800"
           >
             Générer l&apos;arbre de base
           </button>
