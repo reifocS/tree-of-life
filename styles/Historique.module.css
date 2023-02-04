@@ -1,0 +1,61 @@
+.Historique {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  background-color: #121212;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  min-height: 100vh;
+}
+
+.Wrapper {
+  max-width: 980px;
+}
+.SeanceActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.LeafValue {
+  display: flex;
+}
+
+
+.Label {
+    font-weight: 600;
+    font-size: 1.2rem;
+}
+
+.HistoriqueEntry {
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+    border: 1px solid;
+}
+
+.ActionItem {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.Actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    padding: 10px;
+    font-weight: bold;
+}
+
+.Category {
+    font-weight: 600;
+}
+
+.HistoHeader {
+    display: flex;
+    justify-content: space-between;
+}
