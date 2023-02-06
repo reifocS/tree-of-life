@@ -138,8 +138,8 @@ export function hitTest(x: number, y: number, element: Element) {
   }
 }
 
-export const LEAF_WIDTH = 130;
-export const LEAF_HEIGHT = 130;
+export const LEAF_WIDTH = 160;
+export const LEAF_HEIGHT = 160;
 type Green = "#9ed36a";
 type White = "#fff";
 type Orange = "#ff7f00";
@@ -151,7 +151,7 @@ const orange: Color = "#ff7f00";
 const gray: Color = "#676767";
 type Colors = Color[];
 export const colors: Colors = ["#fff", "#9ed36a", "#ff7f00", "#676767"];
-const FONT_TEXT_LEAF = "bold 16px comic sans ms";
+const FONT_TEXT_LEAF = "24px Arial";
 
 export const colorsMeaning: Record<Color, string> = {
   [white]: "Je n'ai pas abordé le sujet",
@@ -212,11 +212,10 @@ function drawLeaf(
     text,
     x + width / 2 + (isRight ? 5 : 0),
     y + height / 2 - 10,
-    15,
+    24,
     width - 15,
     fontColor,
-    icon,
-    iconSize
+    icon
   );
   const font = ctx.font;
   const weTalkedAboutItSize = 18;
@@ -267,11 +266,12 @@ export const DELETE_BUTTON_HEIGHT = 80;
 const SPACE_BETWEEN_LINES = 3;
 export const NUMBER_OF_BRANCHES = 4;
 //const leafNumbers = getLeafNumbers(NUMBER_OF_BRANCHES);
-const BRANCH_LENGTH = 600;
+//TODO adapt branch length to nb of leafs
+const BRANCH_LENGTH = 700;
 //TODO replace 5 with dynamic nb of branches
-const END_TREE_Y = -100 - LEAF_HEIGHT * 5;
+const END_TREE_Y = (nbOfleaf: number) => -100 - LEAF_HEIGHT * nbOfleaf;
 export const BASE_TREE_X = 0;
-export const BASE_TREE_Y = 800;
+export const BASE_TREE_Y = 700;
 
 export const MAX_ZOOM = 5;
 export const MIN_ZOOM = 0.1;
@@ -481,7 +481,8 @@ function drawCategory(
 
 export function getBranchEndpoint(
   height: number,
-  nbOfBranches = NUMBER_OF_BRANCHES
+  nbOfBranches = NUMBER_OF_BRANCHES,
+  branchLength?: number[]
 ) {
   const baseTreeY = BASE_TREE_Y;
   const xys = [];
@@ -489,12 +490,12 @@ export function getBranchEndpoint(
   let startX = BASE_TREE_X;
   let startY = baseTreeY - 100;
   let spaceBetweenBranches =
-    (height + Math.abs(END_TREE_Y) - 100) / nbOfBranches;
+    (height + Math.abs(END_TREE_Y(nbOfBranches)) - 100) / nbOfBranches - 50;
   for (let i = 0; i < nbOfBranches; ++i) {
     let { endX, endY } = getLineFromAngle(
       startX,
       startY,
-      BRANCH_LENGTH,
+      branchLength ? branchLength[i] * 100 : BRANCH_LENGTH,
       getAngle(i)
     );
     xys.push({ startX, startY, endX, endY });
@@ -512,7 +513,7 @@ function computeBranchCoords(
 ) {
   const endPoints = [];
   let divider = nbOfLeaf;
-  if (nbOfLeaf < 7) divider = 7;
+  if (nbOfLeaf < 6) divider = 6;
   let dLeaf = Math.ceil((BRANCH_LENGTH - 60) / divider);
   let { endX: nStartX, endY: nStartY } = getLineFromAngle(
     startX,
@@ -570,7 +571,7 @@ export function draw(
   // draw everything from center of the screen
   // to keep coordinates absolute across windows size
   ctx.translate(canvas.width / 2, canvas.height / 2);
-  drawTronc(rc, baseTreeX, baseTreeY, endTreeX, END_TREE_Y);
+  drawTronc(rc, baseTreeX, baseTreeY, endTreeX, END_TREE_Y(nbOfBranches));
 
   //Draw Branch
   let branchesEndpoint = getBranchEndpoint(baseTreeY, nbOfBranches);
@@ -594,7 +595,6 @@ export function draw(
     }
   }
   ctx.fillStyle = "black";
-  let i = 0;
   for (const element of elements) {
     if (element.type === "category") {
       drawCategory(element, ctx, rc, element.id === selectedId, element.angle);
@@ -659,8 +659,7 @@ function printAtWordWrap(
   lineHeight: number,
   fitWidth: number,
   fontColor: string,
-  icon: string,
-  iconSize = 22
+  icon: string
 ) {
   const fillStyle = context.fillStyle;
   const textAlign = context.textAlign;
@@ -707,7 +706,7 @@ function printAtWordWrap(
   if (idx > 0)
     context.fillText(words.join(" "), x, y + lineHeight * currentLine);
   if (icon) {
-    context.font = `bold ${iconSize}px comic sans ms`;
+    context.font = `bold ${28}px comic sans ms`;
     context.fillText(icon, x, y + lineHeight * (currentLine + 1) + 8);
   }
   context.fillStyle = fillStyle;
@@ -774,7 +773,11 @@ export function generateTreeFromModel(
   leafs: { text: string; icon: string; categoryTitle: string }[][]
 ) {
   const context = canvas.getContext("2d");
-  const branchesStartPoints = getBranchEndpoint(BASE_TREE_Y, branches.length);
+  const branchesStartPoints = getBranchEndpoint(
+    BASE_TREE_Y,
+    branches.length,
+    leafs.map((l) => l.length)
+  );
   const coords = [];
   const textElements: Element[] = [];
   for (let i = 0; i < branchesStartPoints.length; ++i) {
@@ -856,7 +859,7 @@ export function updateTreeFromModel(
   leafs: { text: string; icon: string; categoryId?: string; id: string }[][]
 ) {
   const context = canvas.getContext("2d");
-  const branchesStartPoints = getBranchEndpoint(BASE_TREE_Y, branches.length);
+  const branchesStartPoints = getBranchEndpoint(BASE_TREE_Y, branches.length, leafs.map(l => l.length));
   const coords = [];
   const textElements: Element[] = [];
   for (let i = 0; i < branchesStartPoints.length; ++i) {

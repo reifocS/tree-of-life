@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import { useState } from "react";
 import useLocalStorage from "../../hooks/useLocalStorage";
 import useModal from "../../hooks/useModal";
+import useReadLocalStorage from "../../hooks/useReadLocalStorage";
 import { Model, Seance, User } from "../../types";
 import { generateCollaborationLink } from "../../utils/crypto";
 
@@ -87,6 +88,7 @@ function EditPatientModal({
 export default function Patient({ user }: { user: User }) {
   const [, setUsers] = useLocalStorage<User[]>("users", []);
   const [seances] = useLocalStorage<Seance>("tof-seance", {});
+  const models = useReadLocalStorage<Model[]>("models");
   const [modal, showModal] = useModal();
   let histo = Object.entries(seances).filter(([, v]) => {
     return v.userId === user.id;
@@ -105,7 +107,9 @@ export default function Patient({ user }: { user: User }) {
 
   return (
     <div className="flex flex-col flex-1 gap-3 p-3 items-center justify-center bg-gray-800 rounded">
-      <h3 className="font-extrabold text-center text-xl">{user.name}</h3>
+      <h3 className="font-extrabold text-center text-xl">{`${user.name} (${
+        models?.find((m) => m.id === user.modelId)?.name
+      })`}</h3>
       <div className="grid grid-cols-3 gap-4">
         <Link
           href={generateCollaborationLink(`/arbre/${user.id}`)}
