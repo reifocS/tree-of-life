@@ -375,6 +375,8 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
     )
       return;
     const categories = elements.filter((el) => el.type === "category");
+    //TODO this wont work on all cases, find a generic and safe way to check which
+    //branch or button is deleted
     const closestCategory = getClosestPoint(categories, { x, y });
     removeBranchFromTree(closestCategory?.id);
   }

@@ -85,7 +85,7 @@ export default function Canvas({
   >(() => {
     return {
       sectors: [],
-      cameraZoom: 1,
+      cameraZoom: 0.7,
       scaleMultiplier: 0.8,
       cameraOffset: { x: 0, y: 0 },
       isDragging: false,
