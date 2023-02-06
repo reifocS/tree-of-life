@@ -1,6 +1,14 @@
 import { Html, Head, Main, NextScript } from "next/document";
+import { useEffect } from "react";
 
 export default function Document() {
+  useEffect(() => {
+    const version = "1.0.4"; // remember to update this
+    if (localStorage.getItem("version") != version) {
+      localStorage.clear();
+      localStorage.setItem("version", version);
+    }
+  });
   return (
     <Html lang="en-us" className="h-full">
       <Head />
