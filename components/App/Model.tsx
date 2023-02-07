@@ -140,9 +140,9 @@ const CreateModel: NextPage = () => {
           >
             Générer un nouvel arbre à partir d&apos;un fichier excel (⚠️ les
             en-têtes ne doivent pas être modifié, référez vous à{" "}
-            <a download className="underline" href="template.xlsx">
+            <Link type="download" locale={false} className="underline" href="/template.xlsx">
               l&apos;exemple
-            </a>
+            </Link>
             )
             <br />
             <label
