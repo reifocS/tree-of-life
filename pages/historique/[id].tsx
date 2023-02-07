@@ -24,55 +24,69 @@ const Historique = () => {
     return dateA < dateB ? 1 : -1;
   });
   return (
-    <div className={styles.Historique}>
-      <h1>Historique de l&apos;utilisateur {currentUser?.name}</h1>
-      <div className={styles.Wrapper}>
-        {histo.map((h) => (
-          <div key={h[0]} className={styles.HistoriqueEntry}>
-            <div className={styles.HistoHeader}>
-              <h3>Séance du {new Date(h[1].date).toLocaleDateString()}</h3>
-              <p>
-                <Link href={`/arbre/${h[1].userId}?room=${h[0]}`}>
+    <>
+      <Link
+        href="/patients"
+        className="m-3 inline-flex items-center justify-center xl:text-xl h-14 t box-border px-8 rounded bg-transparent text-white border-current hover:border-blue-brand focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent focus:ring-blue-200 focus:ring-opacity-80 font-semibold border-2"
+      >
+        Gérer mes patients
+      </Link>
+      <h1 className="font-extrabold text-center mb-2">
+        Historique du patient {currentUser?.name}
+      </h1>
+      <div className="flex flex-col items-center justify-center">
+        <div className="inline-flex flex-col gap-4 mb-4">
+          {histo.map((h) => (
+            <div
+              key={h[0]}
+              className="flex flex-col gap-2 justify-center items-center bg-gray-800 p-4"
+            >
+              <div className="flex gap-2">
+                <h3>Séance du {new Date(h[1].date).toLocaleDateString()}</h3>
+                <Link
+                  className="underline"
+                  href={`/arbre/${h[1].userId}?room=${h[0]}`}
+                >
                   Voir l&apos;arbre
                 </Link>
-              </p>
+              </div>
+              <label className={styles.Label}>Thèmes abordés</label>
+              <div className={styles.Actions}>
+                {Object.entries(groupBy(h[1].actions, "categoryTitle")).map(
+                  ([k, v]) => {
+                    return (
+                      <div key={k}>
+                        <p className={styles.Category}>{k}</p>
+                        <ul role="list">
+                          {v.map((ac: Action) => (
+                            <li
+                              className={styles.ActionItem}
+                              key={ac.leafId}
+                              style={{
+                                color: ac.color,
+                              }}
+                            >
+                              {ac.leafTitle}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    );
+                  }
+                )}
+              </div>
+              <label className={styles.Label}>Notes</label>
+              <RichTextEditor
+                key={h[0]}
+                shouldHide={false}
+                maxWidth={800}
+                id={h[0]}
+              />
             </div>
-            <label className={styles.Label}>Thèmes abordés</label>
-            <div className={styles.Actions}>
-              {Object.entries(groupBy(h[1].actions, "categoryTitle")).map(
-                ([k, v]) => {
-                  return (
-                    <div key={k}>
-                      <p className={styles.Category}>{k}</p>
-                      <ul role="list">
-                        {v.map((ac: Action) => (
-                          <li
-                            className={styles.ActionItem}
-                            key={ac.leafId}
-                            style={{
-                              color: ac.color,
-                            }}
-                          >
-                            {ac.leafTitle}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  );
-                }
-              )}
-            </div>
-            <label className={styles.Label}>Notes</label>
-            <RichTextEditor
-              key={h[0]}
-              shouldHide={false}
-              maxWidth={800}
-              id={h[0]}
-            />
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
