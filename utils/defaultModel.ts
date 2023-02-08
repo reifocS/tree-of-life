@@ -1,7 +1,7 @@
 import { generateTreeFromModel, guidGenerator } from "../drawing";
 import { Model } from "../types";
 
-const MonQuotidient = "Mon quotidient";
+const MonQuotidient = "Mon quotidien";
 const ParcoursDeSoin = "Mon parcours de soin";
 const MesReins = "Mes reins fatiguent";
 const MaVieSociale = "Ma vie sociale";
