@@ -53,14 +53,17 @@ export default function Import() {
               setSeances(parsed.seances);
               toast("Données importées.");
             } catch (e) {
-              toast("Erreur dans l'importation des données, le format est probablement invalide.");
+              toast(
+                "Erreur dans l'importation des données, le format est probablement invalide."
+              );
             }
           }
         };
       }}
     >
       <button
-        className="inline-flex gap-2
+        title="Importer les données à partir des données téléchargées"
+        className="inline-flex justify-between
       text-white font-extrabold text-xl bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300  rounded-lg px-5 py-2.5 mr-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700"
       >
         Importer les données
