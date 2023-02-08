@@ -123,12 +123,20 @@ const CreateModel: NextPage = () => {
       <div className="flex flex-col flex-1 h-full">
         <div className="h-8"></div>
         <div className="px-6 sm:px-8 flex flex-col w-full items-center justify-center gap-8">
-          <Link
-            href="/patients"
-            className="mr-auto mb-2 inline-flex items-center justify-center xl:text-xl h-14 t box-border px-8 rounded bg-transparent text-white border-current hover:border-blue-brand focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent focus:ring-blue-200 focus:ring-opacity-80 font-semibold border-2"
-          >
-            Gérer mes patients
-          </Link>
+          <div className="flex justify-between w-[100%]">
+            <Link
+              href="/"
+              className="mb-2 inline-flex items-center justify-center xl:text-xl h-14 t box-border px-8 rounded bg-transparent text-white border-current hover:border-blue-brand focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent focus:ring-blue-200 focus:ring-opacity-80 font-semibold border-2"
+            >
+              Accueil
+            </Link>
+            <Link
+              href="/patients"
+              className="mb-2 inline-flex items-center justify-center xl:text-xl h-14 t box-border px-8 rounded bg-transparent text-white border-current hover:border-blue-brand focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent focus:ring-blue-200 focus:ring-opacity-80 font-semibold border-2"
+            >
+              Gérer mes patients
+            </Link>
+          </div>
           <h1 className="font-extrabold text-3xl mb-2 text-center">
             Mes arbres
           </h1>
@@ -215,6 +223,22 @@ const CreateModel: NextPage = () => {
                     }}
                   >
                     Supprimer
+                  </button>
+                  <button
+                    className="inline-flex items-center justify-center h-14 box-border px-8 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent font-semibold bg-indigo-brand text-white bg-indigo-500 hover:bg-indigo-600 focus:ring-indigo-200 transition-colors duration-200 w-full"
+                    onClick={() => {
+                      const copy: Model = {
+                        name: m.name,
+                        id: guidGenerator(),
+                        elements: m.elements.map((el) => ({
+                          ...el,
+                          id: guidGenerator(),
+                        })),
+                      };
+                      setLocalStorage((prev) => [...prev, copy]);
+                    }}
+                  >
+                    Copier
                   </button>
                 </div>
               </div>

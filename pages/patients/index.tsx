@@ -95,7 +95,13 @@ export default function PatientPage() {
       <div className="h-8"></div>
       <div className="px-6 sm:px-8 flex flex-col w-full items-center justify-center gap-8">
         <div className="w-full relative">
-          <div className="grid">
+          <div className="flex">
+            <Link
+              href="/"
+              className="mb-2 inline-flex items-center justify-center xl:text-xl h-14 t box-border px-8 rounded bg-transparent text-white border-current hover:border-blue-brand focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent focus:ring-blue-200 focus:ring-opacity-80 font-semibold border-2"
+            >
+              Accueil
+            </Link>
             <Link
               href="/arbre/edit"
               className="ml-auto mb-2 inline-flex items-center justify-center xl:text-xl h-14 t box-border px-8 rounded bg-transparent text-white border-current hover:border-blue-brand focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent focus:ring-blue-200 focus:ring-opacity-80 font-semibold border-2"
@@ -103,9 +109,7 @@ export default function PatientPage() {
               Gérer mes arbres
             </Link>
           </div>
-          <h1 className="font-extrabold text-3xl text-center">
-            Mes patients
-          </h1>
+          <h1 className="font-extrabold text-3xl text-center">Mes patients</h1>
         </div>
 
         <button

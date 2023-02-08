@@ -1,6 +1,8 @@
 import { NextPage } from "next";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
+import Export from "../components/App/Export";
+import Import from "../components/App/Import";
 import useLocalStorage from "../hooks/useLocalStorage";
 import { Model } from "../types";
 import getDefaultModel from "../utils/defaultModel";
@@ -23,7 +25,7 @@ const Models: NextPage = () => {
         L&apos;arbre de vie
       </h1>
       <canvas ref={ref} style={{ display: "none" }} />
-      <div className="flex items-center justify-center">
+      <div className="flex flex-wrap items-center justify-center p-5">
         <Link
           className="text-white inline-flex gap-2 font-extrabold text-xl bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 rounded-lg px-5 py-2.5 mr-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700"
           href="/patients"
@@ -65,6 +67,10 @@ const Models: NextPage = () => {
             />
           </svg>
         </Link>
+        <Export />
+      </div>
+      <div className="flex items-center justify-center">
+        <Import />
       </div>
     </>
   );
