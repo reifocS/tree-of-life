@@ -505,7 +505,7 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
           boxShadow: "0 0 0 1px rgba(0, 0, 0, 0.01)",
           backgroundColor: "#fff",
           borderRadius: 6,
-          padding: "10px",
+          padding: "5px",
           left: "50%",
           transform: "translate(-50%, -50%)",
           userSelect: "none",
@@ -551,9 +551,29 @@ export default function Canvas({ treeFromModel }: { treeFromModel: Model }) {
               }
             }}
           >
-            Ajouter une branche
+            Ajouter branche
           </button>
-
+          <button
+            onClick={() => {
+              const branches: { text: string; id: string }[] = elements.filter(
+                (el) => el.type === "category"
+              );
+              const leafs = branches.map((b) =>
+                elements.filter((el) => el.categoryId === b.id)
+              );
+              setAppState((prev) => ({
+                ...prev,
+                elements: updateTreeFromModel(
+                  canvasRef.current!,
+                  branches,
+                  leafs
+                ),
+              }));
+            }}
+            className="toolbar-item spaced"
+          >
+            Réorganiser
+          </button>
           <button
             className="toolbar-item spaced"
             aria-label="Undo"
