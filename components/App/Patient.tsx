@@ -164,7 +164,8 @@ export default function Patient({ user }: { user: User }) {
         </button>
         <button
           onClick={() => {
-            setUsers((prev) => prev.filter((u) => u.id !== user.id));
+            if (window.confirm(`Supprimer le patient ${user.name} ?`))
+              setUsers((prev) => prev.filter((u) => u.id !== user.id));
           }}
           className="inline-flex items-center justify-center h-14 box-border px-8 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent font-semibold bg-indigo-brand text-white bg-red-500 hover:bg-red-600 focus:ring-red-200 transition-colors duration-200 w-full"
         >

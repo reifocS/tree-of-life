@@ -216,7 +216,7 @@ const CreateModel: NextPage = () => {
                         alert(
                           "Cet arbre est lié à un utilisateur, vous ne pouvez pas le supprimer"
                         );
-                      } else
+                      } else if (window.confirm("Supprimer l'arbre ?"))
                         setLocalStorage((prev) =>
                           prev?.filter((mod) => mod.id !== m.id)
                         );
