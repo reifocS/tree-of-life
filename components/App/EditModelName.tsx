@@ -17,32 +17,20 @@ export default function EditModelName({ m, setLocalStorage }: Props) {
 
   return (
     <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        marginBottom: "10px",
-        gap: 5,
+      className="flex justify-center items-center mb-2 gap-2 cursor-pointer"
+      onClick={() => {
+        if (!editMode) {
+          setEditMode(true);
+          setTimeout(() => {
+            inputRef.current!.select();
+          });
+        }
       }}
     >
-      {!editMode && (
-        <EditIcon
-          onClick={() => {
-            setEditMode(true);
-            setTimeout(() => {
-              inputRef.current!.select();
-            });
-          }}
-        />
-      )}
+      {!editMode && <EditIcon onClick={() => {}} />}
       {editMode && (
         <div
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            justifyContent: "center",
-            cursor: "pointer",
-          }}
+          className="inline-flex items-center justify-center"
           onClick={handleSubmit}
         >
           ✔️
@@ -76,16 +64,7 @@ export default function EditModelName({ m, setLocalStorage }: Props) {
           ></input>
         </form>
       )}
-      {!editMode && (
-        <div
-          style={{
-            justifyContent: "center",
-            display: "inline-flex",
-          }}
-        >
-          {m.name}
-        </div>
-      )}
+      {!editMode && <div className="inline-flex justify-center">{m.name}</div>}
     </div>
   );
 }
