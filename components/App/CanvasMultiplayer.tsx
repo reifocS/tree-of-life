@@ -254,7 +254,7 @@ export default function Canvas({
   return (
     <>
       {isOwner && (
-        <Link className="absolute left-[30px] top-[30px]" href="/patients">
+        <Link className="absolute items-center justify-center gap-2 flex left-[30px] top-[30px] text-2xl text-black font-extrabold" href="/patients">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -267,6 +267,7 @@ export default function Canvas({
               clipRule="evenodd"
             />
           </svg>
+          Quitter
         </Link>
       )}
       <div className="container">

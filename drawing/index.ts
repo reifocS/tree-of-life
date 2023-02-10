@@ -672,7 +672,6 @@ function printAtWordWrap(
   context.textAlign = "center";
   context.fillStyle = fontColor;
   context.textBaseline = "middle";
-  console.log(fontText);
 
   context.font = fontText
     ? `${fontText}px ${FONT_TEXT_LEAF}`
