@@ -58,6 +58,7 @@ function EditPatientModal({
           </label>
           <select
             id="model"
+            required
             value={selectedModel}
             name="model"
             onChange={(e) => {

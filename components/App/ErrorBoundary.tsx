@@ -29,7 +29,7 @@ export default function ErrorFallback({
             Applicative error
           </h1>
           <p className="mt-5 text-lg mb-2">
-            <pre>{error.message}</pre>
+            <code>{error.message}</code><br/>
             Si l&apos;erreur persiste, vous pouvez réinitialiser totalement
             l&apos;état de l&apos;application
           </p>
