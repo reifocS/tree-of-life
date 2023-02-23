@@ -39,6 +39,10 @@ export function guidGenerator() {
   );
 }
 
+
+//TODO ajouter l'ordre pour les types category
+//Cela permettra d'associer les boutons aux branches de 
+//manière plus sûre et de faciliter la génération
 export type Element = {
   x: number;
   y: number;
