@@ -414,18 +414,18 @@ export function updateText(
     const { actualBoundingBoxAscent, actualBoundingBoxDescent, width } =
       context.measureText(text);
     element.actualBoundingBoxAscent = actualBoundingBoxAscent;
-    const height = (actualBoundingBoxAscent + actualBoundingBoxDescent) * 1.286;
+    const height = (actualBoundingBoxAscent + actualBoundingBoxDescent);
     element.width = width;
     element.height = height;
     context.font = ctxFont;
     return element;
   } else {
     let maxWidth = 0;
-    let height = -SPACE_BETWEEN_LINES;
+    let height = SPACE_BETWEEN_LINES;
     for (let i = 0; i < lines.length; ++i) {
       let currentText = lines[i];
       let { actualBoundingBoxAscent, actualBoundingBoxDescent, width } =
-        context.measureText(currentText);
+        context.measureText(currentText == "" ? "t" : currentText);
 
       if (width > maxWidth) {
         maxWidth = width;
@@ -676,7 +676,7 @@ function printAtWordWrap(
   context.font = fontText
     ? `${fontText}px ${FONT_TEXT_LEAF}`
     : "24px " + FONT_TEXT_LEAF;
-    
+
   fitWidth = fitWidth || 0;
 
   if (fitWidth <= 0) {
