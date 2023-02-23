@@ -1,4 +1,23 @@
-This is a [Next.js](https://nextjs.org/) project
+# L'arbre de vie
+
+## Contexte
+L'arbre de vie des reins est une application web qui vise à faciliter la prise de parole des patients atteints de maladies rénales chroniques et ainsi garantir un meilleur suivi par le soignant. 
+
+Il s'agit d'un projet réalisé par des étudiants en Ingénierie Logicielle à IMT Atlantique en partenariat avec le service Néphrologie du CHU de Nantes.
+
+Dans cette application, chaque feuille de l'arbre représente un thème de vie.
+
+Pendant la consultation médicale, le patient peut parcourir son arbre, à l'aide de contrôles tactiles standards,  pour  indiquer au soignant les thèmes qu'il souhaite aborder ou non durant la séance. 
+Pour ce faire, le patient dispose d'un code couleur : il se sent à l'aise de discuter de sa famille : il colore la feuille en vert. Il veut bien discuter de son couple, mais c'est un sujet compliqué pour lui : il met la feuille en rouge. 
+
+Le soignant peut notamment : 
+créer un nouveau patient
+voir son historique
+créer un arbre vierge, l'éditer, et l'attribuer à son patient en vue de sa prochaine consultation.
+etc etc...
+
+
+La pandémie covid-19 a montré le besoin de pouvoir faire des consultations à distance. L'application arbre de vie des reins est donc utilisable par le soignant et le patient à distance en simultanée grâce au simple partage d'un lien web.
 ## Getting Started
 
 First, run the development server:
@@ -24,8 +43,7 @@ To learn more about Next.js, take a look at the following resources:
 
 - [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
 - [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+- [Canvas](https://developer.mozilla.org/fr/docs/Web/API/Canvas_API)
 
 ## Deploy on Vercel
 
