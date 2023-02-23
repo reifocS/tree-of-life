@@ -35,7 +35,7 @@ function EditPatientModal({
             htmlFor="name"
             className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
           >
-            name
+            nom
           </label>
           <input
             value={name}
@@ -138,7 +138,7 @@ export default function Patient({ user }: { user: User }) {
         </Link>
         <button
           onClick={() => {
-            showModal("Changer patient", (onClose) => (
+            showModal("Modifier patient", (onClose) => (
               <EditPatientModal
                 user={user}
                 onClose={(userName: string, treeId: string) => {
@@ -161,7 +161,7 @@ export default function Patient({ user }: { user: User }) {
           }}
           className="inline-flex items-center justify-center h-14 box-border px-8 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent font-semibold bg-indigo-brand text-white bg-indigo-500 hover:bg-indigo-600 focus:ring-indigo-200 transition-colors duration-200 w-full"
         >
-          Changer d&apos;arbre
+          Modifier patient
         </button>
         <button
           onClick={() => {

@@ -61,6 +61,20 @@ export default function Import() {
         };
       }}
     >
+      <label className="sr-only" htmlFor="import">
+        fichier
+      </label>
+
+      <input
+        className="mb-2"
+        required
+        id="import"
+        name="import"
+        ref={fileRef}
+        type="file"
+        accept=".json"
+        placeholder="Importer les données"
+      ></input>
       <button
         title="Importer les données à partir des données téléchargées"
         className="inline-flex justify-between
@@ -82,13 +96,6 @@ export default function Import() {
           />
         </svg>
       </button>
-      <input
-        required
-        ref={fileRef}
-        type="file"
-        accept=".json"
-        placeholder="Importer les données"
-      ></input>
     </form>
   );
 }

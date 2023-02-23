@@ -7,7 +7,8 @@ import ErrorFallback from "../components/App/ErrorBoundary";
 import { Model, Seance, User } from "../types";
 import useLocalStorage from "../hooks/useLocalStorage";
 const inter = Inter({ subsets: ["latin"] });
-import { Toaster } from 'react-hot-toast';
+import { Toaster } from "react-hot-toast";
+import Head from "next/head";
 
 function MyApp({ Component, pageProps }: AppProps) {
   const [, setModels] = useLocalStorage<Model[]>("models", []);
@@ -23,6 +24,9 @@ function MyApp({ Component, pageProps }: AppProps) {
   });
   return (
     <>
+      <Head>
+        <title>L&apos;arbre de vie</title>
+      </Head>
       <style jsx global>{`
         html {
           font-family: ${inter.style.fontFamily};
@@ -37,7 +41,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         }}
       >
         <Component {...pageProps} />
-        <Toaster/>
+        <Toaster />
       </ErrorBoundary>
     </>
   );
